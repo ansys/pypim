@@ -1,0 +1,18 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "ansys-platform-instancemanagement"
+authors = [{name = "Ansys, Inc.", email = "pyansys.support@ansys.com"}]
+#readme = "README.rst"
+#license = {file = "LICENSE"}
+#classifiers = ["License :: OSI Approved :: MIT License"]
+description = "hello"
+version = "0.1.dev0"
+
+[project.urls]
+Home = "https://github.com/pyansys/pypim"
+
+[tool.flit.module]
+name = "ansys.platform.instancemanagement"
