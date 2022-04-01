@@ -67,7 +67,7 @@ jobs:
   release:
     name: Build library and publish on tag
     runs-on: ubuntu-latest
-    needs: test
+    needs: tests
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
