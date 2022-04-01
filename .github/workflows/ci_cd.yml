@@ -62,14 +62,12 @@ jobs:
           python -m pip install --upgrade pip flit tox
       - name: Generate the documentation with tox
         run: tox -e doc
-      - name: debug list of doc files
-        run: ls ./tox/doc_out
       - name: Publish the documentation
         # if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./tox/doc_out
+          publish_dir: .tox/doc_out
 
 
   release:
