@@ -32,3 +32,6 @@ name = "ansys.platform.instancemanagement"
 
 [project.urls]
 Source = "https://github.com/pyansys/pypim"
+
+[tool.black]
+line-length = 100
