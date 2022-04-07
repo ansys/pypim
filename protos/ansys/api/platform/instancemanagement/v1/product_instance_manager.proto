@@ -1,0 +1,227 @@
+//
+// ©2022, ANSYS Inc. Unauthorized use, distribution or duplication is prohibited.
+//
+
+syntax = "proto3";
+
+package ansys.api.platform.instancemanagement.v1;
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+option csharp_namespace = "Ansys.Api.Platform.InstanceManagement.V1";
+
+
+// Manages the creation and deletion of product instances.
+// Note: product instance is the name given to a stateful process starting one or several services.
+service ProductInstanceManager {
+  // Creates a new instance of a product.
+  rpc CreateInstance(CreateInstanceRequest) returns (Instance) {
+    option (google.api.http) = {
+      post: "/v1/instances"
+      body: "instance"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      tags: "Root"
+      summary:"Creates a new instance of a product."
+    };
+  }
+  // Removes a running instance of a product.
+  rpc DeleteInstance(DeleteInstanceRequest) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      delete: "/v1/{name=instances/*}"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      tags: "Instance"
+      summary:"Removes a running instance of a product."
+    };
+  }
+  // Lists all running product instances.
+  rpc ListInstances(ListInstancesRequest) returns (ListInstancesResponse){
+    option (google.api.http) = {
+      get: "/v1/instances"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      tags: "Root"
+      summary:"Lists all running product instances."
+    };
+
+  }
+  // Gets an instance of a product.
+  // The caller must check that the instance is ready
+  // from the return before using it.
+  // Returns an error if the instance failed
+  // to start, crashed, or does not exist.
+  rpc GetInstance(GetInstanceRequest) returns (Instance){
+    option (google.api.http) = {
+      get: "/v1/{name=instances/*}"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      tags: "Instance"
+      summary:"Gets a running instance of a product."
+    };
+
+  }
+  // Lists all available products that can be started using this product instance manager.
+  rpc ListDefinitions(ListDefinitionsRequest) returns (ListDefinitionsResponse){
+    option (google.api.http) = {
+      get: "/v1/definitions"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      tags: "Root"
+      summary:"Lists all available products that can be started using the product instance manager."
+    };
+
+  }
+  // Gets a product definition.
+  rpc GetDefinition(GetDefinitionRequest) returns (Definition){
+    option (google.api.http) = {
+      get: "/v1/{name=definitions/*}"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      tags: "Definition"
+      summary:"Gets the definition of a product."
+    };
+
+  }
+
+}
+
+message Instance {
+  // (Output only) The name of the product instance.
+  // Starts with 'instances/'
+  // e.g: instances/workbench-221-12345
+  string name = 1;
+
+  // The name of the product definition.
+  // e.g: definitions/workbench-221
+  // Note: A list of all product definition names can be found using `ListDefinitions`
+  string definition_name = 2;
+    
+  // (Output only) The status of the instance.
+  // When this status is true, then the services can be used.
+  bool ready = 3;
+  
+  // (Output only) Human readable message elaborating the status of the instance.
+  // Available only if ready is false.
+  string status_message = 4;
+  
+  // (Output only) Services exposed by this instance, by name.
+  // Available only if the instance is ready.
+  // The list of keys must match the `available_service_names` of this instance definition.
+  // If the instance exposes a main HTTP API, then the service must be named "http"
+  // If the instance exposes a main GRPC API, then the service must be named "grpc"
+  map<string, Service> services = 5;
+}
+
+// Static definition of a product instance.
+// To list all available product definitions, use `ListDefinitions`
+message Definition {
+  // The product definition name.
+  // e.g: definitions/workbench-221
+  string name = 1;
+  
+  // Name of the product.
+  // e.g: workbench
+  string product_name = 2;
+  
+  // Version of the product.
+  // For product following the unified installation, it
+  // should be the 3 letters short name of the version.
+  // e.g: 221
+  string product_version = 3;
+  
+  // List of available services name that an instance of this definition
+  // will expose once created.
+  // If the instance exposes a main HTTP API, then the service must be named "http"
+  // If the instance exposes a main GRPC API, then the service must be named "grpc"
+  repeated string available_service_names = 4;
+}
+
+// A service available from a running product instance.
+message Service {
+  // The URI to reach the service
+  // For gRPC, this is a valid URI, following gRPC name resolution syntax: https://grpc.github.io/grpc/core/md_doc_naming.html
+  // For HTTP/REST, this is a valid http or https URI. It is the base path of the service API.
+  string uri = 1;
+  
+  // The list of headers to pass to the service for each request to the service.
+  map<string, string> headers = 2;
+}
+
+// Request message for `CreateInstance` method.
+message CreateInstanceRequest{
+  // The product instance resource to create.
+  // Note: you can call `ListDefinitions` to get a list of existing instance definitions.
+  Instance instance = 1;
+}
+
+// Request message for `DeleteInstance` method.
+message DeleteInstanceRequest {
+  // The instance name of the product to delete.
+  string name = 1;
+}
+//
+// Request message for `GetInstance` method.
+message GetInstanceRequest {
+  // The name of the product instance. E.g: instances/example-212-IDAENEID
+  string name = 1;
+}
+
+// Request message for `ListInstances` method.
+message ListInstancesRequest{
+  // The maximum number of productInstances to return in the response. If this value
+  // is zero, the service will select a default size. A call may return fewer
+  // objects than requested. A non-empty `next_page_token` in the response
+  // indicates that more data is available.
+  int32 page_size = 1;
+  // The value returned by the last `ListInstancesResponse`; indicates
+  // that this is a continuation of a prior `ListApps` call and
+  // the system should return the next page of data.
+  string page_token = 2;
+}
+
+// Response message for ListInstances call.
+message ListInstancesResponse{
+  // The list of running productInstances.
+  repeated Instance instances = 1;
+  // If not empty, indicates that there may be more productInstances that match the
+  // request; this value should be passed in a new `ListInstancesRequest`.
+  string next_page_token = 2;
+}
+
+// Request message for `ListDefinitions` method.
+message ListDefinitionsRequest{
+  // The maximum number of product definitions to return in the response. If this value
+  // is zero, the service will select a default size. A call may return fewer
+  // objects than requested. A non-empty `next_page_token` in the response
+  // indicates that more data is available.
+  int32 page_size = 1;
+  // The value returned by the last `ListDefinitionsResponse`; indicates
+  // that this is a continuation of a prior `ListApps` call and
+  // the system should return the next page of data.
+  string page_token = 2;
+  // When specified, only products matching this name will be returned.
+  // e.g: workbench
+  string product_name = 3;
+  // When specified, only products matching this version will be returned.
+  // e.g: 211
+  string product_version = 4;
+}
+
+// Response message for `ListDefinitions` call.
+message ListDefinitionsResponse{
+  // The list of all products that can be used to start new instances.
+  repeated Definition definitions = 1;
+  // If not empty, indicates that there may be more products that match the
+  // request; this value should be passed in a new `ListDefinitionsRequest`.
+  string next_page_token = 2;
+}
+
+// Request message for `GetDefinition` method.
+message GetDefinitionRequest {
+  // The name of the product definition. E.g: definitions/example-212
+  // Note: you can call `ListDefinitions` to get a list of existing job definition.
+  string name = 1;
+}
