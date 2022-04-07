@@ -6,6 +6,8 @@ import pytest
 
 PIM_SERVICE = DESCRIPTOR.services_by_name["ProductInstanceManager"]
 LIST_DEFINITIONS_METHOD = PIM_SERVICE.methods_by_name["ListDefinitions"]
+CREATE_INSTANCE_METHOD = PIM_SERVICE.methods_by_name["CreateInstance"]
+DELETE_INSTANCE_METHOD = PIM_SERVICE.methods_by_name["DeleteInstance"]
 
 
 @pytest.fixture()
