@@ -4,3 +4,8 @@
    here.
 
 .. include:: ../../README.rst
+
+.. toctree::
+   :hidden:
+   
+   api/index
