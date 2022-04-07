@@ -7,12 +7,12 @@ from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 impor
     ListDefinitionsRequest,
     ListDefinitionsResponse,
 )
-from conftest import LIST_DEFINITIONS_METHOD
 from grpc import StatusCode
 import grpc_testing
 import pytest
 
 from ansys.platform.instancemanagement import Client, Definition
+from conftest import LIST_DEFINITIONS_METHOD
 
 
 @pytest.mark.parametrize(
