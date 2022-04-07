@@ -25,6 +25,7 @@ classifiers = [
 ]
 dependencies = [
     "importlib-metadata >=4.0",
+    "ansys-api-platform-instancemanagement>=1.0.0b1",
 ]
 
 [tool.flit.module]
