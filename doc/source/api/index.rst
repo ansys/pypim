@@ -12,3 +12,6 @@ This section gives an overview of the API of PyPIM.
     
     Client
     Definition
+    Instance
+    Service
+    

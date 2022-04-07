@@ -10,7 +10,7 @@ from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 impor
 
 @dataclass(frozen=True)
 class Service:
-    """A service is an endpoint to an API.
+    """An entrypoint to communicate with a remote product.
 
     It can be used to communicate with a remote product.
 
