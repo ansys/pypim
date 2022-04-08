@@ -15,11 +15,20 @@ release = version = __version__
 html_logo = pyansys_logo_black
 html_theme = "pyansys_sphinx_theme"
 
+html_short_title = html_title = "PyPIM"
+html_show_sourcelink = True
+
 # specify the location of your github repo
 html_theme_options = {
     "github_url": "https://github.com/pyansys/pypim",
     "show_prev_next": False,
+    "show_breadcrumbs": True,
+    "additional_breadcrumbs": [
+        ("PyAnsys", "https://docs.pyansys.com/"),
+    ],
 }
+
+html_static_path = ["_static"]
 
 # Sphinx extensions
 extensions = [
