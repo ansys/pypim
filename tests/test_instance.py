@@ -138,7 +138,12 @@ def test_delete(
     def client():
         stub = ProductInstanceManagerStub(testing_channel)
         instance = Instance(
-            name="instances/hello-world-32", definition_name="definitions/my-def", _stub=stub
+            name="instances/hello-world-32",
+            definition_name="definitions/my-def",
+            ready=False,
+            status_message="loading...",
+            services={},
+            _stub=stub,
         )
         instance.delete()
 

@@ -13,18 +13,27 @@ class Service:
     """An entrypoint to communicate with a remote product.
 
     It can be used to communicate with a remote product.
-
-    Args:
-        uri (str): The URI to reach the service.
-            For gRPC, this is a valid URI, following gRPC name resolution
-            syntax: https://grpc.github.io/grpc/core/md_doc_naming.html
-
-            For HTTP/REST, this is a valid http or https URI. It is the base
-            path of the service API.
     """
 
     uri: str
+    """The URI to reach the service.
+
+    For gRPC, this is a valid URI, following gRPC name resolution
+    syntax: https://grpc.github.io/grpc/core/md_doc_naming.html
+
+    For HTTP/REST, this is a valid http or https URI. It is the base
+    path of the service API.
+    """
+
     headers: Mapping[str, str]
+    """Headers necessary to communicate with the service.
+
+    For a gRPC service, this should be translated into metadata included in
+    every communication with the service.
+
+    For a REST-like service, this sshould be translated into headers included in
+    every communication with the service.
+    """
 
     @staticmethod
     def _from_pim_v1(service: ServiceV1):
