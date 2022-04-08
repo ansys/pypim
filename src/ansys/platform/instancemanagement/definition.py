@@ -13,7 +13,7 @@ from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2_grpc 
 from ansys.platform.instancemanagement.instance import Instance
 
 
-@dataclass(frozen=True)
+@dataclass()
 class Definition:
     """Definition of a product that can be started using the product instance management API.
 

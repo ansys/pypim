@@ -1,4 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
+from unittest.mock import MagicMock
 
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
     Definition as DefinitionV1,
@@ -11,7 +12,7 @@ from grpc import StatusCode
 import grpc_testing
 import pytest
 
-from ansys.platform.instancemanagement import Client, Definition
+from ansys.platform.instancemanagement import Client, Definition, Instance
 from conftest import LIST_DEFINITIONS_METHOD
 
 
@@ -54,7 +55,7 @@ def test_definitions_request(
     client_future = testing_pool.submit(client)
     server_future = testing_pool.submit(server)
 
-    assert client_future.result() == {}
+    assert client_future.result() == []
     assert server_future.result() == expected_request
 
 
@@ -63,7 +64,7 @@ def test_definitions_request(
     [
         (
             ListDefinitionsResponse(),
-            {},
+            [],
         ),
         (
             ListDefinitionsResponse(
@@ -82,20 +83,20 @@ def test_definitions_request(
                     ),
                 ]
             ),
-            {
-                "definitions/my-definition": Definition(
+            [
+                Definition(
                     name="definitions/my-definition",
                     product_name="my-product",
                     product_version="221",
                     available_service_names=["grpc", "sidecar"],
                 ),
-                "definitions/my-other-definition": Definition(
+                Definition(
                     name="definitions/my-other-definition",
                     product_name="my-product",
                     product_version="222",
                     available_service_names=["http"],
                 ),
-            },
+            ],
         ),
     ],
 )
@@ -118,3 +119,47 @@ def test_list_definitions_response(
 
     server_future.result()
     assert client_future.result() == expected_definitions
+
+
+def test_create_instance(testing_channel):
+    # Arrange
+    # A client with two definitions
+    client = Client(testing_channel)
+    definitions = [
+        Definition(
+            name="definitions/the-good-one",
+            product_name="calculator",
+            product_version="221",
+            available_service_names=["fax"],
+        ),
+        Definition(
+            name="definitions/the-bad-one",
+            product_name="calculator",
+            product_version="195",
+            available_service_names=["fax"],
+        ),
+    ]
+    instance = Instance(
+        definition_name="definitions/the-good-one",
+        name="instances/calculator-42",
+        ready=False,
+        status_message="loading...",
+        services={},
+    )
+    definitions[0].create_instance = MagicMock(return_value=instance)
+    definitions[1].create_instance = MagicMock()
+    client.definitions = MagicMock(return_value=definitions)
+
+    # Act
+    created_instance = client.create_instance(
+        product_name="definitions/the-good-one", requests_timeout=0.32
+    )
+
+    # Assert
+    # The method created an instance from the first definition
+    client.definitions.assert_called_once_with(
+        product_name="definitions/the-good-one", product_version=None, timeout=0.32
+    )
+    definitions[0].create_instance.assert_called_once_with(timeout=0.32)
+    definitions[1].create_instance.assert_not_called()
+    assert created_instance == instance

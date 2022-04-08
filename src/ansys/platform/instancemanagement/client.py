@@ -1,6 +1,6 @@
 """Client class module."""
 import logging
-from typing import Mapping
+from typing import Sequence
 
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
     ListDefinitionsRequest,
@@ -11,6 +11,7 @@ from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2_grpc 
 import grpc
 
 from ansys.platform.instancemanagement.definition import Definition
+from ansys.platform.instancemanagement.instance import Instance
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +40,7 @@ class Client:
         product_name: str = None,
         product_version: str = None,
         timeout: float = None,
-    ) -> Mapping[str, Definition]:
+    ) -> Sequence[Definition]:
         """Get the list of supported product definitions.
 
         Args:
@@ -57,8 +58,42 @@ class Client:
         )
         request = ListDefinitionsRequest(product_name=product_name, product_version=product_version)
         response = self._stub.ListDefinitions(request, timeout=timeout)
-        definition_list = [
+        return [
             Definition._from_pim_v1(definition, self._stub) for definition in response.definitions
         ]
 
-        return {definition.name: definition for definition in definition_list}
+    def create_instance(
+        self,
+        product_name: str,
+        product_version: str = None,
+        requests_timeout: float = None,
+    ) -> Instance:
+        """Create a remote instance of a product based on its name and optionally its version.
+
+        The created instance will not yet be ready to use, you need to call `.wait_for_ready()`
+        to wait for it to be ready.
+
+        Args:
+            product_name (str): Name of the product to start (eg. "mapdl")
+            product_version (str, optional): Version of the product (eg. "222"). Defaults to None.
+            requests_timeout (float, optional): Maximum time for each request in seconds.
+
+        Raises:
+            RuntimeError: The product and/or the selected version is not available remotely.
+
+        Returns:
+            Instance: An instance of the product.
+        """
+        logger.debug(
+            "Creating a product instance for %s in version %s", product_name, product_version
+        )
+        definitions = self.definitions(
+            product_name=product_name, product_version=product_version, timeout=requests_timeout
+        )
+
+        if len(definitions) == 0:
+            raise RuntimeError(
+                f"The remote server does not support the requested product and/or version."
+            )
+        definition = definitions[0]
+        return definition.create_instance(timeout=requests_timeout)
