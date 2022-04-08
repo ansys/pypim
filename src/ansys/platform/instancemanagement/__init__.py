@@ -9,3 +9,5 @@ __version__ = importlib_metadata.version(__name__.replace(".", "-"))
 
 from ansys.platform.instancemanagement.client import Client
 from ansys.platform.instancemanagement.definition import Definition
+from ansys.platform.instancemanagement.instance import Instance
+from ansys.platform.instancemanagement.service import Service

@@ -1,10 +1,16 @@
 """Definition class module."""
-from dataclasses import dataclass
+
+from dataclasses import dataclass, field
 from typing import Sequence
 
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
     Definition as DefinitionV1,
 )
+from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2_grpc import (
+    ProductInstanceManagerStub,
+)
+
+from ansys.platform.instancemanagement.instance import Instance
 
 
 @dataclass(frozen=True)
@@ -34,9 +40,21 @@ class Definition:
     product_name: str
     product_version: str
     available_service_names: Sequence[str]
+    _stub: ProductInstanceManagerStub = field(default=None, compare=False)
+
+    def create_instance(self, timeout: float = None) -> Instance:
+        """Create a product instance from this definition.
+
+        Args:
+            timeout (float): Time (in seconds) to create the instance.
+
+        Returns:
+            Instance: The product instance
+        """
+        return Instance._create(definition_name=self.name, stub=self._stub, timeout=timeout)
 
     @staticmethod
-    def _from_pim_v1(definition: DefinitionV1):
+    def _from_pim_v1(definition: DefinitionV1, stub: ProductInstanceManagerStub = None):
         """Build a Definition from the PIM API v1 protobuf object.
 
         Args:
@@ -65,4 +83,5 @@ class Definition:
             definition.product_name,
             definition.product_version,
             definition.available_service_names,
+            stub,
         )

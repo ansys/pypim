@@ -58,7 +58,7 @@ class Client:
         request = ListDefinitionsRequest(product_name=product_name, product_version=product_version)
         response = self._stub.ListDefinitions(request, timeout=timeout)
         definition_list = [
-            Definition._from_pim_v1(definition) for definition in response.definitions
+            Definition._from_pim_v1(definition, self._stub) for definition in response.definitions
         ]
 
         return {definition.name: definition for definition in definition_list}
