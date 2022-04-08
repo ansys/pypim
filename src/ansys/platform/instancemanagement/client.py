@@ -1,4 +1,5 @@
 """Client class module."""
+import json
 import logging
 from typing import Sequence
 
@@ -12,6 +13,7 @@ import grpc
 
 from ansys.platform.instancemanagement.definition import Definition
 from ansys.platform.instancemanagement.instance import Instance
+from ansys.platform.instancemanagement.interceptor import header_adder_interceptor
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +36,45 @@ class Client:
         logger.debug("Connecting")
         self._channel = channel
         self._stub = ProductInstanceManagerStub(self._channel)
+
+    @staticmethod
+    def _from_configuration(config_path: str):
+        """Initialize a client based on the configuration file.
+
+        Args:
+            config_path (str): Path of the configuration file.
+
+        Returns:
+            Client: The PyPIM client.
+        """
+        logger.debug("Initializing from the configuration")
+
+        # Note: this configuration should likely become a full featured object
+        # to be shared across PyPIM class at some point.
+        # The configuration is a plain json file with the settings to create the
+        # grpc channel.
+
+        with open(config_path, "r") as f:
+            configuration = json.load(f)
+
+        version = configuration["version"]
+        if version != 1:
+            raise RuntimeError(
+                f"The file configuration version {version} is not supported.\
+Consider upgrading ansys-platform-instancemanagement"
+            )
+
+        pim_configuration = configuration["pim"]
+        tls = pim_configuration["tls"]
+        if tls:
+            raise RuntimeError(f"Secured connection is not yet supported.")
+
+        uri = pim_configuration["uri"]
+        headers = [(key, value) for key, value in pim_configuration["headers"].items()]
+        channel = grpc.intercept_channel(
+            grpc.insecure_channel(uri), header_adder_interceptor(headers)
+        )
+        return Client(channel)
 
     def definitions(
         self,
