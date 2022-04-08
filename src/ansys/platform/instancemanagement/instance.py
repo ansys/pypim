@@ -22,10 +22,38 @@ class Instance:
     """A remote instance of a product."""
 
     definition_name: str
-    name: str = None
-    ready: bool = None
-    status_message: str = None
-    services: Mapping[str, Service] = None
+    """Name of the definition that created this instance."""
+
+    name: str
+    """Name of the instance.
+
+    This name is chosen by the server and always start with "instances/"."""
+
+    ready: bool
+    """Indicates if the instance is ready.
+
+    If `True` then the ``services`` field will contain the list of entrypoints
+    exposed by the instance.
+
+    If `False` then the ``status_message`` field will
+    contain a human readable reason."""
+
+    status_message: str
+    """Status of the instance.
+
+    Human readable message describing the status of the instance.
+    This field is always filled when the instance is not ready."""
+
+    services: Mapping[str, Service]
+    """List of entrypoints exposed by the instance.
+
+    This field is only filled when the instance is ready.
+    If the instance exposes a gRPC API, it will be named `grpc`.
+    If the instance exposes a REST-like API, it will be named `http`.
+
+    It may contain additional entries for custom scenarios such as sidecar services
+    or other protocols."""
+
     _stub: ProductInstanceManagerStub = field(default=None, compare=False)
 
     @staticmethod

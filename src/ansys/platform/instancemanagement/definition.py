@@ -18,28 +18,39 @@ class Definition:
     """Definition of a product that can be started using the product instance management API.
 
     The definition is a static object describing a product that can be started remotely.
-
-    Args:
-        name (str): Name of the definition.
-            This name is chosen by the server.
-            This name is arbitrary, you should not rely on any static value.
-        product_name (str): Name of the product.
-            This is the name of the product that can be started.
-            For example: "mapdl", or "fluent".
-        product_version (str): Version of the product.
-            This is a string describing the version.
-            When the product is following the Ansys unified installation release process,
-            it should be the 3 letters name, such as "221".
-        available_service_names (Sequence[str]): List of the available service names.
-            If the product exposes a gRPC API, the service will be named "grpc".
-            If the product exposes a REST-like API, the service will be named "http".
-            Custom entries may also be listed.
     """
 
     name: str
+    """Name of the definition.
+
+    This name is chosen by the server and always start with `definitions/`.
+    This name is arbitrary, you should not rely on any static value.
+    """
+
     product_name: str
+    """Name of the product.
+
+    This is the name of the product that can be started.
+    For example: "mapdl", or "fluent".
+    """
+
     product_version: str
+    """Version of the product.
+
+    This is a string describing the version.
+    When the product is following the Ansys unified installation release process,
+    it will be the 3 letters name, such as "221".
+    """
+
     available_service_names: Sequence[str]
+    """List of the available service names.
+
+    If the product exposes a gRPC API, the service will be named "grpc".
+    If the product exposes a REST-like API, the service will be named "http".
+    Custom entries may also be listed, either for sidecar services, or
+    other protocols.
+    """
+
     _stub: ProductInstanceManagerStub = field(default=None, compare=False)
 
     def create_instance(self, timeout: float = None) -> Instance:
