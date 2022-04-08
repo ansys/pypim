@@ -1,11 +1,13 @@
 """Instance class module."""
 
 from dataclasses import dataclass, field
+import time
 from typing import Mapping
 
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
     CreateInstanceRequest,
     DeleteInstanceRequest,
+    GetInstanceRequest,
 )
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
     Instance as InstanceV1,
@@ -78,6 +80,42 @@ class Instance:
         """
         request = DeleteInstanceRequest(name=self.name)
         self._stub.DeleteInstance(request, timeout=timeout)
+
+    def update(self, timeout: float = None):
+        """Update the instance information from the remote status.
+
+        Args:
+            timeout (float, optional): Time (in seconds) to update the instance. Defaults to None.
+        """
+        request = GetInstanceRequest(name=self.name)
+        instance = self._stub.GetInstance(request, timeout=timeout)
+        self.name = instance.name
+        self.definition_name = instance.definition_name
+        self.status_message = instance.status_message
+        self.services = {
+            name: Service._from_pim_v1(value) for name, value in instance.services.items()
+        }
+        self.ready = instance.ready
+
+    def wait_for_ready(self, polling_interval: float = 0.5, timeout_per_request: float = None):
+        """Wait for the instance to be ready.
+
+        After calling this method, the instance services are filled and ready to
+        be used.
+
+        Args:
+            polling_interval (float, optional): Time to wait between each
+            request in seconds. Defaults to 0.5.
+            timeout_per_request (float, optional): Timeout for each request in seconds.
+            Defaults to None.
+
+        Returns:
+            _type_: _description_
+        """
+        self.update(timeout=timeout_per_request)
+        while not self.ready:
+            time.sleep(polling_interval)
+            self.update(timeout=timeout_per_request)
 
     @staticmethod
     def _from_pim_v1(instance: InstanceV1, stub: ProductInstanceManagerStub = None):
