@@ -222,7 +222,7 @@ def test_wait_for_ready(testing_channel):
         name="instances/hello-world-32",
         definition_name="definitions/my-def",
         ready=False,
-        status_message="loading...",
+        status_message="Creating...",
         services={},
         _stub=stub,
     )
