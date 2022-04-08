@@ -1,8 +1,10 @@
 from concurrent.futures import ThreadPoolExecutor
+from unittest.mock import MagicMock, call
 
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
     CreateInstanceRequest,
     DeleteInstanceRequest,
+    GetInstanceRequest,
 )
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
     Instance as InstanceV1,
@@ -19,7 +21,7 @@ import grpc_testing
 import pytest
 
 from ansys.platform.instancemanagement import Instance, Service
-from conftest import CREATE_INSTANCE_METHOD, DELETE_INSTANCE_METHOD
+from conftest import CREATE_INSTANCE_METHOD, DELETE_INSTANCE_METHOD, GET_INSTANCE_METHOD
 
 
 def test_from_pim_v1_proto():
@@ -164,3 +166,85 @@ def test_delete(
     assert (
         received_deletion_request == expected_deletion_request
     ), "The request to create an instance did not match what was expected"
+
+
+def test_update(
+    testing_pool: ThreadPoolExecutor,
+    testing_channel: grpc_testing.Channel,
+):
+    def client():
+        stub = ProductInstanceManagerStub(testing_channel)
+        instance = Instance(
+            name="instances/hello-world-32",
+            definition_name="definitions/my-def",
+            ready=False,
+            status_message="loading...",
+            services={},
+            _stub=stub,
+        )
+        instance.update(timeout=0.1)
+        return instance
+
+    def server():
+        _, update_request, rpc = testing_channel.take_unary_unary(GET_INSTANCE_METHOD)
+        response = InstanceV1(
+            name="instances/hello-world-32",
+            definition_name="definitions/my-def",
+            ready=True,
+            status_message=None,
+            services={"http": ServiceV1(uri="http://example.com")},
+        )
+        rpc.terminate(response, [], StatusCode.OK, "")
+        return update_request
+
+    client_future = testing_pool.submit(client)
+    server_future = testing_pool.submit(server)
+
+    updated_instance = client_future.result()
+    received_get_request = server_future.result()
+
+    expected_get_request = GetInstanceRequest(name="instances/hello-world-32")
+    expected_updated_instance = Instance(
+        name="instances/hello-world-32",
+        definition_name="definitions/my-def",
+        ready=True,
+        status_message="",
+        services={"http": Service(uri="http://example.com", headers={})},
+    )
+
+    assert received_get_request == expected_get_request
+    assert updated_instance == expected_updated_instance
+
+
+def test_wait_for_ready(testing_channel):
+    stub = ProductInstanceManagerStub(testing_channel)
+    instance = Instance(
+        name="instances/hello-world-32",
+        definition_name="definitions/my-def",
+        ready=False,
+        status_message="Creating...",
+        services={},
+        _stub=stub,
+    )
+
+    def update_side_effect(timeout):
+        timeout  # unused
+        if instance.update.call_count == 0 or instance.update.call_count == 1:
+            instance.ready = False
+            instance.status_message = "Loading..."
+        if instance.update.call_count == 2:
+            instance.ready = False
+            instance.status_message = "Routing..."
+        if instance.update.call_count > 2:
+            instance.ready = True
+            instance.status_message = ""
+            instance.services = {"http": Service(uri="http://example.com", headers={})}
+
+    instance.update = MagicMock()
+    instance.update.side_effect = update_side_effect
+    instance.wait_for_ready(polling_interval=0.0)
+
+    instance.update.assert_has_calls([call(timeout=None), call(timeout=None), call(timeout=None)])
+    assert instance.ready
+    assert instance.status_message == ""
+    assert instance.services == {"http": Service(uri="http://example.com", headers={})}

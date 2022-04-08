@@ -1,11 +1,14 @@
 """Instance class module."""
 
 from dataclasses import dataclass, field
+import logging
+import time
 from typing import Mapping
 
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
     CreateInstanceRequest,
     DeleteInstanceRequest,
+    GetInstanceRequest,
 )
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
     Instance as InstanceV1,
@@ -15,6 +18,8 @@ from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2_grpc 
 )
 
 from ansys.platform.instancemanagement.service import Service
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -56,6 +61,15 @@ class Instance:
 
     _stub: ProductInstanceManagerStub = field(default=None, compare=False)
 
+    def __post_init__(self):
+        """Initialize non dataclass members.
+
+        `dataclass` construction
+        """
+        if self.status_message:
+            # TODO: instance specific logger
+            logger.info(self.status_message)
+
     @staticmethod
     def _create(definition_name: str, stub: ProductInstanceManagerStub, timeout: float = None):
         """Create a product instance from the given definition.
@@ -78,6 +92,45 @@ class Instance:
         """
         request = DeleteInstanceRequest(name=self.name)
         self._stub.DeleteInstance(request, timeout=timeout)
+
+    def update(self, timeout: float = None):
+        """Update the instance information from the remote status.
+
+        Args:
+            timeout (float, optional): Time (in seconds) to update the instance. Defaults to None.
+        """
+        request = GetInstanceRequest(name=self.name)
+        instance = self._stub.GetInstance(request, timeout=timeout)
+        self.name = instance.name
+        self.definition_name = instance.definition_name
+
+        if instance.status_message and self.status_message != instance.status_message:
+            # This should be done through property, but this does not play well with dataclasses
+            # TODO: instance logger
+            logger.info(instance.status_message)
+
+        self.status_message = instance.status_message
+        self.services = {
+            name: Service._from_pim_v1(value) for name, value in instance.services.items()
+        }
+        self.ready = instance.ready
+
+    def wait_for_ready(self, polling_interval: float = 0.5, timeout_per_request: float = None):
+        """Wait for the instance to be ready.
+
+        After calling this method, the instance services are filled and ready to
+        be used.
+
+        Args:
+            polling_interval (float, optional): Time to wait between each
+            request in seconds. Defaults to 0.5.
+            timeout_per_request (float, optional): Timeout for each request in seconds.
+            Defaults to None.
+        """
+        self.update(timeout=timeout_per_request)
+        while not self.ready:
+            time.sleep(polling_interval)
+            self.update(timeout=timeout_per_request)
 
     @staticmethod
     def _from_pim_v1(instance: InstanceV1, stub: ProductInstanceManagerStub = None):
