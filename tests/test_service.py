@@ -56,7 +56,7 @@ def test_build_channel(testing_pool, headers):
     # Act
     # Build a grpc channel from the service,
     # and send a message
-    with service.build_grpc_channel() as channel:
+    with service._build_grpc_channel() as channel:
         stub = health_pb2_grpc.HealthStub(channel)
         request = health_pb2.HealthCheckRequest(service="hello world")
         stub.Check(request)

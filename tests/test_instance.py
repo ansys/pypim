@@ -16,6 +16,7 @@ from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2_grpc 
     ProductInstanceManagerStub,
 )
 from google.protobuf.empty_pb2 import Empty
+import grpc
 from grpc import StatusCode
 import grpc_testing
 import pytest
@@ -248,3 +249,36 @@ def test_wait_for_ready(testing_channel):
     assert instance.ready
     assert instance.status_message == ""
     assert instance.services == {"http": Service(uri="http://example.com", headers={})}
+
+
+def test_create_channel():
+    # Arrange
+    # Two mocked services
+    main_service = Service(uri="dns:example.com", headers={})
+    main_channel = grpc.insecure_channel("dns:example.com")
+    object.__setattr__(main_service, "_build_grpc_channel", MagicMock(return_value=main_channel))
+
+    sidecar_service = Service(uri="dns:ansysapis.com", headers={})
+    sidecar_channel = grpc.insecure_channel("dns:ansysapis.com")
+    object.__setattr__(
+        sidecar_service, "_build_grpc_channel", MagicMock(return_value=sidecar_channel)
+    )
+
+    # An instance containing these services
+    instance = Instance(
+        name="instances/hello-world-32",
+        definition_name="definitions/my-def",
+        ready=True,
+        status_message="Creating...",
+        services={"grpc": main_service, "other": sidecar_service},
+    )
+
+    # Act: Create two channels
+    channel1 = instance.build_grpc_service()
+    channel2 = instance.build_grpc_service(service_name="other")
+
+    # Assert: The service were called
+    main_service._build_grpc_channel.assert_called_once()
+    sidecar_service._build_grpc_channel.assert_called_once()
+    assert channel1 == main_channel
+    assert channel2 == sidecar_channel
