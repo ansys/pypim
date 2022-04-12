@@ -274,8 +274,8 @@ def test_create_channel():
     )
 
     # Act: Create two channels
-    channel1 = instance.build_grpc_service()
-    channel2 = instance.build_grpc_service(service_name="other")
+    channel1 = instance.build_grpc_channel()
+    channel2 = instance.build_grpc_channel(service_name="other")
 
     # Assert: The service were called
     main_service._build_grpc_channel.assert_called_once()
