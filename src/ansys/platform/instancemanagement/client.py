@@ -33,7 +33,7 @@ class Client:
         Args:
             channel: gRPC channel hosting the connection.
         """
-        logger.debug("Connecting")
+        logger.info("Connecting")
         self._channel = channel
         self._stub = ProductInstanceManagerStub(self._channel)
 
@@ -47,7 +47,7 @@ class Client:
         Returns:
             Client: The PyPIM client.
         """
-        logger.debug("Initializing from the configuration")
+        logger.debug("Initializing from %s", config_path)
 
         # Note: this configuration should likely become a full featured object
         # to be shared across PyPIM class at some point.
