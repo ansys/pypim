@@ -38,7 +38,7 @@ class Service:
     every communication with the service.
     """
 
-    def build_grpc_channel(
+    def _build_grpc_channel(
         self,
         **kwargs,
     ) -> grpc.Channel:

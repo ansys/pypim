@@ -132,6 +132,30 @@ class Instance:
             time.sleep(polling_interval)
             self.update(timeout=timeout_per_request)
 
+    def build_grpc_service(self, service_name: str = "grpc", **kwargs):
+        """Build a gRPC channel to communicate with this instance.
+
+        The instance must be ready before calling this method.
+
+        Args:
+            service_name (str, optional): Custom service name. Defaults to "grpc".
+            kwargs: Will be passed to the grpc channel creation.
+
+        Raises:
+            ValueError: The instance does not support gRPC, or the service name is wrong.
+
+        Returns:
+            grpc.Channel: gRPC channel preconfigured to work with the instance.
+        """
+        if not self.ready:
+            raise RuntimeError(f"The instance is not ready.")
+
+        service = self.services.get(service_name, None)
+        if not service:
+            raise ValueError(f"There is no {service_name} service in the remote instance.")
+
+        return service._build_grpc_channel(**kwargs)
+
     @staticmethod
     def _from_pim_v1(instance: InstanceV1, stub: ProductInstanceManagerStub = None):
         """Create a PyPIM instance from the raw protobuf message.
