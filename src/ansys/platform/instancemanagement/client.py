@@ -33,6 +33,13 @@ class Client:
 
         Args:
             channel: gRPC channel hosting the connection.
+
+        Examples:
+            >>> import ansys.platform.instancemanagement as pypim
+            >>> import grpc
+            >>> channel = grpc.insecure_channel("127.0.0.0:50001")
+            >>> client = pypim.Client(channel)
+
         """
         logger.info("Connecting")
         self._channel = channel
@@ -92,6 +99,14 @@ Consider upgrading ansys-platform-instancemanagement"
 
         Returns:
             Mapping[str, Definition]: The supported product definitions by name.
+
+        Examples:
+            >>> import ansys.platform.instancemanagement as pypim
+            >>> client = pypim.connect()
+            >>> for definition in client.definitions(product_name="mapdl"):
+            >>>     print(f"MAPDL version {definition.version} is available on the server.")
+                MAPDL version 221 is available on the server.
+
         """
         logger.debug(
             "Listing definitions for the product %s in version %s",
@@ -147,6 +162,16 @@ Consider upgrading ansys-platform-instancemanagement"
 
         Returns:
             Instance: An instance of the product.
+
+        Examples:
+            >>> import ansys.platform.instancemanagement as pypim
+            >>> client = pypim.connect()
+            >>> instance = client.create_instance(product_name="mapdl")
+            >>> instance.wait_for_ready()
+            >>> print(instance.services)
+            >>> instance.delete()
+                {'grpc': Service(uri='dns:10.240.4.231:50052', headers={})}
+
         """
         logger.debug(
             "Creating a product instance for %s in version %s", product_name, product_version
