@@ -132,7 +132,7 @@ class Instance:
             time.sleep(polling_interval)
             self.update(timeout=timeout_per_request)
 
-    def build_grpc_service(self, service_name: str = "grpc", **kwargs):
+    def build_grpc_channel(self, service_name: str = "grpc", **kwargs):
         """Build a gRPC channel to communicate with this instance.
 
         The instance must be ready before calling this method.
