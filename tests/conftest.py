@@ -9,6 +9,7 @@ LIST_DEFINITIONS_METHOD = PIM_SERVICE.methods_by_name["ListDefinitions"]
 CREATE_INSTANCE_METHOD = PIM_SERVICE.methods_by_name["CreateInstance"]
 DELETE_INSTANCE_METHOD = PIM_SERVICE.methods_by_name["DeleteInstance"]
 GET_INSTANCE_METHOD = PIM_SERVICE.methods_by_name["GetInstance"]
+LIST_INSTANCES_METHOD = PIM_SERVICE.methods_by_name["ListInstances"]
 
 
 @pytest.fixture()
