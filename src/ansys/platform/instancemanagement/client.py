@@ -119,6 +119,7 @@ Consider upgrading ansys-platform-instancemanagement"
             >>> for instance in client.instances():
             >>>     status = "ready" if instance.ready else "not ready"
             >>>     print(f"The instance {instance.name} is {status}")
+                The instance instances/mapdl-221-yAVne0ve is ready
         """
         logger.debug("Listing the instances")
         request = ListInstancesRequest()
