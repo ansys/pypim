@@ -1,17 +1,15 @@
-from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
-    Service as ServiceV1,
-)
+from ansys.api.platform.instancemanagement.v1 import product_instance_manager_pb2 as pb2
 import grpc
 import grpc_health.v1.health_pb2 as health_pb2
 import grpc_health.v1.health_pb2_grpc as health_pb2_grpc
 import pytest
 
-from ansys.platform.instancemanagement import Service
+import ansys.platform.instancemanagement as pypim
 
 
 def test_from_pim_v1_proto():
-    service = Service._from_pim_v1(
-        ServiceV1(uri="dns://some-service", headers={"token": "some-token"})
+    service = pypim.Service._from_pim_v1(
+        pb2.Service(uri="dns://some-service", headers={"token": "some-token"})
     )
     assert service.uri == "dns://some-service"
     assert service.headers == {"token": "some-token"}
@@ -20,7 +18,7 @@ def test_from_pim_v1_proto():
 @pytest.mark.parametrize(
     "invalid_service",
     [
-        ServiceV1(
+        pb2.Service(
             uri="",
             headers={"token": "some-token"},
         ),
@@ -28,7 +26,7 @@ def test_from_pim_v1_proto():
 )
 def test_from_pim_v1_proto_value_error(invalid_service):
     with pytest.raises(ValueError):
-        Service._from_pim_v1(invalid_service)
+        pypim.Service._from_pim_v1(invalid_service)
 
 
 @pytest.mark.parametrize("headers", [{}, {"a": "b"}, {"my-token": "value", "identity": "thing"}])
@@ -51,7 +49,7 @@ def test_build_channel(testing_pool, headers):
     port = server.add_insecure_port("127.0.0.1:0")
     server.start()
 
-    service = Service(uri=f"127.0.0.1:{port}", headers=headers)
+    service = pypim.Service(uri=f"127.0.0.1:{port}", headers=headers)
 
     # Act
     # Build a grpc channel from the service,
