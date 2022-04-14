@@ -26,8 +26,12 @@ Getting Started
 ===============
 
 To use PyPIM, you need to have access to an exposition of the "Product
-Instance Management" API. This is currently a work in progress and there is
-currently no public exposition or distribution of an implementation.
+Instance Management" API.
+
+.. note::
+    This is a work in progress and there is no public exposition or
+    distribution of an implementation yet.
+
 
 PyPIM itself is pure python and relies on `gRPC <https://grpc.io/>`_.
 
@@ -134,3 +138,6 @@ page.
 4. In the ``main`` branch, increase the version, keeping the ``.dev0`` suffix.
 
 Patch versions are created from their release branch, by cherry-picking commits.
+
+.. warning::
+    The git tag must match the committed package version.
