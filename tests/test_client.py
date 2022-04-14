@@ -2,30 +2,14 @@ from concurrent.futures import ThreadPoolExecutor
 import os
 from unittest.mock import MagicMock, patch
 
-from ansys.api.platform.instancemanagement.v1 import product_instance_manager_pb2_grpc
-from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
-    Definition as DefinitionV1,
-)
-from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
-    Instance as InstanceV1,
-)
-from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
-    ListDefinitionsRequest,
-    ListDefinitionsResponse,
-    ListInstancesRequest,
-    ListInstancesResponse,
-)
-from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
-    Service as ServiceV1,
-)
+from ansys.api.platform.instancemanagement.v1 import product_instance_manager_pb2 as pb2
+from ansys.api.platform.instancemanagement.v1 import product_instance_manager_pb2_grpc as pb2_grpc
 import grpc
 from grpc import StatusCode
 import grpc_testing
 import pytest
 
 import ansys.platform.instancemanagement as pypim
-from ansys.platform.instancemanagement import Client, Definition, Instance
-from ansys.platform.instancemanagement.service import Service
 from conftest import LIST_DEFINITIONS_METHOD, LIST_INSTANCES_METHOD
 
 
@@ -34,19 +18,19 @@ from conftest import LIST_DEFINITIONS_METHOD, LIST_INSTANCES_METHOD
     [
         (
             {},
-            ListDefinitionsRequest(),
+            pb2.ListDefinitionsRequest(),
         ),
         (
             {"product_name": "my-product"},
-            ListDefinitionsRequest(product_name="my-product"),
+            pb2.ListDefinitionsRequest(product_name="my-product"),
         ),
         (
             {"product_version": "221"},
-            ListDefinitionsRequest(product_version="221"),
+            pb2.ListDefinitionsRequest(product_version="221"),
         ),
         (
             {"product_name": "my-product", "product_version": "221"},
-            ListDefinitionsRequest(product_name="my-product", product_version="221"),
+            pb2.ListDefinitionsRequest(product_name="my-product", product_version="221"),
         ),
     ],
 )
@@ -56,19 +40,24 @@ def test_definitions_request(
     arguments,
     expected_request,
 ):
-    def client():
-        client = Client(testing_channel)
-        return client.definitions(**arguments, timeout=1)
+    # Arrange
+    # A server watching the client request for listing definitions
+    # and the pypim client
+    client = pypim.Client(testing_channel)
 
     def server():
         _, request, rpc = testing_channel.take_unary_unary(LIST_DEFINITIONS_METHOD)
-        rpc.terminate(ListDefinitionsResponse(), [], StatusCode.OK, "")
+        rpc.terminate(pb2.ListDefinitionsResponse(), [], StatusCode.OK, "")
         return request
 
-    client_future = testing_pool.submit(client)
     server_future = testing_pool.submit(server)
 
-    assert client_future.result() == []
+    # Act
+    # Query the list of definitions
+    client.definitions(**arguments, timeout=1)
+
+    # Assert
+    # The server received the expected request
     assert server_future.result() == expected_request
 
 
@@ -76,19 +65,19 @@ def test_definitions_request(
     ("response", "expected_definitions"),
     [
         (
-            ListDefinitionsResponse(),
+            pb2.ListDefinitionsResponse(),
             [],
         ),
         (
-            ListDefinitionsResponse(
+            pb2.ListDefinitionsResponse(
                 definitions=[
-                    DefinitionV1(
+                    pb2.Definition(
                         name="definitions/my-definition",
                         product_name="my-product",
                         product_version="221",
                         available_service_names=["grpc", "sidecar"],
                     ),
-                    DefinitionV1(
+                    pb2.Definition(
                         name="definitions/my-other-definition",
                         product_name="my-product",
                         product_version="222",
@@ -97,13 +86,13 @@ def test_definitions_request(
                 ]
             ),
             [
-                Definition(
+                pypim.Definition(
                     name="definitions/my-definition",
                     product_name="my-product",
                     product_version="221",
                     available_service_names=["grpc", "sidecar"],
                 ),
-                Definition(
+                pypim.Definition(
                     name="definitions/my-other-definition",
                     product_name="my-product",
                     product_version="222",
@@ -119,19 +108,23 @@ def test_list_definitions_response(
     response,
     expected_definitions,
 ):
-    def client():
-        client = Client(testing_channel)
-        return client.definitions(timeout=1)
-
+    # Arrange
+    # A server providing a hardcoded list of definitions
     def server():
         _, _, rpc = testing_channel.take_unary_unary(LIST_DEFINITIONS_METHOD)
         rpc.terminate(response, [], StatusCode.OK, "")
 
-    client_future = testing_pool.submit(client)
     server_future = testing_pool.submit(server)
 
+    # Act
+    # Get the definitions
+    client = pypim.Client(testing_channel)
+    definitions = client.definitions(timeout=1)
     server_future.result()
-    assert client_future.result() == expected_definitions
+
+    # Assert
+    # The list of definitions were correctly received
+    assert definitions == expected_definitions
 
 
 def test_instances_request(
@@ -139,69 +132,64 @@ def test_instances_request(
     testing_channel: grpc_testing.Channel,
 ):
     # Arrange
-
-    def client():
-        # A client listing the instances
-        client = Client(testing_channel)
-        return client.instances(timeout=1)
-
+    # A server storing the list instance requests
     def server():
-        # A server returning an empty list
         _, request, rpc = testing_channel.take_unary_unary(LIST_INSTANCES_METHOD)
-        rpc.terminate(ListInstancesResponse(), [], StatusCode.OK, "")
+        rpc.terminate(pb2.ListInstancesResponse(), [], StatusCode.OK, "")
         return request
 
-    # Act
-    # Run the client and server codes
-    client_future = testing_pool.submit(client)
     server_future = testing_pool.submit(server)
+
+    # Act
+    # Get the list of instances from the client
+    client = pypim.Client(testing_channel)
+    client.instances(timeout=1)
 
     # Assert
     # The client sent an empty ListInstanceRequest
-    assert client_future.result() == []
-    assert server_future.result() == ListInstancesRequest()
+    assert server_future.result() == pb2.ListInstancesRequest()
 
 
 @pytest.mark.parametrize(
     ("response", "expected_instances"),
     [
         (
-            ListInstancesResponse(),
+            pb2.ListInstancesResponse(),
             [],
         ),
         (
-            ListInstancesResponse(
+            pb2.ListInstancesResponse(
                 instances=[
-                    InstanceV1(
+                    pb2.Instance(
                         name="instances/hello-world-32",
                         definition_name="definitions/my-def",
                         ready=False,
                         status_message="loading...",
                         services={},
                     ),
-                    InstanceV1(
+                    pb2.Instance(
                         name="instances/hello-world-33",
                         definition_name="definitions/my-def",
                         ready=True,
                         status_message="",
-                        services={"grpc": ServiceV1(uri="dns:api.com:80", headers={})},
+                        services={"grpc": pb2.Service(uri="dns:api.com:80", headers={})},
                     ),
                 ]
             ),
             [
-                Instance(
+                pypim.Instance(
                     name="instances/hello-world-32",
                     definition_name="definitions/my-def",
                     ready=False,
                     status_message="loading...",
                     services={},
                 ),
-                Instance(
+                pypim.Instance(
                     name="instances/hello-world-33",
                     definition_name="definitions/my-def",
                     ready=True,
                     status_message="",
-                    services={"grpc": Service(uri="dns:api.com:80", headers={})},
+                    services={"grpc": pypim.Service(uri="dns:api.com:80", headers={})},
                 ),
             ],
         ),
@@ -214,56 +202,51 @@ def test_list_instances_response(
     expected_instances,
 ):
     # Arrange
-
-    def client():
-        # A client listing the instances
-        client = Client(testing_channel)
-        return client.instances(timeout=1)
-
+    # A server providing a hard coded list of instances
     def server():
-        # A server responding with the parametrized response
         _, _, rpc = testing_channel.take_unary_unary(LIST_INSTANCES_METHOD)
         rpc.terminate(response, [], StatusCode.OK, "")
 
-    # Act
-    # Run the client and server
-    client_future = testing_pool.submit(client)
     server_future = testing_pool.submit(server)
 
+    # Act
+    # Get the list of instances
+    client = pypim.Client(testing_channel)
+    instances = client.instances(timeout=1)
+
     #  Assert
-    # The server code executes without exception
-    # and the client code correctly translated the response
+    # The client got the hardcoded instances
     server_future.result()
-    assert client_future.result() == expected_instances
+    assert instances == expected_instances
 
 
 def test_create_instance(testing_channel):
     # Arrange
     # A client with two definitions
-    client = Client(testing_channel)
+    client = pypim.Client(testing_channel)
     definitions = [
-        Definition(
+        pypim.Definition(
             name="definitions/the-good-one",
             product_name="calculator",
             product_version="221",
             available_service_names=["fax"],
         ),
-        Definition(
+        pypim.Definition(
             name="definitions/the-bad-one",
             product_name="calculator",
             product_version="195",
             available_service_names=["fax"],
         ),
     ]
-    instance = Instance(
+    instance = pypim.Instance(
         definition_name="definitions/the-good-one",
         name="instances/calculator-42",
         ready=False,
         status_message="loading...",
         services={},
     )
-    definitions[0].create_instance = MagicMock(return_value=instance)
-    definitions[1].create_instance = MagicMock()
+    object.__setattr__(definitions[0], "create_instance", MagicMock(return_value=instance))
+    object.__setattr__(definitions[1], "create_instance", MagicMock())
     client.definitions = MagicMock(return_value=definitions)
 
     # Act
@@ -283,18 +266,16 @@ def test_create_instance(testing_channel):
 
 def test_initialize_from_configuration(testing_pool, tmp_path):
     # Arrange
-    # A basic implementation of PIM
+    # A basic implementation of PIM able to list definitions
     received_metadata = []
 
-    class PIMServicer(product_instance_manager_pb2_grpc.ProductInstanceManagerServicer):
+    class PIMServicer(pb2_grpc.ProductInstanceManagerServicer):
         def ListDefinitions(self, _, context):
             received_metadata.append(context.invocation_metadata())
-            return ListDefinitionsResponse()
+            return pb2.ListDefinitionsResponse()
 
     server = grpc.server(testing_pool)
-    product_instance_manager_pb2_grpc.add_ProductInstanceManagerServicer_to_server(
-        PIMServicer(), server
-    )
+    pb2_grpc.add_ProductInstanceManagerServicer_to_server(PIMServicer(), server)
 
     port = server.add_insecure_port("127.0.0.1:0")
     server.start()

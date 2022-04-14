@@ -1,20 +1,15 @@
 from unittest.mock import patch
 
-from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
-    Definition as DefinitionV1,
-)
-from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2_grpc import (
-    ProductInstanceManagerStub,
-)
+from ansys.api.platform.instancemanagement.v1 import product_instance_manager_pb2 as pb2
+from ansys.api.platform.instancemanagement.v1 import product_instance_manager_pb2_grpc as pb2_grpc
 import pytest
 
-from ansys.platform.instancemanagement import Definition
-from ansys.platform.instancemanagement.instance import Instance
+import ansys.platform.instancemanagement as pypim
 
 
 def test_from_pim_v1_proto():
-    definition = Definition._from_pim_v1(
-        DefinitionV1(
+    definition = pypim.Definition._from_pim_v1(
+        pb2.Definition(
             name="definitions/my_def",
             product_name="my_product",
             product_version="221",
@@ -31,25 +26,25 @@ def test_from_pim_v1_proto():
 @pytest.mark.parametrize(
     "invalid_definition",
     [
-        DefinitionV1(
+        pb2.Definition(
             name="invalid",
             product_name="my_product",
             product_version="221",
             available_service_names=["grpc", "http"],
         ),
-        DefinitionV1(
+        pb2.Definition(
             name="definitions/my_def",
             product_name="my_product",
             product_version="",
             available_service_names=["grpc", "http"],
         ),
-        DefinitionV1(
+        pb2.Definition(
             name="definitions/my_def",
             product_name="my_product",
             product_version="221",
             available_service_names=[],
         ),
-        DefinitionV1(
+        pb2.Definition(
             name="definitions/my_def",
             product_name="",
             product_version="221",
@@ -59,22 +54,16 @@ def test_from_pim_v1_proto():
 )
 def test_from_pim_v1_proto_value_error(invalid_definition):
     with pytest.raises(ValueError):
-        Definition._from_pim_v1(invalid_definition)
+        pypim.Definition._from_pim_v1(invalid_definition)
 
 
 def test_create_instance(testing_channel):
-    stub = ProductInstanceManagerStub(testing_channel)
-    definition = Definition(
-        name="definitions/my_def",
-        product_name="my_product",
-        product_version="221",
-        available_service_names=["grpc", "http"],
-        _stub=stub,
-    )
+    # Arrange
+    # A mocked Instance class and a definition
     with patch.object(
-        Instance,
+        pypim.Instance,
         "_create",
-        return_value=Instance(
+        return_value=pypim.Instance(
             definition_name="definitions/my_def",
             name="instances/something-123",
             ready=False,
@@ -82,7 +71,21 @@ def test_create_instance(testing_channel):
             services={},
         ),
     ) as mock_instance_create:
+        stub = pb2_grpc.ProductInstanceManagerStub(testing_channel)
+        definition = pypim.Definition(
+            name="definitions/my_def",
+            product_name="my_product",
+            product_version="221",
+            available_service_names=["grpc", "http"],
+            _stub=stub,
+        )
+
+        # Act
+        # Create the instance from the definition
         definition.create_instance(0.1)
+
+    # Assert
+    # The mocked Instance class was correctly called
     mock_instance_create.assert_called_once_with(
         definition_name="definitions/my_def", timeout=0.1, stub=stub
     )
