@@ -125,12 +125,12 @@ Releasing a new version is driven by git tags, created from the Github release
 page.
 
 1. Create the release branch, named ``release/v<version>``, where version does
-   not include the patch part.
+   not include the patch part. Eg. ``release/v0.5``, ``release/v1.2``
 2. In the ``release/v<version>`` branch, remove the ``.dev0`` suffix in
    ``pyproject.toml`` and ``tests/test_metadata.py``
 3. Create a `new release <https://github.com/pyansys/pypim/releases/new>`_ with
-   a new tag named ``v<version>``, including the patch part, based on the latest
-   commit of the ``release/v<version>`` branch.
+   a new tag named ``v<full_version>``, including the patch part, based on the latest
+   commit of the ``release/v<version>`` branch. Eg. ``v0.5.0``, ``v1.2.0``.
 4. In the ``main`` branch, increase the version, keeping the ``.dev0`` suffix.
 
 Patch versions are created from their release branch, by cherry-picking commits.

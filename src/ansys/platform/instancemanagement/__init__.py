@@ -43,10 +43,14 @@ def connect() -> Client:
     .. code-block:: json
 
         {
-            "version": 1, "pim": {
-                "uri": "dns:pim.svc.com:80", "headers": {
+            "version": 1,
+            "pim": {
+                "uri": "dns:pim.svc.com:80",
+                "headers": {
                     "metadata-info": "value"
-                }, "tls": false
+                },
+                "tls": false
+            }
         }
 
 

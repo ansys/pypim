@@ -149,6 +149,8 @@ Consider upgrading ansys-platform-instancemanagement"
     ) -> Instance:
         """Create a remote instance of a product based on its name and optionally its version.
 
+        This effectively starts the product in the backend, according to the backend configuration.
+
         The created instance will not yet be ready to use, you need to call `.wait_for_ready()`
         to wait for it to be ready.
 
