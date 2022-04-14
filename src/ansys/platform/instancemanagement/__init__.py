@@ -29,11 +29,42 @@ def is_configured() -> bool:
 def connect() -> Client:
     """Create a PyPIM client based on the environment configuration.
 
+    Before calling this method, ``is_configured()`` should be called to check if
+    the environment is configured to use PyPIM.
+
+    The environment configuration consists in setting the environment variable
+    ``ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG`` to the path of the PyPIM
+    configuration file. The configuration file is a simple json file containing
+    the URI of the Product Instance Management API and headers required to pass
+    information.
+
+    The configuration file format is:
+
+    .. code-block:: json
+
+        {
+            "version": 1,
+            "pim": {
+                "uri": "dns:pim.svc.com:80",
+                "headers": {
+                    "metadata-info": "value"
+                },
+                "tls": false
+            }
+        }
+
+
     Raises:
         RuntimeError: The environment is not configured to use PyPIM
 
     Returns:
         Client: A PyPIM client, the main entrypoint to use this library.
+
+
+    Examples:
+        >>> import ansys.platform.instancemanagement as pypim
+        >>> if pypim.is_configured():
+        >>>     client = pypim.connect()
     """
     if not is_configured():
         raise RuntimeError("The environment is not configured to use PyPIM.")

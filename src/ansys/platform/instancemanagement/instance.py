@@ -146,6 +146,22 @@ class Instance:
 
         Returns:
             grpc.Channel: gRPC channel preconfigured to work with the instance.
+
+        Examples:
+            >>> import ansys.platform.instancemanagement as pypim
+            >>> from ansys.mapdl.core import Mapdl
+            >>> pim=pypim.connect()
+            >>> instance = pim.create_instance(product_name="mapdl", product_version="221")
+            >>> instance.wait_for_ready()
+            >>> channel = instance.build_grpc_channel(
+            >>>     options=[("grpc.max_receive_message_length", 8*1024**2)]
+            >>> )
+            >>> mapdl = Mapdl(channel=channel)
+            >>> print(mapdl)
+            >>> instance.delete()
+                Product:             Ansys Mechanical Enterprise
+                MAPDL Version:       22.1
+                ansys.mapdl Version: 0.61.2
         """
         if not self.ready:
             raise RuntimeError(f"The instance is not ready.")
