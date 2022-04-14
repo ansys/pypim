@@ -5,6 +5,7 @@ from typing import Sequence
 
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
     ListDefinitionsRequest,
+    ListInstancesRequest,
 )
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2_grpc import (
     ProductInstanceManagerStub,
@@ -102,6 +103,28 @@ Consider upgrading ansys-platform-instancemanagement"
         return [
             Definition._from_pim_v1(definition, self._stub) for definition in response.definitions
         ]
+
+    def instances(self, timeout: float = None) -> Sequence[Instance]:
+        """List the existing instances.
+
+        Args:
+            timeout (float, optional): Maximum time in second for the request. Defaults to None.
+
+        Returns:
+            Sequence[Instance]: The list of instances
+
+        Examples:
+            >>> import ansys.platform.instancemanagement as pypim
+            >>> client = pypim.connect()
+            >>> for instance in client.instances():
+            >>>     status = "ready" if instance.ready else "not ready"
+            >>>     print(f"The instance {instance.name} is {status}")
+                The instance instances/mapdl-221-yAVne0ve is ready
+        """
+        logger.debug("Listing the instances")
+        request = ListInstancesRequest()
+        response = self._stub.ListInstances(request, timeout=timeout)
+        return [Instance._from_pim_v1(instance, self._stub) for instance in response.instances]
 
     def create_instance(
         self,

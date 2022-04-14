@@ -2,14 +2,22 @@ from concurrent.futures import ThreadPoolExecutor
 import os
 from unittest.mock import MagicMock, patch
 
+from ansys.api.platform.instancemanagement.v1 import product_instance_manager_pb2_grpc
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
     Definition as DefinitionV1,
 )
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
+    Instance as InstanceV1,
+)
+from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
     ListDefinitionsRequest,
     ListDefinitionsResponse,
+    ListInstancesRequest,
+    ListInstancesResponse,
 )
-import ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2_grpc as product_instance_manager_pb2_grpc  # noqa: E501
+from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
+    Service as ServiceV1,
+)
 import grpc
 from grpc import StatusCode
 import grpc_testing
@@ -17,7 +25,8 @@ import pytest
 
 import ansys.platform.instancemanagement as pypim
 from ansys.platform.instancemanagement import Client, Definition, Instance
-from conftest import LIST_DEFINITIONS_METHOD
+from ansys.platform.instancemanagement.service import Service
+from conftest import LIST_DEFINITIONS_METHOD, LIST_INSTANCES_METHOD
 
 
 @pytest.mark.parametrize(
@@ -123,6 +132,109 @@ def test_list_definitions_response(
 
     server_future.result()
     assert client_future.result() == expected_definitions
+
+
+def test_instances_request(
+    testing_pool: ThreadPoolExecutor,
+    testing_channel: grpc_testing.Channel,
+):
+    # Arrange
+
+    def client():
+        # A client listing the instances
+        client = Client(testing_channel)
+        return client.instances(timeout=1)
+
+    def server():
+        # A server returning an empty list
+        _, request, rpc = testing_channel.take_unary_unary(LIST_INSTANCES_METHOD)
+        rpc.terminate(ListInstancesResponse(), [], StatusCode.OK, "")
+        return request
+
+    # Act
+    # Run the client and server codes
+    client_future = testing_pool.submit(client)
+    server_future = testing_pool.submit(server)
+
+    # Assert
+    # The client sent an empty ListInstanceRequest
+    assert client_future.result() == []
+    assert server_future.result() == ListInstancesRequest()
+
+
+@pytest.mark.parametrize(
+    ("response", "expected_instances"),
+    [
+        (
+            ListInstancesResponse(),
+            [],
+        ),
+        (
+            ListInstancesResponse(
+                instances=[
+                    InstanceV1(
+                        name="instances/hello-world-32",
+                        definition_name="definitions/my-def",
+                        ready=False,
+                        status_message="loading...",
+                        services={},
+                    ),
+                    InstanceV1(
+                        name="instances/hello-world-33",
+                        definition_name="definitions/my-def",
+                        ready=True,
+                        status_message="",
+                        services={"grpc": ServiceV1(uri="dns:api.com:80", headers={})},
+                    ),
+                ]
+            ),
+            [
+                Instance(
+                    name="instances/hello-world-32",
+                    definition_name="definitions/my-def",
+                    ready=False,
+                    status_message="loading...",
+                    services={},
+                ),
+                Instance(
+                    name="instances/hello-world-33",
+                    definition_name="definitions/my-def",
+                    ready=True,
+                    status_message="",
+                    services={"grpc": Service(uri="dns:api.com:80", headers={})},
+                ),
+            ],
+        ),
+    ],
+)
+def test_list_instances_response(
+    testing_pool: ThreadPoolExecutor,
+    testing_channel: grpc_testing.Channel,
+    response,
+    expected_instances,
+):
+    # Arrange
+
+    def client():
+        # A client listing the instances
+        client = Client(testing_channel)
+        return client.instances(timeout=1)
+
+    def server():
+        # A server responding with the parametrized response
+        _, _, rpc = testing_channel.take_unary_unary(LIST_INSTANCES_METHOD)
+        rpc.terminate(response, [], StatusCode.OK, "")
+
+    # Act
+    # Run the client and server
+    client_future = testing_pool.submit(client)
+    server_future = testing_pool.submit(server)
+
+    #  Assert
+    # The server code executes without exception
+    # and the client code correctly translated the response
+    server_future.result()
+    assert client_future.result() == expected_instances
 
 
 def test_create_instance(testing_channel):
