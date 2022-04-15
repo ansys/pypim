@@ -67,8 +67,7 @@ Starting MAPDL and communicating with it:
                 mapdl.prep7()
                 ...
 
-PyPIM can also be used without using the ``with`` statement for longer term
-usage of the created instance:
+PyPIM can also be used without using the ``with`` statement:
 
 .. code-block::
     
