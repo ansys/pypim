@@ -1,4 +1,5 @@
 """Client class module."""
+import contextlib
 import json
 import logging
 from typing import Sequence
@@ -19,7 +20,7 @@ from ansys.platform.instancemanagement.interceptor import header_adder_intercept
 logger = logging.getLogger(__name__)
 
 
-class Client:
+class Client(contextlib.AbstractContextManager):
     """High level client object to interact with the product instance management API.
 
     This class exposes the methods of the product instance management API.
@@ -44,6 +45,17 @@ class Client:
         logger.info("Connecting")
         self._channel = channel
         self._stub = ProductInstanceManagerStub(self._channel)
+
+    def __exit__(self, *_):
+        """Close the channel when used in a ``with`` statement."""
+        self._channel.close()
+
+    def close(self):
+        """Close the connection.
+
+        This method is called when using the client in a ``with`` statement.
+        """
+        self._channel.close()
 
     @staticmethod
     def _from_configuration(config_path: str):

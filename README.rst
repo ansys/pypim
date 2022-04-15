@@ -59,14 +59,30 @@ Starting MAPDL and communicating with it:
     from ansys.mapdl.core import Mapdl
     
     if pypim.is_configured():
-        pim=pypim.connect()
+        with pypim.connect() as pim:
+            with pim.create_instance(product_name="mapdl", product_version="221") as instance:
+                instance.wait_for_ready()
+                channel = instance.build_grpc_channel(options=[("grpc.max_receive_message_length", 8*1024**2)])
+                mapdl = Mapdl(channel=channel)
+                mapdl.prep7()
+                ...
+
+PyPIM can also be used without using the ``with`` statement for longer term
+usage of the created instance:
+
+.. code-block::
+    
+    import ansys.platform.instancemanagement as pypim
+    from ansys.mapdl.core import Mapdl
+    
+    if pypim.is_configured():
+        pim = pypim.connect()
         instance = pim.create_instance(product_name="mapdl", product_version="221")
-        instance.wait_for_ready()
-        channel = instance.build_grpc_channel(options=[("grpc.max_receive_message_length", 8*1024**2)])
         mapdl = Mapdl(channel=channel)
         mapdl.prep7()
         ...
         instance.delete()
+        pim.close()
 
 Developer Guide
 ===============

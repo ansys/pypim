@@ -303,8 +303,8 @@ def test_initialize_from_configuration(testing_pool, tmp_path):
     # Connect the client based on this configuration
     # and run a request
     with patch.dict(os.environ, {"ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG": config_path}):
-        client = pypim.connect()
-        client.definitions(product_name="hello-world", product_version="231")
+        with pypim.connect() as client:
+            client.definitions(product_name="hello-world", product_version="231")
 
     # Assert
     # The server got the request with the intended headers
