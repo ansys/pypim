@@ -71,7 +71,7 @@ def connect() -> Client:
         >>> import ansys.platform.instancemanagement as pypim
         >>> if pypim.is_configured():
         >>>     with pypim.connect() as client:
-        >>>         // use client
+        >>>         # use client
     """
     if not is_configured():
         raise RuntimeError("The environment is not configured to use PyPIM.")
