@@ -172,6 +172,64 @@ def test_delete(
     ), "The request to create an instance did not match what was expected"
 
 
+def test_context_manager(
+    testing_pool: ThreadPoolExecutor,
+    testing_channel: grpc_testing.Channel,
+):
+    # Arrange
+    # A server returning an instance and deleting it
+    def server():
+        _, creation_request, rpc = testing_channel.take_unary_unary(CREATE_INSTANCE_METHOD)
+        response = pb2.Instance(
+            name="instances/hello-world-32",
+            definition_name="definitions/my-def",
+            ready=False,
+            status_message="loading...",
+            services={},
+        )
+        rpc.terminate(response, [], StatusCode.OK, "")
+        _, deletion_request, rpc = testing_channel.take_unary_unary(DELETE_INSTANCE_METHOD)
+        response = pb2.Instance(
+            name="instances/hello-world-32",
+            definition_name="definitions/my-def",
+            ready=False,
+            status_message="loading...",
+            services={},
+        )
+        rpc.terminate(response, [], StatusCode.OK, "")
+        return creation_request, deletion_request
+
+    server_future = testing_pool.submit(server)
+
+    # Act
+    # Create an instance from the client with the `with` statement
+    stub = pb2_grpc.ProductInstanceManagerStub(testing_channel)
+    with pypim.Instance._create(
+        definition_name="definitions/my-def", stub=stub, timeout=0.1
+    ) as instance:
+        pass
+
+    # Assert
+    # The server got the correct requests
+    received_creation_request, received_deletion_request = server_future.result()
+    assert received_creation_request == pb2.CreateInstanceRequest(
+        instance=pb2.Instance(definition_name="definitions/my-def")
+    ), "The request to create an instance did not match what was expected"
+    assert received_deletion_request == pb2.DeleteInstanceRequest(name="instances/hello-world-32")
+
+    # The instance was created as expected
+    expected_instance = pypim.Instance(
+        name="instances/hello-world-32",
+        definition_name="definitions/my-def",
+        ready=False,
+        status_message="loading...",
+        services={},
+    )
+    assert (
+        instance == expected_instance
+    ), "The response to create an instance was not correctly translated"
+
+
 def test_update(
     testing_pool: ThreadPoolExecutor,
     testing_channel: grpc_testing.Channel,

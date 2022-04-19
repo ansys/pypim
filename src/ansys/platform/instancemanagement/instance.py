@@ -1,5 +1,7 @@
 """Instance class module."""
 
+
+import contextlib
 from dataclasses import dataclass, field
 import logging
 import time
@@ -23,8 +25,12 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class Instance:
-    """A remote instance of a product."""
+class Instance(contextlib.AbstractContextManager):
+    """A remote instance of a product.
+
+    This class is a context manager and can be used with the `with` statement to
+    automatically stop the remote instance when the tasks are finished.
+    """
 
     definition_name: str
     """Name of the definition that created this instance."""
@@ -69,6 +75,10 @@ class Instance:
         if self.status_message:
             # TODO: instance specific logger
             logger.info(self.status_message)
+
+    def __exit__(self, *_):
+        """Delete the instance when used in a ``with`` statement."""
+        self.delete()
 
     @staticmethod
     def _create(definition_name: str, stub: ProductInstanceManagerStub, timeout: float = None):
