@@ -33,7 +33,9 @@ Instance Management" API.
     distribution of an implementation yet.
 
 
-PyPIM itself is pure python and relies on `gRPC <https://grpc.io/>`_.
+PyPIM itself is pure python and relies on `gRPC`_.
+
+.. _`gRPC`: https://grpc.io/
 
 Installation
 ------------
@@ -82,77 +84,3 @@ PyPIM can also be used without using the ``with`` statement:
         ...
         instance.delete()
         pim.close()
-
-Developer Guide
-===============
-
-The general guidance appears in the `Contributing
-<https://dev.docs.pyansys.com/overview/contributing.html>`_ topic in the
-*PyAnsys Developer's Guide*.
-
-Cloning the PyPIM Repository
-----------------------------
-
-.. code-block::
-    
-    git clone https://github.com/pyansys/pypim.git
-    cd pypim/
-
-Running the tests
------------------
-
-The test automation relies on `tox
-<https://tox.wiki/en/latest/install.html#installation-with-pip>`_.
-
-They are entirely based on mocks and do not require any external software. Run
-the tests with:
-
-.. code-block::
-    
-    tox -e py38
-
-Where py38 matches your python version.
-
-Building the documentation
---------------------------
-
-.. code-block::
-    
-    tox -e doc
-
-Building the package
---------------------
-
-The package is built using `flit <https://flit.pypa.io/en/latest/#install>`_.
-
-You can build the PyPIM package with:
-
-.. code-block::
-    
-    flit build
-
-You can also directly install PyPIM in your current environment with:
-
-.. code-block::
-    
-    flit install
-
-Release Process
----------------
-
-Releasing a new version is driven by git tags, created from the Github release
-page.
-
-1. Create the release branch, named ``release/v<version>``, where version does
-   not include the patch part. Eg. ``release/v0.5``, ``release/v1.2``
-2. In the ``release/v<version>`` branch, remove the ``.dev0`` suffix in
-   ``pyproject.toml`` and ``tests/test_metadata.py``
-3. Create a `new release <https://github.com/pyansys/pypim/releases/new>`_ with
-   a new tag named ``v<full_version>``, including the patch part, based on the latest
-   commit of the ``release/v<version>`` branch. Eg. ``v0.5.0``, ``v1.2.0``.
-4. In the ``main`` branch, increase the version, keeping the ``.dev0`` suffix.
-
-Patch versions are created from their release branch, by cherry-picking commits.
-
-.. warning::
-    The git tag must match the committed package version.

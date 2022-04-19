@@ -9,3 +9,4 @@
    :hidden:
    
    api/index
+   contributing
