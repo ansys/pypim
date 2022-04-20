@@ -70,7 +70,7 @@ class Instance(contextlib.AbstractContextManager):
     def __post_init__(self):
         """Initialize non dataclass members.
 
-        `dataclass` construction
+        ``dataclass`` construction
         """
         if self.status_message:
             # TODO: instance specific logger
@@ -163,14 +163,14 @@ class Instance(contextlib.AbstractContextManager):
         kwargs: list
             Named argument to pass to the gRPC channel creation.
 
-        Raises
-        ------
-        ValueError: The instance does not support gRPC, or the service name is wrong.
-
         Returns
         -------
         grpc.Channel
             gRPC channel preconfigured to work with the instance.
+
+        Raises
+        ------
+        ValueError: The instance does not support gRPC, or the service name is wrong.
 
         Examples
         --------

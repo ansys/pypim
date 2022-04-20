@@ -197,13 +197,13 @@ Consider upgrading ansys-platform-instancemanagement."
         requests_timeout : float, optional
             Maximum time for each request in seconds. The default is ``None``.
 
-        Raises
-        ------
-            RuntimeError: The product or the selected version is not available remotely.
-
         Returns
         -------
             Instance: An instance of the product.
+
+        Raises
+        ------
+        RuntimeError: The product or the selected version is not available remotely.
 
         Examples
         --------

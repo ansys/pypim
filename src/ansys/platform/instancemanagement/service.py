@@ -65,18 +65,18 @@ class Service:
         Parameters
         ----------
         service : ServiceV1
-            Raw PIM API v1 protobuf object.
-
-        Raises
-        ------
-        ValueError: The raw protobuf message is not valid.
+            Raw PIM API v1 protobuf object.       
 
         Returns
         -------
         type
             PyPIM service definition.
+        
+        Raises
+        ------
+        ValueError: The raw protobuf message is not valid.
         """
         if not service.uri:
-            raise ValueError("A service must have an uri.")
+            raise ValueError("A service must have an URI.")
 
         return Service(uri=service.uri, headers=service.headers)

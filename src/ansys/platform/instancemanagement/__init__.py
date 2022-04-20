@@ -55,16 +55,15 @@ def connect() -> Client:
         }
 
 
-    Raises
-    ------
-    RuntimeError: The environment is not configured to use PyPIM.
-
     Returns
     -------
     client
         PyPIM client, which is the main entry point to using this library.
 
-
+    Raises
+    ------
+    RuntimeError: The environment is not configured to use PyPIM.
+    
     Examples
     --------
     
