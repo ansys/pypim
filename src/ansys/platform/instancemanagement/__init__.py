@@ -66,7 +66,6 @@ def connect() -> Client:
     
     Examples
     --------
-    
         >>> import ansys.platform.instancemanagement as pypim
         >>> if pypim.is_configured():
         >>>     client = pypim.connect()

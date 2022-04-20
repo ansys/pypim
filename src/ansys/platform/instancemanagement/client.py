@@ -39,7 +39,6 @@ class Client(contextlib.AbstractContextManager):
 
         Examples
         --------
-
             >>> import ansys.platform.instancemanagement as pypim
             >>> import grpc
             >>> channel = grpc.insecure_channel("127.0.0.0:50001")
@@ -72,6 +71,7 @@ class Client(contextlib.AbstractContextManager):
 
         Returns
         -------
+        client
             PyPIM client.
         """
         logger.debug("Initializing from %s", config_path)
@@ -162,7 +162,6 @@ Consider upgrading ansys-platform-instancemanagement."
 
         Examples
         --------
-
             >>> import ansys.platform.instancemanagement as pypim
             >>> client = pypim.connect()
             >>> for instance in client.instances():
@@ -199,7 +198,7 @@ Consider upgrading ansys-platform-instancemanagement."
 
         Returns
         -------
-        Instance
+        instance
             Instance of the product.
 
         Raises
@@ -208,7 +207,6 @@ Consider upgrading ansys-platform-instancemanagement."
 
         Examples
         --------
-
             >>> import ansys.platform.instancemanagement as pypim
             >>> client = pypim.connect()
             >>> instance = client.create_instance(product_name="mapdl")

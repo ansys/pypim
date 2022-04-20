@@ -174,7 +174,6 @@ class Instance(contextlib.AbstractContextManager):
 
         Examples
         --------
-
             >>> import ansys.platform.instancemanagement as pypim
             >>> from ansys.mapdl.core import Mapdl
             >>> pim=pypim.connect()
@@ -215,7 +214,7 @@ class Instance(contextlib.AbstractContextManager):
 
         if not instance.definition_name or not instance.definition_name.startswith("definitions/"):
             raise ValueError(
-                "An instance must have a definition name that starts with ``definitions/``."
+                "An instance must have a definition name that starts with `definitions/`."
             )
 
         return Instance(

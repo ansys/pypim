@@ -86,7 +86,7 @@ class Definition:
         ValueError: The raw protobuf message is not valid.
         """
         if not definition.name or not definition.name.startswith("definitions/"):
-            raise ValueError("A definition name must have a name that starts with ``definitions/``.")
+            raise ValueError("A definition name must have a name that starts with `definitions/`.")
 
         if not definition.product_name:
             raise ValueError("A definition must have a product name.")
