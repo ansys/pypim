@@ -1,7 +1,28 @@
 =====
 PyPIM
 =====
+|PyPI| |codecov| |CI| |MIT| |black|
 
+.. |PyPI| image:: https://img.shields.io/pypi/v/ansys-platform-instancemanagement
+    :target: https://pypi.org/project/ansys-platform-instancemanagement/
+    :alt: PyPI
+
+.. |codecov| image:: https://codecov.io/gh/pyansys/pypim/branch/main/graph/badge.svg
+   :target: https://codecov.io/gh/pyansys/pypim
+   :alt: Code Coverage
+
+.. |CI| image:: https://img.shields.io/github/workflow/status/pyansys/pypim/GitHub%20CI/main
+    :target: https://github.com/pyansys/pypim/actions/workflows/ci_cd.yml
+    :alt: GitHub Workflow Status (branch)
+
+.. |MIT| image:: https://img.shields.io/badge/License-MIT-yellow.svg
+   :target: https://opensource.org/licenses/MIT
+   :alt: MIT License
+
+.. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg?style=flat
+  :target: https://github.com/psf/black
+  :alt: black
+    
 PyPIM exposes a pythonic interface to communicate with the Product Instance
 Management API.
 
