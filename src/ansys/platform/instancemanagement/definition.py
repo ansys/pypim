@@ -75,6 +75,8 @@ class Definition:
         ----------
         definition : DefinitionV1
             Raw PIM API v1 protobuf object.
+        stub : ProductInstanceManagerStub
+            Stub for the PIM instance. The default is ``None``.
 
         Returns
         -------

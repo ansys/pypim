@@ -128,7 +128,6 @@ Consider upgrading ansys-platform-instancemanagement."
 
         Examples
         --------
-
             >>> import ansys.platform.instancemanagement as pypim
             >>> client = pypim.connect()
             >>> for definition in client.definitions(product_name="mapdl"):
@@ -157,7 +156,7 @@ Consider upgrading ansys-platform-instancemanagement."
 
         Returns
         -------
-        List
+        list
             List of instances.
 
         Examples
