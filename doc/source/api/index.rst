@@ -2,7 +2,9 @@
 API Reference
 =============
 
-This section gives an overview of the API of PyPIM.
+Welcome to PyPIM API documentation.
+Use the search feature or click the following links to view API
+documentation.
 
 .. automodule:: ansys.platform.instancemanagement
     :members:

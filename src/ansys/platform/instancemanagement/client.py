@@ -21,9 +21,9 @@ logger = logging.getLogger(__name__)
 
 
 class Client(contextlib.AbstractContextManager):
-    """High level client object to interact with the product instance management API.
+    """Provides an high-level client object for interacting with the PIM API.
 
-    This class exposes the methods of the product instance management API.
+    This class exposes the methods of the PIM API.
     """
 
     _channel: grpc.Channel
@@ -32,17 +32,21 @@ class Client(contextlib.AbstractContextManager):
     def __init__(self, channel: grpc.Channel) -> None:
         """Initialize the client library.
 
-        Args:
-            channel: gRPC channel hosting the connection.
+        Parameters
+        ----------
+        channel 
+            gRPC channel hosting the connection.
 
-        Examples:
+        Examples
+        --------
+
             >>> import ansys.platform.instancemanagement as pypim
             >>> import grpc
             >>> channel = grpc.insecure_channel("127.0.0.0:50001")
             >>> client = pypim.Client(channel)
 
         """
-        logger.info("Connecting")
+        logger.info("Connecting.")
         self._channel = channel
         self._stub = ProductInstanceManagerStub(self._channel)
 
@@ -59,17 +63,20 @@ class Client(contextlib.AbstractContextManager):
 
     @staticmethod
     def _from_configuration(config_path: str):
-        """Initialize a client based on the configuration file.
+        """Initialize the PyPIM client based on the configuration file.
 
-        Args:
-            config_path (str): Path of the configuration file.
+        Parameters
+        ----------
+        config_path : str
+            Path of the configuration file.
 
-        Returns:
-            Client: The PyPIM client.
+        Returns
+        -------
+            PyPIM client.
         """
         logger.debug("Initializing from %s", config_path)
 
-        # Note: this configuration should likely become a full featured object
+        # Note: this configuration should likely become a full-featured object
         # to be shared across PyPIM class at some point.
         # The configuration is a plain json file with the settings to create the
         # grpc channel.
@@ -81,7 +88,7 @@ class Client(contextlib.AbstractContextManager):
         if version != 1:
             raise RuntimeError(
                 f"The file configuration version {version} is not supported.\
-Consider upgrading ansys-platform-instancemanagement"
+Consider upgrading ansys-platform-instancemanagement."
             )
 
         pim_configuration = configuration["pim"]
@@ -104,15 +111,24 @@ Consider upgrading ansys-platform-instancemanagement"
     ) -> Sequence[Definition]:
         """Get the list of supported product definitions.
 
-        Args:
-            product_name (str, optional): Filter by product name if provided.
-            product_version (str, optional): Filter by product version if provided.
-            timeout (float, optional): Set a timeout in seconds for the request if provided.
+        Parameters
+        ----------
+        product_name : str, optional
+            Filter by product name if provided. The default is ``None``.
+        product_version : str, optional
+            Filter by product version if provided. The default is ``None``.
+        timeout : float, optional
+            Set a timeout in seconds for the request if provided. The default
+            is ``None``.
 
-        Returns:
-            Mapping[str, Definition]: The supported product definitions by name.
+        Returns
+        -------
+        Mapping : str, Definition
+            The supported product definitions by name.
 
-        Examples:
+        Examples
+        --------
+
             >>> import ansys.platform.instancemanagement as pypim
             >>> client = pypim.connect()
             >>> for definition in client.definitions(product_name="mapdl"):
@@ -134,21 +150,27 @@ Consider upgrading ansys-platform-instancemanagement"
     def instances(self, timeout: float = None) -> Sequence[Instance]:
         """List the existing instances.
 
-        Args:
-            timeout (float, optional): Maximum time in second for the request. Defaults to None.
+        Parameters
+        ----------
+        timeout : float, optional
+            Maximum time in seconds for the request. The default is ``None``.
 
-        Returns:
-            Sequence[Instance]: The list of instances
+        Returns
+        -------
+        Sequence : Instance
+            List of instances.
 
-        Examples:
+        Examples
+        --------
+
             >>> import ansys.platform.instancemanagement as pypim
             >>> client = pypim.connect()
             >>> for instance in client.instances():
             >>>     status = "ready" if instance.ready else "not ready"
-            >>>     print(f"The instance {instance.name} is {status}")
+            >>>     print(f"The instance {instance.name} is {status}.")
                 The instance instances/mapdl-221-yAVne0ve is ready
         """
-        logger.debug("Listing the instances")
+        logger.debug("Listing instances.")
         request = ListInstancesRequest()
         response = self._stub.ListInstances(request, timeout=timeout)
         return [Instance._from_pim_v1(instance, self._stub) for instance in response.instances]
@@ -163,21 +185,29 @@ Consider upgrading ansys-platform-instancemanagement"
 
         This effectively starts the product in the backend, according to the backend configuration.
 
-        The created instance will not yet be ready to use, you need to call `.wait_for_ready()`
-        to wait for it to be ready.
+        The created instance will not yet be ready to use. You must call ``.wait_for_ready()``
+        to wait for the instance to be ready.
 
-        Args:
-            product_name (str): Name of the product to start (eg. "mapdl")
-            product_version (str, optional): Version of the product (eg. "222"). Defaults to None.
-            requests_timeout (float, optional): Maximum time for each request in seconds.
+        Parameters
+        ----------
+        product_name : str
+            Name of the product to start (for example, ``mapdl``).
+        product_version : str, optional
+            Version of the product (for example, ``"222"``). The default is ``None``.
+        requests_timeout : float, optional
+            Maximum time for each request in seconds. The default is ``None``.
 
-        Raises:
-            RuntimeError: The product and/or the selected version is not available remotely.
+        Raises
+        ------
+            RuntimeError: The product or the selected version is not available remotely.
 
-        Returns:
+        Returns
+        -------
             Instance: An instance of the product.
 
-        Examples:
+        Examples
+        --------
+
             >>> import ansys.platform.instancemanagement as pypim
             >>> client = pypim.connect()
             >>> instance = client.create_instance(product_name="mapdl")
@@ -188,7 +218,7 @@ Consider upgrading ansys-platform-instancemanagement"
 
         """
         logger.debug(
-            "Creating a product instance for %s in version %s", product_name, product_version
+            "Creating a product instance for %s in version %s.", product_name, product_version
         )
         definitions = self.definitions(
             product_name=product_name, product_version=product_version, timeout=requests_timeout
@@ -196,7 +226,7 @@ Consider upgrading ansys-platform-instancemanagement"
 
         if len(definitions) == 0:
             raise RuntimeError(
-                f"The remote server does not support the requested product and/or version."
+                f"The remote server does not support the requested product or version."
             )
         definition = definitions[0]
         return definition.create_instance(timeout=requests_timeout)

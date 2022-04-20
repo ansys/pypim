@@ -1,4 +1,4 @@
-"""Entrypoint for the product instance management python client library."""
+"""Entry point for the PIM Python client library."""
 
 try:
     import importlib.metadata as importlib_metadata
@@ -20,8 +20,10 @@ CONFIGURATION_PATH_ENVIRONMENT_VARIABLE = "ANSYS_PLATFORM_INSTANCEMANAGEMENT_CON
 def is_configured() -> bool:
     """Check if the environment is configured to use PyPIM.
 
-    Returns:
-        bool: True if the environment is configured to use PyPIM.
+    Returns
+    -------
+    bool
+       ``True`` when successful, ``False`` when failed.
     """
     return CONFIGURATION_PATH_ENVIRONMENT_VARIABLE in os.environ
 
@@ -35,8 +37,7 @@ def connect() -> Client:
     The environment configuration consists in setting the environment variable
     ``ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG`` to the path of the PyPIM
     configuration file. The configuration file is a simple json file containing
-    the URI of the Product Instance Management API and headers required to pass
-    information.
+    the URI of the PIM API and headers required to pass information.
 
     The configuration file format is:
 
@@ -54,14 +55,19 @@ def connect() -> Client:
         }
 
 
-    Raises:
-        RuntimeError: The environment is not configured to use PyPIM
+    Raises
+    ------
+    RuntimeError: The environment is not configured to use PyPIM.
 
-    Returns:
-        Client: A PyPIM client, the main entrypoint to use this library.
+    Returns
+    -------
+    client
+        PyPIM client, which is the main entry point to using this library.
 
 
-    Examples:
+    Examples
+    --------
+    
         >>> import ansys.platform.instancemanagement as pypim
         >>> if pypim.is_configured():
         >>>     client = pypim.connect()

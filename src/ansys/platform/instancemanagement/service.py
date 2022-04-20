@@ -13,15 +13,13 @@ from ansys.platform.instancemanagement.interceptor import header_adder_intercept
 
 @dataclass(frozen=True)
 class Service:
-    """An entrypoint to communicate with a remote product.
-
-    It can be used to communicate with a remote product.
+    """An entry point to communicate with a remote product.  
     """
 
     uri: str
-    """The URI to reach the service.
+    """URI to reach the service.
 
-    For gRPC, this is a valid URI, following gRPC name resolution
+    For gRPC, this is a valid URI, following gRPC-name resolution
     syntax: https://grpc.github.io/grpc/core/md_doc_naming.html
 
     For HTTP/REST, this is a valid http or https URI. It is the base
@@ -34,7 +32,7 @@ class Service:
     For a gRPC service, this should be translated into metadata included in
     every communication with the service.
 
-    For a REST-like service, this sshould be translated into headers included in
+    For a REST-like service, this should be translated into headers included in
     every communication with the service.
     """
 
@@ -44,13 +42,16 @@ class Service:
     ) -> grpc.Channel:
         """Build a gRPC channel communicating with the product instance.
 
-        Args:
-            kwargs: Optional named arguments for gRPC construction.
-            They will be passed to `grpc.insecure_channel`
+        Parameteers
+        -----------
+        kwargs: list, optional
+            Named arguments for gRPC construction.
+            They are passed to ``grpc.insecure_channel``.
 
-        Returns:
-            grpc.Channel: gRPC channel ready to be used for communicating with
-            the service.
+        Returns
+        -------
+        grpc.Channel
+            gRPC channel ready to be used for communicating with the service.
         """
         headers = self.headers.items()
         interceptor = header_adder_interceptor(headers)
@@ -59,18 +60,23 @@ class Service:
 
     @staticmethod
     def _from_pim_v1(service: ServiceV1):
-        """Build a Definition from the PIM API v1 protobuf object.
+        """Build a definition from the PIM API v1 protobuf object.
 
-        Args:
-            service (ServiceV1): raw PIM API v1 protobuf object
+        Parameters
+        ----------
+        service : ServiceV1
+            Raw PIM API v1 protobuf object.
 
-        Raises:
-            ValueError: The raw protobuf message is not valid
+        Raises
+        ------
+        ValueError: The raw protobuf message is not valid.
 
-        Returns:
-            Definition: The PyPIM service
+        Returns
+        -------
+        type
+            PyPIM service definition.
         """
         if not service.uri:
-            raise ValueError("A service must have an uri")
+            raise ValueError("A service must have an uri.")
 
         return Service(uri=service.uri, headers=service.headers)

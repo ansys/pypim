@@ -26,9 +26,9 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class Instance(contextlib.AbstractContextManager):
-    """A remote instance of a product.
+    """Provides a remote instance of a product.
 
-    This class is a context manager and can be used with the `with` statement to
+    This class is a context manager and can be used with the ``with`` statement to
     automatically stop the remote instance when the tasks are finished.
     """
 
@@ -38,29 +38,29 @@ class Instance(contextlib.AbstractContextManager):
     name: str
     """Name of the instance.
 
-    This name is chosen by the server and always start with "instances/"."""
+    This name is chosen by the server and always start with ``"instances/"``."""
 
     ready: bool
-    """Indicates if the instance is ready.
+    """Whether the instance is ready.
 
-    If `True` then the ``services`` field will contain the list of entrypoints
+    If ``True``, the ``services`` field contains the list of entry points
     exposed by the instance.
 
-    If `False` then the ``status_message`` field will
-    contain a human readable reason."""
+    If ``False``, the ``status_message`` field contains a human-readable
+    reason."""
 
     status_message: str
     """Status of the instance.
 
-    Human readable message describing the status of the instance.
+    Human-readable message describing the status of the instance.
     This field is always filled when the instance is not ready."""
 
     services: Mapping[str, Service]
-    """List of entrypoints exposed by the instance.
+    """List of entry points exposed by the instance.
 
     This field is only filled when the instance is ready.
-    If the instance exposes a gRPC API, it will be named `grpc`.
-    If the instance exposes a REST-like API, it will be named `http`.
+    If the instance exposes a gRPC API, it is named ``grpc``.
+    If the instance exposes a REST-like API, it is named ``http``.
 
     It may contain additional entries for custom scenarios such as sidecar services
     or other protocols."""
@@ -84,11 +84,15 @@ class Instance(contextlib.AbstractContextManager):
     def _create(definition_name: str, stub: ProductInstanceManagerStub, timeout: float = None):
         """Create a product instance from the given definition.
 
-        Args:
-            timeout (float): Time (in seconds) to create the instance.
+        Parameters
+        ----------
+        timeout : float
+            Time in seconds to create the instance. The default is ``None``.
 
-        Returns:
-            Instance: The product instance
+        Returns
+        -------
+        instance
+            Product instance.
         """
         request = CreateInstanceRequest(instance=InstanceV1(definition_name=definition_name))
         instance = stub.CreateInstance(request, timeout=timeout)
@@ -97,8 +101,10 @@ class Instance(contextlib.AbstractContextManager):
     def delete(self, timeout: float = None):
         """Delete the remote product instance.
 
-        Args:
-            timeout (float, optional): Time (in seconds) to delete the instance. Defaults to None.
+        Parameters
+        ----------
+        timeout : float, optional
+            Time in seconds to delete the instance. The default is ``None``.
         """
         request = DeleteInstanceRequest(name=self.name)
         self._stub.DeleteInstance(request, timeout=timeout)
@@ -106,8 +112,10 @@ class Instance(contextlib.AbstractContextManager):
     def update(self, timeout: float = None):
         """Update the instance information from the remote status.
 
-        Args:
-            timeout (float, optional): Time (in seconds) to update the instance. Defaults to None.
+        Parameters
+        ----------
+        timeout : float, optional
+            Time in seconds to update the instance. The default is ``None``.
         """
         request = GetInstanceRequest(name=self.name)
         instance = self._stub.GetInstance(request, timeout=timeout)
@@ -131,11 +139,12 @@ class Instance(contextlib.AbstractContextManager):
         After calling this method, the instance services are filled and ready to
         be used.
 
-        Args:
-            polling_interval (float, optional): Time to wait between each
-            request in seconds. Defaults to 0.5.
-            timeout_per_request (float, optional): Timeout for each request in seconds.
-            Defaults to None.
+        Parameters
+        ----------
+        polling_interval : float, optional
+            Time to wait between each request in seconds. The default is ``0.5``.
+        timeout_per_request : float, optional
+            Timeout for each request in seconds. The default is ``None``.
         """
         self.update(timeout=timeout_per_request)
         while not self.ready:
@@ -147,17 +156,25 @@ class Instance(contextlib.AbstractContextManager):
 
         The instance must be ready before calling this method.
 
-        Args:
-            service_name (str, optional): Custom service name. Defaults to "grpc".
-            kwargs: Will be passed to the grpc channel creation.
+        Parameters
+        ----------
+        service_name : str, optional
+            Custom service name. The default is ``"grpc"``.
+        kwargs: list
+            Named argument to pass to the gRPC channel creation.
 
-        Raises:
-            ValueError: The instance does not support gRPC, or the service name is wrong.
+        Raises
+        ------
+        ValueError: The instance does not support gRPC, or the service name is wrong.
 
-        Returns:
-            grpc.Channel: gRPC channel preconfigured to work with the instance.
+        Returns
+        -------
+        grpc.Channel
+            gRPC channel preconfigured to work with the instance.
 
-        Examples:
+        Examples
+        --------
+
             >>> import ansys.platform.instancemanagement as pypim
             >>> from ansys.mapdl.core import Mapdl
             >>> pim=pypim.connect()
@@ -186,16 +203,19 @@ class Instance(contextlib.AbstractContextManager):
     def _from_pim_v1(instance: InstanceV1, stub: ProductInstanceManagerStub = None):
         """Create a PyPIM instance from the raw protobuf message.
 
-        Args:
-            instance (InstanceV1): The raw protobuf message from the PIM API.
-            stub (ProductInstanceManagerStub, optional): PIM Stub
+        Parameters
+        ----------
+        instance : InstanceV1
+            Raw protobuf message from the PIM API.
+        stub : ProductInstanceManagerStub, optional
+            PIM stub.
         """
         if instance.name and not instance.name.startswith("instances/"):
-            raise ValueError("An instance name must start with `instances/`")
+            raise ValueError("An instance name must start with ``instances/``.")
 
         if not instance.definition_name or not instance.definition_name.startswith("definitions/"):
             raise ValueError(
-                "An instance must have a definition name that starts with definitions/"
+                "An instance must have a definition name that starts with ``definitions/``."
             )
 
         return Instance(

@@ -23,44 +23,39 @@ PyPIM
   :target: https://github.com/psf/black
   :alt: black
     
-PyPIM exposes a pythonic interface to communicate with the Product Instance
-Management API.
+PyPIM exposes a Pythonic interface to communicate with the Product Instance
+Management (PIM) API.
 
-What is the Product Instance Management API?
+What is the PIM API?
 ============================================
 
-The Product Instance Management API is a gRPC API enabling library and
-application developers to start a product in a remote environment and
-communicate with its API.
+The PIM API is a gRPC API enabling library and application developers to
+start a product in a remote environment and communicate with its API.
 
-It is intended to be as simple as possible to be adaptable in a variety of
-network and software infrastructure. Using this API does not require any
-knowledge on this infrastructure, we want users to only know which product to
-start, and which API the product exposes. The API itself exposes very little
-feature and assumes that all the configuration is set on a server.
+The PIM API is intended to be as simple as possible to be adaptable in a variety of
+network and software infrastructures. Using this API does not require any
+knowledge of its infrastructure. You need only know which product to
+start and which API the product exposes. The API itself exposes very few
+features and assumes that all the configuration is set on a server.
 
-It is not intended to manage stateless services, to be a job management system,
-or a fully featured service orchestration API, but rather to to expose a minimum
-feature set of such API for service oriented applications.
+The PIM API is not intended to manage stateless services, to be a job management
+system, or a fully featured service orchestration API. Its purpose is to expose
+a minimum feature set for managing service-oriented applications.
 
 Getting Started
 ===============
-
-To use PyPIM, you need to have access to an exposition of the "Product
-Instance Management" API.
+To use PyPIM, you must have access to the PIM API.
 
 .. note::
-    This is a work in progress and there is no public exposition or
+    PyPIM is a work in progress. There is no public expossure or
     distribution of an implementation yet.
 
-
-PyPIM itself is pure python and relies on `gRPC`_.
+PyPIM itself is pure Python and relies on `gRPC`_.
 
 .. _`gRPC`: https://grpc.io/
 
 Installation
 ------------
-
 The ``ansys-platform-instancemanagement`` package is tested for Python 3.7 through
 Python 3.10 on Windows and Linux.
 
@@ -70,11 +65,10 @@ Python 3.10 on Windows and Linux.
 
 Usage
 -----
-
 PyPIM is a single module called ``ansys.platform.instancemanagement``, shortened
 to ``pypim``.
 
-Starting MAPDL and communicating with it:
+To start MAPDL and communicate with PyPIM:
 
 .. code-block::
     
@@ -90,7 +84,7 @@ Starting MAPDL and communicating with it:
                 mapdl.prep7()
                 ...
 
-PyPIM can also be used without using the ``with`` statement:
+You can also use PyPIM without the ``with`` statement:
 
 .. code-block::
     
