@@ -35,7 +35,7 @@ start a product in a remote environment and communicate with its API.
 The PIM API is intended to be as simple as possible to be adaptable in a variety of
 network and software infrastructures. Using this API does not require any
 knowledge of its infrastructure. You need only know which product to
-start and which API the product exposes. The API itself exposes very few
+start and which API the product exposes. The PIM API itself exposes very few
 features and assumes that all the configuration is set on a server.
 
 The PIM API is not intended to manage stateless services, to be a job management

@@ -26,7 +26,7 @@ Running Tests
 Test automation relies on `tox`.
 
 Tests are entirely based on mocks and do not require any external software. Run
-the tests with the following code, where `py38` represents your Python version:
+the tests with the following code, where ``py38`` represents your Python version:
 
 .. code-block::
     
@@ -47,7 +47,7 @@ Building the Package
 
 The PyPIM package is built using `flit`.
 
-You can build the PyPIM package with:
+You can build the package with:
 
 .. code-block::
     

@@ -37,8 +37,8 @@ class Definition:
     """Version of the product.
 
     This is a string describing the version.
-    When the product is following the Ansys unified installation release process,
-    it will be the three-number version, such as "221".
+    When the product is following the release process for the Ansys unified installation,
+    the version is three numbers, such as "221".
     """
 
     available_service_names: Sequence[str]
