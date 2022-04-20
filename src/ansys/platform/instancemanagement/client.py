@@ -123,8 +123,8 @@ Consider upgrading ansys-platform-instancemanagement."
 
         Returns
         -------
-        Mapping : str, Definition
-            The supported product definitions by name.
+        list
+            List of supported product definitions.
 
         Examples
         --------
@@ -157,7 +157,7 @@ Consider upgrading ansys-platform-instancemanagement."
 
         Returns
         -------
-        Sequence : Instance
+        List
             List of instances.
 
         Examples
@@ -199,7 +199,8 @@ Consider upgrading ansys-platform-instancemanagement."
 
         Returns
         -------
-            Instance: An instance of the product.
+        Instance
+            Instance of the product.
 
         Raises
         ------
