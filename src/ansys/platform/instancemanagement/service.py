@@ -41,7 +41,7 @@ class Service:
     ) -> grpc.Channel:
         """Build a gRPC channel communicating with the product instance.
 
-        Parameteers
+        Parameters
         -----------
         kwargs: list, optional
             Named arguments for gRPC construction.
@@ -68,7 +68,8 @@ class Service:
 
         Returns
         -------
-        type
+        Service
+            The PyPIM service
             PyPIM service definition.
 
         Raises

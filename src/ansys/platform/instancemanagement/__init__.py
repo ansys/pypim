@@ -23,7 +23,7 @@ def is_configured() -> bool:
     Returns
     -------
     bool
-       ``True`` when successful, ``False`` when failed.
+       ``True`` when the environment is configured to use PyPIM, ``False`` when it is not.
     """
     return CONFIGURATION_PATH_ENVIRONMENT_VARIABLE in os.environ
 
@@ -57,12 +57,13 @@ def connect() -> Client:
 
     Returns
     -------
-    client
+    Client
         PyPIM client, which is the main entry point to using this library.
 
     Raises
     ------
-    RuntimeError: The environment is not configured to use PyPIM.
+    RuntimeError
+        The environment is not configured to use PyPIM.
 
     Examples
     --------

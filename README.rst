@@ -47,7 +47,7 @@ Getting Started
 To use PyPIM, you must have access to the PIM API.
 
 .. note::
-    PyPIM is a work in progress. There is no public expossure or
+    The PIM API is a work in progress. There is no public exposure or
     distribution of an implementation yet.
 
 PyPIM itself is pure Python and relies on `gRPC`_.

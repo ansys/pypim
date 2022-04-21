@@ -80,12 +80,13 @@ class Definition:
 
         Returns
         -------
-        instance
+        Instance
             PyPIM instance definition.
 
         Raises
         ------
-        ValueError: The raw protobuf message is not valid.
+        ValueError
+            The raw protobuf message is not valid.
         """
         if not definition.name or not definition.name.startswith("definitions/"):
             raise ValueError("A definition name must have a name that starts with `definitions/`.")

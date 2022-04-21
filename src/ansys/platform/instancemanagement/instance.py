@@ -91,7 +91,7 @@ class Instance(contextlib.AbstractContextManager):
 
         Returns
         -------
-        instance
+        Instance
             Product instance.
         """
         request = CreateInstanceRequest(instance=InstanceV1(definition_name=definition_name))
@@ -170,7 +170,8 @@ class Instance(contextlib.AbstractContextManager):
 
         Raises
         ------
-        ValueError: The instance does not support gRPC, or the service name is wrong.
+        ValueError
+            The instance does not support gRPC, or the service name is wrong.
 
         Examples
         --------

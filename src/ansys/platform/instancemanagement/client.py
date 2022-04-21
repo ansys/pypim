@@ -71,7 +71,7 @@ class Client(contextlib.AbstractContextManager):
 
         Returns
         -------
-        client
+        Client
             PyPIM client.
         """
         logger.debug("Initializing from %s", config_path)
@@ -197,7 +197,7 @@ Consider upgrading ansys-platform-instancemanagement."
 
         Returns
         -------
-        instance
+        Instance
             Instance of the product.
 
         Raises

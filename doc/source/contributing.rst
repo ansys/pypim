@@ -23,7 +23,12 @@ Run this code to clone and install the latest version of PyPIM in development mo
 
 Running Tests
 -------------
-Test automation relies on `tox`.
+Test automation relies on `tox`_. `tox`_ can be installed with:
+
+.. code-block::
+
+    pip install tox
+
 
 Tests are entirely based on mocks and do not require any external software. Run
 the tests with the following code, where ``py38`` represents your Python version:
