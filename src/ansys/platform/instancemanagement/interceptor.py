@@ -1,6 +1,6 @@
 """Interceptor that adds headers to outgoing requests.
 
-This is a direct adaptation of the official gRPC example, but supporting multiple headers.
+This is a direct adaptation of the official gRPC example, but it supports multiple headers.
 https://github.com/grpc/grpc/tree/master/examples/python/interceptors/headers
 """
 
@@ -58,8 +58,10 @@ class _ClientCallDetails(
 def header_adder_interceptor(headers: Sequence[Tuple[str, str]]):
     """Interceptor adding a set of headers to the requests.
 
-    Args:
-        headers (Sequence[Tuple[str, str]]): List of metadata to inject
+    Parameters
+    ----------
+    headers : Sequence[Tuple[str, str]]
+        List of metadata to inject.
     """
 
     def intercept_call(client_call_details, request_iterator, *_):
