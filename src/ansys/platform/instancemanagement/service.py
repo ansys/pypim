@@ -74,7 +74,8 @@ class Service:
 
         Raises
         ------
-        ValueError: The raw protobuf message is not valid.
+        ValueError
+            The raw protobuf message is not valid.
         """
         if not service.uri:
             raise ValueError("A service must have an URI.")
