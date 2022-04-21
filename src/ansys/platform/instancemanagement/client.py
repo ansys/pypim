@@ -34,7 +34,7 @@ class Client(contextlib.AbstractContextManager):
 
         Parameters
         ----------
-        channel 
+        channel
             gRPC channel hosting the connection.
 
         Examples

@@ -13,8 +13,7 @@ from ansys.platform.instancemanagement.interceptor import header_adder_intercept
 
 @dataclass(frozen=True)
 class Service:
-    """An entry point to communicate with a remote product.  
-    """
+    """An entry point to communicate with a remote product."""
 
     uri: str
     """URI to reach the service.
@@ -65,13 +64,13 @@ class Service:
         Parameters
         ----------
         service : ServiceV1
-            Raw PIM API v1 protobuf object.       
+            Raw PIM API v1 protobuf object.
 
         Returns
         -------
         type
             PyPIM service definition.
-        
+
         Raises
         ------
         ValueError: The raw protobuf message is not valid.

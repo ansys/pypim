@@ -63,7 +63,7 @@ def connect() -> Client:
     Raises
     ------
     RuntimeError: The environment is not configured to use PyPIM.
-    
+
     Examples
     --------
         >>> import ansys.platform.instancemanagement as pypim
