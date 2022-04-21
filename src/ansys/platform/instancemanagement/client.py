@@ -202,7 +202,8 @@ Consider upgrading ansys-platform-instancemanagement."
 
         Raises
         ------
-        RuntimeError: The product or the selected version is not available remotely.
+        RuntimeError
+            The product or the selected version is not available remotely.
 
         Examples
         --------
