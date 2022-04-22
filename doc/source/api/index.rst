@@ -7,7 +7,8 @@ Use the search feature or click the following links to view API
 documentation.
 
 .. automodule:: ansys.platform.instancemanagement
-    :members:
+    :members: connect, is_configured
+    :ignore-module-all:
 
 .. currentmodule:: ansys.platform.instancemanagement
 
@@ -19,4 +20,8 @@ documentation.
     Definition
     Instance
     Service
-    
+    NotConfiguredError
+    InstanceNotReadyError
+    UnsupportedServiceError
+    InvalidConfigurationError
+    UnsupportedProductError

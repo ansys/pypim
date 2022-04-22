@@ -14,6 +14,11 @@ from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2_grpc 
 import grpc
 
 from ansys.platform.instancemanagement.definition import Definition
+from ansys.platform.instancemanagement.exceptions import (
+    InvalidConfigurationError,
+    RemoteError,
+    UnsupportedProductError,
+)
 from ansys.platform.instancemanagement.instance import Instance
 from ansys.platform.instancemanagement.interceptor import header_adder_interceptor
 
@@ -73,6 +78,11 @@ class Client(contextlib.AbstractContextManager):
         -------
         Client
             PyPIM client.
+
+        Raises
+        ------
+        InvalidConfigurationError
+            The configuration is not valid.
         """
         logger.debug("Initializing from %s", config_path)
 
@@ -82,22 +92,36 @@ class Client(contextlib.AbstractContextManager):
         # grpc channel.
 
         with open(config_path, "r") as f:
-            configuration = json.load(f)
+            try:
+                configuration = json.load(f)
+            except json.JSONDecodeError:
+                raise InvalidConfigurationError(config_path, "Invalid json.")
 
-        version = configuration["version"]
-        if version != 1:
-            raise RuntimeError(
-                f"The file configuration version {version} is not supported.\
-Consider upgrading ansys-platform-instancemanagement."
+        # What follows should likely be done with a schema validation
+        try:
+            version = configuration["version"]
+            if version != 1:
+                raise InvalidConfigurationError(
+                    config_path,
+                    f'Unsupported version "{version}".\
+Consider upgrading ansys-platform-instancemanagement.',
+                )
+
+            pim_configuration = configuration["pim"]
+            tls = pim_configuration["tls"]
+            if tls:
+                raise InvalidConfigurationError(
+                    config_path, f"Secured connection is not yet supported."
+                )
+
+            uri = pim_configuration["uri"]
+            headers = [(key, value) for key, value in pim_configuration["headers"].items()]
+        except KeyError as e:
+            key = e.args[0]
+            raise InvalidConfigurationError(
+                config_path, f"The configuration is missing the entry {key}."
             )
 
-        pim_configuration = configuration["pim"]
-        tls = pim_configuration["tls"]
-        if tls:
-            raise RuntimeError(f"Secured connection is not yet supported.")
-
-        uri = pim_configuration["uri"]
-        headers = [(key, value) for key, value in pim_configuration["headers"].items()]
         channel = grpc.intercept_channel(
             grpc.insecure_channel(uri), header_adder_interceptor(headers)
         )
@@ -141,7 +165,12 @@ Consider upgrading ansys-platform-instancemanagement."
             product_version,
         )
         request = ListDefinitionsRequest(product_name=product_name, product_version=product_version)
-        response = self._stub.ListDefinitions(request, timeout=timeout)
+
+        try:
+            response = self._stub.ListDefinitions(request, timeout=timeout)
+        except grpc.RpcError as exc:
+            raise RemoteError(exc, exc.details()) from exc
+
         return [
             Definition._from_pim_v1(definition, self._stub) for definition in response.definitions
         ]
@@ -170,7 +199,12 @@ Consider upgrading ansys-platform-instancemanagement."
         """
         logger.debug("Listing instances.")
         request = ListInstancesRequest()
-        response = self._stub.ListInstances(request, timeout=timeout)
+
+        try:
+            response = self._stub.ListInstances(request, timeout=timeout)
+        except grpc.RpcError as exc:
+            raise RemoteError(exc, exc.details()) from exc
+
         return [Instance._from_pim_v1(instance, self._stub) for instance in response.instances]
 
     def create_instance(
@@ -183,8 +217,8 @@ Consider upgrading ansys-platform-instancemanagement."
 
         This effectively starts the product in the backend, according to the backend configuration.
 
-        The created instance will not yet be ready to use. You must call ``.wait_for_ready()``
-        to wait for the instance to be ready.
+        The created instance will not yet be ready to use. You must call
+        :func:`~Instance.wait_for_ready()` to wait for the instance to be ready.
 
         Parameters
         ----------
@@ -202,7 +236,7 @@ Consider upgrading ansys-platform-instancemanagement."
 
         Raises
         ------
-        RuntimeError
+        UnsupportedProductError
             The product or the selected version is not available remotely.
 
         Examples
@@ -224,8 +258,8 @@ Consider upgrading ansys-platform-instancemanagement."
         )
 
         if len(definitions) == 0:
-            raise RuntimeError(
-                f"The remote server does not support the requested product or version."
+            raise UnsupportedProductError(
+                product_name=product_name, product_version=product_version
             )
         definition = definitions[0]
         return definition.create_instance(timeout=requests_timeout)

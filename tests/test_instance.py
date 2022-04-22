@@ -38,52 +38,6 @@ def test_from_pim_v1_proto():
     }
 
 
-@pytest.mark.parametrize(
-    "invalid_instance",
-    [
-        pb2.Instance(
-            name="bad-name",
-            definition_name="definitions/my-definition",
-            ready=False,
-            status_message="not yet ready",
-            services={
-                "grpc": pb2.Service(uri="dns://some-service:651", headers={"token": "hello-world"}),
-                "http": pb2.Service(
-                    uri="https://some-service:651", headers={"token": "hello-world"}
-                ),
-            },
-        ),
-        pb2.Instance(
-            name="instances/my-instance",
-            definition_name=None,
-            ready=False,
-            status_message="not yet ready",
-            services={
-                "grpc": pb2.Service(uri="dns://some-service:651", headers={"token": "hello-world"}),
-                "http": pb2.Service(
-                    uri="https://some-service:651", headers={"token": "hello-world"}
-                ),
-            },
-        ),
-        pb2.Instance(
-            name="instances/my-instance",
-            definition_name="bad-name",
-            ready=False,
-            status_message="not yet ready",
-            services={
-                "grpc": pb2.Service(uri="dns://some-service:651", headers={"token": "hello-world"}),
-                "http": pb2.Service(
-                    uri="https://some-service:651", headers={"token": "hello-world"}
-                ),
-            },
-        ),
-    ],
-)
-def test_from_pim_v1_proto_value_error(invalid_instance):
-    with pytest.raises(ValueError):
-        pypim.Instance._from_pim_v1(invalid_instance)
-
-
 def test_create(
     testing_pool: ThreadPoolExecutor,
     testing_channel: grpc_testing.Channel,
@@ -282,6 +236,79 @@ def test_update(
     assert instance == expected_updated_instance
 
 
+def test_update_notfound(
+    testing_pool: ThreadPoolExecutor,
+    testing_channel: grpc_testing.Channel,
+):
+    # Arrange
+    # A server serving a 404 on GetInstance
+    def server():
+        _, update_request, rpc = testing_channel.take_unary_unary(GET_INSTANCE_METHOD)
+        rpc.terminate(None, [], StatusCode.NOT_FOUND, "")
+        return update_request
+
+    testing_pool.submit(server)
+
+    # An instance
+    stub = pb2_grpc.ProductInstanceManagerStub(testing_channel)
+    instance = pypim.Instance(
+        name="instances/hello-world-32",
+        definition_name="definitions/my-def",
+        ready=False,
+        status_message="loading...",
+        services={},
+        _stub=stub,
+    )
+
+    # Act
+    # Update the instance
+    with pytest.raises(pypim.InstanceNotFoundError) as exc:
+        instance.update()
+
+    # Assert
+    # The user gets a useful error
+    assert "instances/hello-world-32" in str(exc)
+    assert "deleted" in str(exc)
+    # And can inspect the inner error
+    assert exc.value.__cause__.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_update_error(
+    testing_pool: ThreadPoolExecutor,
+    testing_channel: grpc_testing.Channel,
+):
+    # Arrange
+    # A server serving a 500 on GetInstance
+    def server():
+        _, update_request, rpc = testing_channel.take_unary_unary(GET_INSTANCE_METHOD)
+        rpc.terminate(None, [], StatusCode.INTERNAL, "I'm a teapot")
+        return update_request
+
+    testing_pool.submit(server)
+
+    # An instance
+    stub = pb2_grpc.ProductInstanceManagerStub(testing_channel)
+    instance = pypim.Instance(
+        name="instances/hello-world-32",
+        definition_name="definitions/my-def",
+        ready=False,
+        status_message="loading...",
+        services={},
+        _stub=stub,
+    )
+
+    # Act
+    # Update the instance
+    with pytest.raises(pypim.RemoteError) as exc:
+        instance.update()
+
+    # Assert
+    # The user got the server message
+    assert "I'm a teapot" in str(exc)
+    # And can inspect the inner error
+    assert exc.value.__cause__.code() == grpc.StatusCode.INTERNAL
+
+
 def test_wait_for_ready(testing_channel):
     # Arrange
     # A mocked instance where the update will not be ready
@@ -356,3 +383,48 @@ def test_create_channel():
     sidecar_service._build_grpc_channel.assert_called_once()
     assert channel1 == main_channel
     assert channel2 == sidecar_channel
+
+
+def test_create_channel_not_ready():
+    # Arrange
+    # An instance that's not ready
+    instance = pypim.Instance(
+        name="instances/hello-world-32",
+        definition_name="definitions/my-def",
+        ready=False,
+        status_message="Creating...",
+        services={},
+    )
+
+    # Act
+    # Attempt to create a channel
+    with pytest.raises(pypim.InstanceNotReadyError) as exc:
+        instance.build_grpc_channel()
+
+    # Assert
+    # The exception was raised with a descriptive error
+    assert "instances/hello-world-32" in str(exc)
+
+
+def test_create_channel_not_supported():
+    # Arrange
+    # An instance that does not support grpc
+    instance = pypim.Instance(
+        name="instances/hello-world-32",
+        definition_name="definitions/my-def",
+        ready=True,
+        status_message=None,
+        services={
+            "http": "http://example.com",
+        },
+    )
+
+    # Act
+    # Attempt to create a channel
+    with pytest.raises(pypim.UnsupportedServiceError) as exc:
+        instance.build_grpc_channel()
+
+    # Assert
+    # The exception was raised with a descriptive error
+    assert "instances/hello-world-32" in str(exc)
+    assert "grpc" in str(exc)

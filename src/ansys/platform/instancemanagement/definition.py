@@ -82,24 +82,7 @@ class Definition:
         -------
         Instance
             PyPIM instance definition.
-
-        Raises
-        ------
-        ValueError
-            The raw protobuf message is not valid.
         """
-        if not definition.name or not definition.name.startswith("definitions/"):
-            raise ValueError("A definition name must have a name that starts with `definitions/`.")
-
-        if not definition.product_name:
-            raise ValueError("A definition must have a product name.")
-
-        if not definition.product_version:
-            raise ValueError("A definition must have a product version.")
-
-        if not definition.available_service_names or len(definition.available_service_names) == 0:
-            raise ValueError("A definition must have at least one service name.")
-
         return Definition(
             definition.name,
             definition.product_name,
