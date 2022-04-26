@@ -31,7 +31,8 @@ class InstanceNotReadyError(RuntimeError):
 
 
 class UnsupportedServiceError(ValueError):
-    """Indicates an attempt was made to communicate with an instance using a service that is not supported."""
+    """Indicates an attempt was made to communicate with an instance using a service that is not\
+        supported."""
 
     instance_name: str
     """Name of the instance."""
@@ -72,7 +73,7 @@ class UnsupportedProductError(RuntimeError):
     product_name: str
     """Name of the requested product."""
 
-    product_version: str, optional
+    product_version: str
     """Version of the requested product."""
 
     def __init__(self, product_name: str, product_version: str) -> None:
