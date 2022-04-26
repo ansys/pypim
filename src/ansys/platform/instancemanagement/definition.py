@@ -48,7 +48,7 @@ class Definition:
 
         This is a string describing the version.
         When the product is following the release process for the Ansys unified installation,
-        the version is three numbers, such as "221".
+        the version is three digits, such as "221".
         """
         return self._product_version
 

@@ -62,10 +62,10 @@ class Instance(contextlib.AbstractContextManager):
     def ready(self) -> bool:
         """Whether the instance is ready.
 
-        If ``True``, the ``services`` field contains the list of entry points
+        If ``True``, the ``services`` property contains the list of entry points
         exposed by the instance.
 
-        If ``False``, the ``status_message`` field contains a human-readable
+        If ``False``, the ``status_message`` property contains a human-readable
         reason.
         """
         return self._ready
@@ -75,7 +75,7 @@ class Instance(contextlib.AbstractContextManager):
         """Status of the instance.
 
         Human-readable message describing the status of the instance.
-        This field is always filled when the instance is not ready.
+        This property is always filled when the instance is not ready.
         """
         return self._status_message
 
@@ -83,7 +83,7 @@ class Instance(contextlib.AbstractContextManager):
     def services(self) -> Mapping[str, Service]:
         """List of entry points exposed by the instance.
 
-        This field is only filled when the instance is ready.
+        This property is only filled when the instance is ready.
         If the instance exposes a gRPC API, it is named ``grpc``.
         If the instance exposes a REST-like API, it is named ``http``.
 
