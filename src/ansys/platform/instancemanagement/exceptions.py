@@ -5,7 +5,7 @@ import grpc
 
 
 class NotConfiguredError(RuntimeError):
-    """An attempt was made to use PyPIM without the mandatory configuration.
+    """Indicates an attempt was made to use PyPIM without the mandatory configuration.
 
     Consider calling :func:`~is_configured()` before using :func:`~connect()`.
     """
@@ -14,7 +14,7 @@ class NotConfiguredError(RuntimeError):
 
 
 class InstanceNotReadyError(RuntimeError):
-    """An attempt was made to communicate with an instance that is not yet ready.
+    """Indicates an attempt was made to communicate with an instance that is not yet ready.
 
     Consider calling :func:`~Instance.wait_for_ready`
     or checking :attr:`~Instance.ready` before use.
@@ -31,13 +31,13 @@ class InstanceNotReadyError(RuntimeError):
 
 
 class UnsupportedServiceError(ValueError):
-    """An attempt was made to communicate with an instance using a service that is not supported."""
+    """Indicates an attempt was made to communicate with an instance using a service that is not supported."""
 
     instance_name: str
-    """Name of the instance"""
+    """Name of the instance."""
 
     service_name: str
-    """Name of the unsupported service"""
+    """Name of the unsupported service."""
 
     def __init__(self, instance_name: str, service_name: str) -> None:
         """Construct the error from the instance name and unsupported service."""
@@ -48,7 +48,7 @@ class UnsupportedServiceError(ValueError):
 
 
 class InvalidConfigurationError(RuntimeError):
-    """The PyPIM is configured but the configuration is invalid."""
+    """Indicates PyPIM is configured, but the configuration is invalid."""
 
     configuration_path: str
     """Path of the invalid configuration."""
@@ -61,22 +61,22 @@ class InvalidConfigurationError(RuntimeError):
 
 
 class UnsupportedProductError(RuntimeError):
-    """The product or version is not supported by the remote server.
+    """Indicates that the product or version is not supported by the remote server.
 
     This error is raised when trying to start a product that does not contain
     any matching definition in the remote server.
 
-    You may try to lift some of the constraints, such as the version constraint.
+    You can try to lift some of the constraints, such as the version constraint.
     """
 
     product_name: str
     """Name of the requested product."""
 
-    product_version: str
-    """(optional) Version of the requested product."""
+    product_version: str, optional
+    """Version of the requested product."""
 
     def __init__(self, product_name: str, product_version: str) -> None:
-        """Construct the error from the unsupported product and/or version."""
+        """Construct the error from the unsupported product, version, or both."""
         self.product_name = product_name
         self.product_version = product_version
         if product_version:
@@ -91,21 +91,21 @@ in version {self.product_version}."
 # TODO: We should likely have more specialized versions, but for now
 # let's focus on improving the messages coming from the remote
 class RemoteError(RuntimeError):
-    """A remote request failed.
+    """Indicates a remote request failed.
 
-    When this error is raised, the `__cause__` member contains the original :class:~`grpc.Call`
+    When this error is raised, the `__cause__` member contains the original :class:~`grpc.Call`.
     """
 
     call: grpc.Call
     """Failed gRPC call."""
 
     def __init__(self, call: grpc.Call, *args) -> None:
-        """Construct the error from the grpc call/error."""
+        """Construct the error from the grpc exception."""
         self.call = call
         super().__init__(*args)
 
 
 class InstanceNotFoundError(RemoteError):
-    """The instance does not exist or was removed."""
+    """Indicates that the instance does not exist or was removed."""
 
     pass

@@ -255,7 +255,7 @@ def test_update_notfound(
         name="instances/hello-world-32",
         definition_name="definitions/my-def",
         ready=False,
-        status_message="loading...",
+        status_message="Loading...",
         services={},
         _stub=stub,
     )
@@ -281,7 +281,7 @@ def test_update_error(
     # A server serving a 500 on GetInstance
     def server():
         _, update_request, rpc = testing_channel.take_unary_unary(GET_INSTANCE_METHOD)
-        rpc.terminate(None, [], StatusCode.INTERNAL, "I'm a teapot")
+        rpc.terminate(None, [], StatusCode.INTERNAL, "I'm a teapot.")
         return update_request
 
     testing_pool.submit(server)
@@ -304,7 +304,7 @@ def test_update_error(
 
     # Assert
     # The user got the server message
-    assert "I'm a teapot" in str(exc)
+    assert "I'm a teapot." in str(exc)
     # And can inspect the inner error
     assert exc.value.__cause__.code() == grpc.StatusCode.INTERNAL
 

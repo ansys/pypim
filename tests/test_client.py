@@ -390,9 +390,9 @@ def test_list_instance_error(
     # A server serving a 500 on ListInstance and ListDefinitions
     def server():
         _, update_request, rpc = testing_channel.take_unary_unary(LIST_INSTANCES_METHOD)
-        rpc.terminate(None, [], StatusCode.INTERNAL, "I'm a teapot")
+        rpc.terminate(None, [], StatusCode.INTERNAL, "I'm a teapot.")
         _, update_request, rpc = testing_channel.take_unary_unary(LIST_DEFINITIONS_METHOD)
-        rpc.terminate(None, [], StatusCode.INTERNAL, "I'm a teapot")
+        rpc.terminate(None, [], StatusCode.INTERNAL, "I'm a teapot.")
         return update_request
 
     testing_pool.submit(server)
@@ -407,8 +407,8 @@ def test_list_instance_error(
 
     # Assert
     # The user got the server message
-    assert "I'm a teapot" in str(exc1)
-    assert "I'm a teapot" in str(exc2)
+    assert "I'm a teapot." in str(exc1)
+    assert "I'm a teapot." in str(exc2)
     # And can inspect the inner error
     assert exc1.value.__cause__.code() == grpc.StatusCode.INTERNAL
     assert exc2.value.__cause__.code() == grpc.StatusCode.INTERNAL
