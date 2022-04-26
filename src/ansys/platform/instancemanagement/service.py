@@ -1,6 +1,5 @@
 """Service class module."""
 
-from dataclasses import dataclass
 from typing import Mapping
 
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
@@ -11,29 +10,44 @@ import grpc
 from ansys.platform.instancemanagement.interceptor import header_adder_interceptor
 
 
-@dataclass(frozen=True)
 class Service:
     """An entry point to communicate with a remote product."""
 
-    uri: str
-    """URI to reach the service.
+    _uri: str
+    _headers: Mapping[str, str]
 
-    For gRPC, this is a valid URI, following gRPC-name resolution
-    syntax: https://grpc.github.io/grpc/core/md_doc_naming.html
+    @property
+    def uri(self) -> str:
+        """URI to reach the service.
 
-    For HTTP/REST, this is a valid http or https URI. It is the base
-    path of the service API.
-    """
+        For gRPC, this is a valid URI, following gRPC-name resolution
+        syntax: https://grpc.github.io/grpc/core/md_doc_naming.html
 
-    headers: Mapping[str, str]
-    """Headers necessary to communicate with the service.
+        For HTTP/REST, this is a valid http or https URI. It is the base
+        path of the service API.
+        """
+        return self._uri
 
-    For a gRPC service, this should be translated into metadata included in
-    every communication with the service.
+    @property
+    def headers(self) -> Mapping[str, str]:
+        """Headers necessary to communicate with the service.
 
-    For a REST-like service, this should be translated into headers included in
-    every communication with the service.
-    """
+        For a gRPC service, this should be translated into metadata included in
+        every communication with the service.
+
+        For a REST-like service, this should be translated into headers included in
+        every communication with the service.
+        """
+        return self._headers
+
+    def __init__(self, uri: str, headers: Mapping[str, str]):
+        """Create a Service."""
+        self._uri = uri
+        self._headers = headers
+
+    def __eq__(self, obj):
+        """Test for equality."""
+        return isinstance(obj, Service) and obj.headers == self.headers and obj.uri == self.uri
 
     def _build_grpc_channel(
         self,

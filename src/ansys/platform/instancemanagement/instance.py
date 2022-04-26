@@ -2,7 +2,6 @@
 
 
 import contextlib
-from dataclasses import dataclass, field
 import logging
 import time
 from typing import Mapping
@@ -31,7 +30,6 @@ from ansys.platform.instancemanagement.service import Service
 logger = logging.getLogger(__name__)
 
 
-@dataclass
 class Instance(contextlib.AbstractContextManager):
     """Provides a remote instance of a product.
 
@@ -39,46 +37,77 @@ class Instance(contextlib.AbstractContextManager):
     automatically stop the remote instance when the tasks are finished.
     """
 
-    definition_name: str
-    """Name of the definition that created this instance."""
+    _stub: ProductInstanceManagerStub
 
-    name: str
-    """Name of the instance.
+    _definition_name: str
+    _name: str
+    _ready: bool
+    _status_message: str
+    _services: Mapping[str, Service]
 
-    This name is chosen by the server and always start with ``"instances/"``."""
+    @property
+    def definition_name(self) -> str:
+        """Name of the definition that created this instance."""
+        return self._definition_name
 
-    ready: bool
-    """Whether the instance is ready.
+    @property
+    def name(self) -> str:
+        """Name of the instance.
 
-    If ``True``, the ``services`` field contains the list of entry points
-    exposed by the instance.
-
-    If ``False``, the ``status_message`` field contains a human-readable
-    reason."""
-
-    status_message: str
-    """Status of the instance.
-
-    Human-readable message describing the status of the instance.
-    This field is always filled when the instance is not ready."""
-
-    services: Mapping[str, Service]
-    """List of entry points exposed by the instance.
-
-    This field is only filled when the instance is ready.
-    If the instance exposes a gRPC API, it is named ``grpc``.
-    If the instance exposes a REST-like API, it is named ``http``.
-
-    It may contain additional entries for custom scenarios such as sidecar services
-    or other protocols."""
-
-    _stub: ProductInstanceManagerStub = field(default=None, compare=False)
-
-    def __post_init__(self):
-        """Initialize non dataclass members.
-
-        ``dataclass`` construction
+        This name is chosen by the server and always start with ``"instances/"``.
         """
+        return self._name
+
+    @property
+    def ready(self) -> bool:
+        """Whether the instance is ready.
+
+        If ``True``, the ``services`` field contains the list of entry points
+        exposed by the instance.
+
+        If ``False``, the ``status_message`` field contains a human-readable
+        reason.
+        """
+        return self._ready
+
+    @property
+    def status_message(self) -> str:
+        """Status of the instance.
+
+        Human-readable message describing the status of the instance.
+        This field is always filled when the instance is not ready.
+        """
+        return self._status_message
+
+    @property
+    def services(self) -> Mapping[str, Service]:
+        """List of entry points exposed by the instance.
+
+        This field is only filled when the instance is ready.
+        If the instance exposes a gRPC API, it is named ``grpc``.
+        If the instance exposes a REST-like API, it is named ``http``.
+
+        It may contain additional entries for custom scenarios such as sidecar services
+        or other protocols.
+        """
+        return self._services
+
+    def __init__(
+        self,
+        definition_name: str,
+        name: str,
+        ready: bool,
+        status_message: str,
+        services: Mapping[str, Service],
+        stub: ProductInstanceManagerStub = None,
+    ):
+        """Create an Instance."""
+        self._definition_name = definition_name
+        self._name = name
+        self._ready = ready
+        self._status_message = status_message
+        self._services = services
+        self._stub = stub
         if self.status_message:
             # TODO: instance specific logger
             logger.info(self.status_message)
@@ -86,6 +115,18 @@ class Instance(contextlib.AbstractContextManager):
     def __exit__(self, *_):
         """Delete the instance when used in a ``with`` statement."""
         self.delete()
+
+    def __eq__(self, obj):
+        """Test for equality."""
+        if not isinstance(obj, Instance):
+            return False
+        return (
+            obj.definition_name == self.definition_name
+            and obj.name == self.name
+            and obj.ready == self.ready
+            and obj.status_message == self.status_message
+            and obj.services == self.services
+        )
 
     @staticmethod
     def _create(definition_name: str, stub: ProductInstanceManagerStub, timeout: float = None):
@@ -141,19 +182,19 @@ class Instance(contextlib.AbstractContextManager):
                 raise InstanceNotFoundError(exc, f"The instance {self.name} was deleted.") from exc
             raise RemoteError(exc, exc.details()) from exc
 
-        self.name = instance.name
-        self.definition_name = instance.definition_name
+        self._name = instance.name
+        self._definition_name = instance.definition_name
 
         if instance.status_message and self.status_message != instance.status_message:
             # This should be done through property, but this does not play well with dataclasses
             # TODO: instance logger
             logger.info(instance.status_message)
 
-        self.status_message = instance.status_message
-        self.services = {
+        self._status_message = instance.status_message
+        self._services = {
             name: Service._from_pim_v1(value) for name, value in instance.services.items()
         }
-        self.ready = instance.ready
+        self._ready = instance.ready
 
     def wait_for_ready(self, polling_interval: float = 0.5, timeout_per_request: float = None):
         """Wait for the instance to be ready.
@@ -251,5 +292,5 @@ class Instance(contextlib.AbstractContextManager):
                 name: Service._from_pim_v1(value) for name, value in instance.services.items()
             },
             ready=instance.ready,
-            _stub=stub,
+            stub=stub,
         )
