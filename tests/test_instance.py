@@ -292,7 +292,7 @@ def test_update_error(
         name="instances/hello-world-32",
         definition_name="definitions/my-def",
         ready=False,
-        status_message="loading...",
+        status_message="Loading...",
         services={},
         _stub=stub,
     )
