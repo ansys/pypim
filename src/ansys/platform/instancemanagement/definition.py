@@ -1,6 +1,5 @@
 """Definition class module."""
 
-from dataclasses import dataclass, field
 from typing import Sequence
 
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
@@ -13,44 +12,82 @@ from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2_grpc 
 from ansys.platform.instancemanagement.instance import Instance
 
 
-@dataclass(frozen=True)
 class Definition:
     """Provides a definition of a product that can be started using the PIM API.
 
     The definition is a static object describing a product that can be started remotely.
     """
 
-    name: str
-    """Name of the definition.
+    _name: str
+    _product_name: str
+    _product_version: str
+    _available_service_names: Sequence[str]
+    _stub: ProductInstanceManagerStub = None
 
-    This name is chosen by the server and always start with `definitions/`.
-    This name is arbitrary. You should not rely on any static value.
-    """
+    @property
+    def name(self) -> str:
+        """Name of the definition.
 
-    product_name: str
-    """Name of the product.
+        This name is chosen by the server and always start with `definitions/`.
+        This name is arbitrary. You should not rely on any static value.
+        """
+        return self._name
 
-    This is the name of the product that can be started (for example, ``"mapdl"`` or ``"fluent"``).
-    """
+    @property
+    def product_name(self) -> str:
+        """Name of the product.
 
-    product_version: str
-    """Version of the product.
+        This is the name of the product that can be started (for example, ``"mapdl"`` or
+        ``"fluent"``).
+        """
+        return self._product_name
 
-    This is a string describing the version.
-    When the product is following the release process for the Ansys unified installation,
-    the version is three numbers, such as "221".
-    """
+    @property
+    def product_version(self) -> str:
+        """Version of the product.
 
-    available_service_names: Sequence[str]
-    """List of the available service names.
+        This is a string describing the version.
+        When the product is following the release process for the Ansys unified installation,
+        the version is three digits, such as "221".
+        """
+        return self._product_version
 
-    If the product exposes a gRPC API, the service will be named "grpc".
-    If the product exposes a REST-like API, the service will be named "http".
-    Custom entries might also be listed, either for sidecar services or
-    other protocols.
-    """
+    @property
+    def available_service_names(self) -> Sequence[str]:
+        """List of the available service names.
 
-    _stub: ProductInstanceManagerStub = field(default=None, compare=False)
+        If the product exposes a gRPC API, the service will be named "grpc".
+        If the product exposes a REST-like API, the service will be named "http".
+        Custom entries might also be listed, either for sidecar services or
+        other protocols.
+        """
+        return self._available_service_names
+
+    def __init__(
+        self,
+        name: str,
+        product_name: str,
+        product_version: str,
+        available_service_names: Sequence[str],
+        stub: ProductInstanceManagerStub = None,
+    ):
+        """Create a Definition."""
+        self._name = name
+        self._product_name = product_name
+        self._product_version = product_version
+        self._available_service_names = available_service_names
+        self._stub = stub
+
+    def __eq__(self, obj):
+        """Test for equality."""
+        if not isinstance(obj, Definition):
+            return False
+        return (
+            self.name == obj.name
+            and self.product_name == obj.product_name
+            and self.product_version == obj.product_version
+            and self.available_service_names == obj.available_service_names
+        )
 
     def create_instance(self, timeout: float = None) -> Instance:
         """Create a product instance from this definition.

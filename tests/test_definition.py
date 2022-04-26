@@ -42,7 +42,7 @@ def test_create_instance(testing_channel):
             product_name="my_product",
             product_version="221",
             available_service_names=["grpc", "http"],
-            _stub=stub,
+            stub=stub,
         )
 
         # Act

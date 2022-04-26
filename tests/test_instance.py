@@ -110,7 +110,7 @@ def test_delete(
         ready=False,
         status_message="loading...",
         services={},
-        _stub=stub,
+        stub=stub,
     )
 
     # Act
@@ -211,7 +211,7 @@ def test_update(
         ready=False,
         status_message="loading...",
         services={},
-        _stub=stub,
+        stub=stub,
     )
 
     # Act
@@ -257,7 +257,7 @@ def test_update_notfound(
         ready=False,
         status_message="Loading...",
         services={},
-        _stub=stub,
+        stub=stub,
     )
 
     # Act
@@ -294,7 +294,7 @@ def test_update_error(
         ready=False,
         status_message="Loading...",
         services={},
-        _stub=stub,
+        stub=stub,
     )
 
     # Act
@@ -320,21 +320,21 @@ def test_wait_for_ready(testing_channel):
         ready=False,
         status_message="Creating...",
         services={},
-        _stub=stub,
+        stub=stub,
     )
 
     def update_side_effect(timeout):
         timeout  # unused
         if instance.update.call_count == 0 or instance.update.call_count == 1:
-            instance.ready = False
-            instance.status_message = "Loading..."
+            instance._ready = False
+            instance._status_message = "Loading..."
         if instance.update.call_count == 2:
-            instance.ready = False
-            instance.status_message = "Routing..."
+            instance._ready = False
+            instance._status_message = "Routing..."
         if instance.update.call_count > 2:
-            instance.ready = True
-            instance.status_message = ""
-            instance.services = {"http": pb2.Service(uri="http://example.com", headers={})}
+            instance._ready = True
+            instance._status_message = ""
+            instance._services = {"http": pb2.Service(uri="http://example.com", headers={})}
 
     instance.update = MagicMock()
     instance.update.side_effect = update_side_effect
