@@ -166,7 +166,7 @@ class Instance(contextlib.AbstractContextManager):
         polling_interval : float, optional
             Time in seconds to wait between each request. The default is ``0.5``.
         timeout_per_request : float, optional
-            Timeout for each request in seconds. The default is ``None``.
+            Timeout in seconds for each request. The default is ``None``.
 
         Raises
         ------
