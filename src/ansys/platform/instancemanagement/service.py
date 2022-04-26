@@ -71,13 +71,5 @@ class Service:
         Service
             The PyPIM service
             PyPIM service definition.
-
-        Raises
-        ------
-        ValueError
-            The raw protobuf message is not valid.
         """
-        if not service.uri:
-            raise ValueError("A service must have an URI.")
-
         return Service(uri=service.uri, headers=service.headers)

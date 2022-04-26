@@ -264,6 +264,35 @@ def test_create_instance(testing_channel):
     assert created_instance == instance
 
 
+def test_unsupported_product(
+    testing_channel: grpc_testing.Channel,
+):
+    # Arrange
+    # A client mocking a server not supporting the requested products
+    client = pypim.Client(testing_channel)
+    client.definitions = MagicMock(return_value=[])
+
+    # Act
+    # Attempt to create an unsupported product
+    with pytest.raises(pypim.UnsupportedProductError) as no_product_exception:
+        client.create_instance(product_name="mapdl")
+
+    # Attempt to create an unsupported version
+    with pytest.raises(pypim.UnsupportedProductError) as no_version_exception:
+        client.create_instance(product_name="calculator", product_version="222")
+
+    # Assert: Got an unsupported product exception including the version when
+    # requested
+    assert no_product_exception.value.product_name == "mapdl"
+    assert not no_product_exception.value.product_version
+    assert "mapdl" in str(no_product_exception)
+
+    assert no_version_exception.value.product_name == "calculator"
+    assert no_version_exception.value.product_version == "222"
+    assert "calculator" in str(no_version_exception)
+    assert "222" in str(no_version_exception)
+
+
 def test_initialize_from_configuration(testing_pool, tmp_path):
     # Arrange
     # A basic implementation of PIM able to list definitions
@@ -312,3 +341,74 @@ def test_initialize_from_configuration(testing_pool, tmp_path):
     received_metadata_dict = dict(received_metadata[0])
     assert received_metadata_dict["token"] == "007"
     assert received_metadata_dict["identity"] == "james bond"
+
+
+def test_not_configured():
+    with pytest.raises(pypim.NotConfiguredError):
+        pypim.connect()
+
+
+@pytest.mark.parametrize(
+    ("bad_configuration,message_content"),
+    [
+        (r"""not even the right format""", "json"),
+        (r"""{"version": 2, "pim": "future format"}""", "Unsupported version"),
+        (
+            r"""{"version": 1, "pim": {
+                "headers": {"token": "007","identity": "james bond"},"tls": false}}""",
+            "uri",
+        ),
+        (r"""{"version": 1, "pim": {"uri": "dns:127.0.0.1:5000","tls": false}}""", "headers"),
+        (
+            r"""{"version": 1, "pim": {"uri": "dns:127.0.0.1:5000",
+            "headers": {"token": "007","identity": "james bond"}}}""",
+            "tls",
+        ),
+        (
+            r"""{"version": 1, "pim": {"uri": "dns:127.0.0.1:5000", "tls": true,
+            "headers": {"token": "007","identity": "james bond"}}}""",
+            "not yet supported",
+        ),
+    ],
+)
+def test_bad_configuration(tmp_path, bad_configuration, message_content):
+    config_path = tmp_path / "pim.json"
+    with open(config_path, "w") as f:
+        f.write(bad_configuration)
+
+    with pytest.raises(pypim.InvalidConfigurationError) as exc:
+        pypim.Client._from_configuration(config_path)
+
+    assert message_content in str(exc)
+
+
+def test_list_instance_error(
+    testing_pool: ThreadPoolExecutor,
+    testing_channel: grpc_testing.Channel,
+):
+    # Arrange
+    # A server serving a 500 on ListInstance and ListDefinitions
+    def server():
+        _, update_request, rpc = testing_channel.take_unary_unary(LIST_INSTANCES_METHOD)
+        rpc.terminate(None, [], StatusCode.INTERNAL, "I'm a teapot.")
+        _, update_request, rpc = testing_channel.take_unary_unary(LIST_DEFINITIONS_METHOD)
+        rpc.terminate(None, [], StatusCode.INTERNAL, "I'm a teapot.")
+        return update_request
+
+    testing_pool.submit(server)
+    client = pypim.Client(testing_channel)
+
+    # Act
+    # List the instances and the definitions
+    with pytest.raises(pypim.RemoteError) as exc1:
+        client.instances()
+    with pytest.raises(pypim.RemoteError) as exc2:
+        client.definitions()
+
+    # Assert
+    # The user got the server message
+    assert "I'm a teapot." in str(exc1)
+    assert "I'm a teapot." in str(exc2)
+    # And can inspect the inner error
+    assert exc1.value.__cause__.code() == grpc.StatusCode.INTERNAL
+    assert exc2.value.__cause__.code() == grpc.StatusCode.INTERNAL

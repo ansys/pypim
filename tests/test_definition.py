@@ -2,7 +2,6 @@ from unittest.mock import patch
 
 from ansys.api.platform.instancemanagement.v1 import product_instance_manager_pb2 as pb2
 from ansys.api.platform.instancemanagement.v1 import product_instance_manager_pb2_grpc as pb2_grpc
-import pytest
 
 import ansys.platform.instancemanagement as pypim
 
@@ -21,40 +20,6 @@ def test_from_pim_v1_proto():
     assert definition.product_name == "my_product"
     assert definition.product_version == "221"
     assert sorted(definition.available_service_names) == sorted(["grpc", "http"])
-
-
-@pytest.mark.parametrize(
-    "invalid_definition",
-    [
-        pb2.Definition(
-            name="invalid",
-            product_name="my_product",
-            product_version="221",
-            available_service_names=["grpc", "http"],
-        ),
-        pb2.Definition(
-            name="definitions/my_def",
-            product_name="my_product",
-            product_version="",
-            available_service_names=["grpc", "http"],
-        ),
-        pb2.Definition(
-            name="definitions/my_def",
-            product_name="my_product",
-            product_version="221",
-            available_service_names=[],
-        ),
-        pb2.Definition(
-            name="definitions/my_def",
-            product_name="",
-            product_version="221",
-            available_service_names=[],
-        ),
-    ],
-)
-def test_from_pim_v1_proto_value_error(invalid_definition):
-    with pytest.raises(ValueError):
-        pypim.Definition._from_pim_v1(invalid_definition)
 
 
 def test_create_instance(testing_channel):

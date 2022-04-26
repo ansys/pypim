@@ -18,7 +18,14 @@ from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 impor
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2_grpc import (
     ProductInstanceManagerStub,
 )
+import grpc
 
+from ansys.platform.instancemanagement.exceptions import (
+    InstanceNotFoundError,
+    InstanceNotReadyError,
+    RemoteError,
+    UnsupportedServiceError,
+)
 from ansys.platform.instancemanagement.service import Service
 
 logger = logging.getLogger(__name__)
@@ -116,9 +123,24 @@ class Instance(contextlib.AbstractContextManager):
         ----------
         timeout : float, optional
             Time in seconds to update the instance. The default is ``None``.
+
+        Raises
+        ------
+        InstanceNotFoundError
+            The instance was deleted.
+
+        RemoteError
+            Unexpected server error.
         """
         request = GetInstanceRequest(name=self.name)
-        instance = self._stub.GetInstance(request, timeout=timeout)
+
+        try:
+            instance = self._stub.GetInstance(request, timeout=timeout)
+        except grpc.RpcError as exc:
+            if exc.code() == grpc.StatusCode.NOT_FOUND:
+                raise InstanceNotFoundError(exc, f"The instance {self.name} was deleted.") from exc
+            raise RemoteError(exc, exc.details()) from exc
+
         self.name = instance.name
         self.definition_name = instance.definition_name
 
@@ -142,9 +164,17 @@ class Instance(contextlib.AbstractContextManager):
         Parameters
         ----------
         polling_interval : float, optional
-            Time to wait between each request in seconds. The default is ``0.5``.
+            Time in seconds to wait between each request. The default is ``0.5``.
         timeout_per_request : float, optional
-            Timeout for each request in seconds. The default is ``None``.
+            Timeout in seconds for each request. The default is ``None``.
+
+        Raises
+        ------
+        InstanceNotFoundError
+            The instance was deleted.
+
+        RemoteError
+            Unexpected server error.
         """
         self.update(timeout=timeout_per_request)
         while not self.ready:
@@ -170,8 +200,11 @@ class Instance(contextlib.AbstractContextManager):
 
         Raises
         ------
-        ValueError
-            The instance does not support gRPC, or the service name is wrong.
+        InstanceNotReadyError
+            The instance is not yet ready.
+
+        UnsupportedServiceError
+            The instance does not support the service.
 
         Examples
         --------
@@ -191,11 +224,11 @@ class Instance(contextlib.AbstractContextManager):
                 ansys.mapdl Version: 0.61.2
         """
         if not self.ready:
-            raise RuntimeError(f"The instance is not ready.")
+            raise InstanceNotReadyError(self.name)
 
         service = self.services.get(service_name, None)
         if not service:
-            raise ValueError(f"There is no {service_name} service in the remote instance.")
+            raise UnsupportedServiceError(self.name, service_name)
 
         return service._build_grpc_channel(**kwargs)
 
@@ -210,14 +243,6 @@ class Instance(contextlib.AbstractContextManager):
         stub : ProductInstanceManagerStub, optional
             PIM stub.
         """
-        if instance.name and not instance.name.startswith("instances/"):
-            raise ValueError("An instance name must start with ``instances/``.")
-
-        if not instance.definition_name or not instance.definition_name.startswith("definitions/"):
-            raise ValueError(
-                "An instance must have a definition name that starts with `definitions/`."
-            )
-
         return Instance(
             name=instance.name,
             definition_name=instance.definition_name,

@@ -15,20 +15,6 @@ def test_from_pim_v1_proto():
     assert service.headers == {"token": "some-token"}
 
 
-@pytest.mark.parametrize(
-    "invalid_service",
-    [
-        pb2.Service(
-            uri="",
-            headers={"token": "some-token"},
-        ),
-    ],
-)
-def test_from_pim_v1_proto_value_error(invalid_service):
-    with pytest.raises(ValueError):
-        pypim.Service._from_pim_v1(invalid_service)
-
-
 @pytest.mark.parametrize("headers", [{}, {"a": "b"}, {"my-token": "value", "identity": "thing"}])
 def test_build_channel(testing_pool, headers):
     # Arrange

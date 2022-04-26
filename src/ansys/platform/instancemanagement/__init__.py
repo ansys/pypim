@@ -9,8 +9,35 @@ import os
 
 from ansys.platform.instancemanagement.client import Client
 from ansys.platform.instancemanagement.definition import Definition
+from ansys.platform.instancemanagement.exceptions import (
+    InstanceNotFoundError,
+    InstanceNotReadyError,
+    InvalidConfigurationError,
+    NotConfiguredError,
+    RemoteError,
+    UnsupportedProductError,
+    UnsupportedServiceError,
+)
 from ansys.platform.instancemanagement.instance import Instance
 from ansys.platform.instancemanagement.service import Service
+
+__all__ = [
+    "__version__",
+    "CONFIGURATION_PATH_ENVIRONMENT_VARIABLE",
+    "is_configured",
+    "connect",
+    "Client",
+    "Instance",
+    "Service",
+    "Definition",
+    "InstanceNotFoundError",
+    "InvalidConfigurationError",
+    "NotConfiguredError",
+    "RemoteError",
+    "UnsupportedProductError",
+    "InstanceNotReadyError",
+    "UnsupportedServiceError",
+]
 
 __version__ = importlib_metadata.version(__name__.replace(".", "-"))
 
@@ -31,7 +58,7 @@ def is_configured() -> bool:
 def connect() -> Client:
     """Create a PyPIM client based on the environment configuration.
 
-    Before calling this method, ``is_configured()`` should be called to check if
+    Before calling this method, :func:`~is_configured()` should be called to check if
     the environment is configured to use PyPIM.
 
     The environment configuration consists in setting the environment variable
@@ -62,8 +89,11 @@ def connect() -> Client:
 
     Raises
     ------
-    RuntimeError
+    NotConfiguredError
         The environment is not configured to use PyPIM.
+
+    InvalidConfigurationError
+        The configuration is invalid.
 
     Examples
     --------
@@ -79,5 +109,5 @@ def connect() -> Client:
         >>>         # use client
     """
     if not is_configured():
-        raise RuntimeError("The environment is not configured to use PyPIM.")
+        raise NotConfiguredError("The environment is not configured to use PyPIM.")
     return Client._from_configuration(os.environ[CONFIGURATION_PATH_ENVIRONMENT_VARIABLE])
