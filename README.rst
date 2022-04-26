@@ -74,7 +74,7 @@ to ``pypim``.
 
 To start MAPDL and communicate with PyPIM:
 
-.. code-block::
+.. code-block:: python
     
     import ansys.platform.instancemanagement as pypim
     from ansys.mapdl.core import Mapdl
@@ -90,7 +90,7 @@ To start MAPDL and communicate with PyPIM:
 
 You can also use PyPIM without the ``with`` statement:
 
-.. code-block::
+.. code-block:: python
     
     import ansys.platform.instancemanagement as pypim
     from ansys.mapdl.core import Mapdl
