@@ -31,11 +31,11 @@ Test automation relies on `tox`_. `tox`_ can be installed with:
 
 
 Tests are entirely based on mocks and do not require any external software. Run
-the tests with the following code, where ``py38`` represents your Python version:
+the tests with the following code:
 
 .. code-block::
     
-    tox -e py38
+    tox -e py
 
 .. _`tox`: https://tox.wiki/en/latest/install.html#installation-with-pip
 
