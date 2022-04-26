@@ -274,18 +274,18 @@ Consider upgrading ansys-platform-instancemanagement.',
         name: str
             Name of the instance to get (for example ``instances/mapdl-1212``).
 
+        timeout : float, optional
+            Maximum time in seconds for the request. The default is ``None``.
+
         Returns
         -------
         Instance
             A remote instance.
 
-        timeout : float, optional
-            Maximum time in seconds for the request. The default is ``None``.
-
         Raises
         ------
             InstanceNotFoundError
-                The instance does not exists.
+                The instance does not exist.
         """
         logger.debug("Getting the instance %s.", name)
         request = GetInstanceRequest(name=name)

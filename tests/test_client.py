@@ -180,7 +180,7 @@ def test_get_instance(
     server_future = testing_pool.submit(server)
 
     # Act
-    # Getthe instance from the client
+    # Get the instance from the client
     client = pypim.Client(testing_channel)
     instance = client.get_instance("instances/my-instance")
 
@@ -206,7 +206,7 @@ def test_update_notfound(
     testing_channel: grpc_testing.Channel,
 ):
     # Arrange
-    # A failing to provide instances
+    # A server failing to provide instances
     def server():
         _, update_request, rpc = testing_channel.take_unary_unary(GET_INSTANCE_METHOD)
         rpc.terminate(None, [], StatusCode.NOT_FOUND, "")
