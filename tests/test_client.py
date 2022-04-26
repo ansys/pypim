@@ -54,7 +54,7 @@ def test_definitions_request(
 
     # Act
     # Query the list of definitions
-    client.definitions(**arguments, timeout=1)
+    client.list_definitions(**arguments, timeout=1)
 
     # Assert
     # The server received the expected request
@@ -119,7 +119,7 @@ def test_list_definitions_response(
     # Act
     # Get the definitions
     client = pypim.Client(testing_channel)
-    definitions = client.definitions(timeout=1)
+    definitions = client.list_definitions(timeout=1)
     server_future.result()
 
     # Assert
@@ -143,7 +143,7 @@ def test_instances_request(
     # Act
     # Get the list of instances from the client
     client = pypim.Client(testing_channel)
-    client.instances(timeout=1)
+    client.list_instances(timeout=1)
 
     # Assert
     # The client sent an empty ListInstanceRequest
@@ -212,7 +212,7 @@ def test_list_instances_response(
     # Act
     # Get the list of instances
     client = pypim.Client(testing_channel)
-    instances = client.instances(timeout=1)
+    instances = client.list_instances(timeout=1)
 
     #  Assert
     # The client got the hardcoded instances
@@ -247,7 +247,7 @@ def test_create_instance(testing_channel):
     )
     object.__setattr__(definitions[0], "create_instance", MagicMock(return_value=instance))
     object.__setattr__(definitions[1], "create_instance", MagicMock())
-    client.definitions = MagicMock(return_value=definitions)
+    client.list_definitions = MagicMock(return_value=definitions)
 
     # Act
     created_instance = client.create_instance(
@@ -256,7 +256,7 @@ def test_create_instance(testing_channel):
 
     # Assert
     # The method created an instance from the first definition
-    client.definitions.assert_called_once_with(
+    client.list_definitions.assert_called_once_with(
         product_name="definitions/the-good-one", product_version=None, timeout=0.32
     )
     definitions[0].create_instance.assert_called_once_with(timeout=0.32)
@@ -270,7 +270,7 @@ def test_unsupported_product(
     # Arrange
     # A client mocking a server not supporting the requested products
     client = pypim.Client(testing_channel)
-    client.definitions = MagicMock(return_value=[])
+    client.list_definitions = MagicMock(return_value=[])
 
     # Act
     # Attempt to create an unsupported product
@@ -333,7 +333,7 @@ def test_initialize_from_configuration(testing_pool, tmp_path):
     # and run a request
     with patch.dict(os.environ, {"ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG": config_path}):
         with pypim.connect() as client:
-            client.definitions(product_name="hello-world", product_version="231")
+            client.list_definitions(product_name="hello-world", product_version="231")
 
     # Assert
     # The server got the request with the intended headers
@@ -401,9 +401,9 @@ def test_list_instance_error(
     # Act
     # List the instances and the definitions
     with pytest.raises(pypim.RemoteError) as exc1:
-        client.instances()
+        client.list_instances()
     with pytest.raises(pypim.RemoteError) as exc2:
-        client.definitions()
+        client.list_definitions()
 
     # Assert
     # The user got the server message

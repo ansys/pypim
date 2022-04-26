@@ -127,7 +127,7 @@ Consider upgrading ansys-platform-instancemanagement.',
         )
         return Client(channel)
 
-    def definitions(
+    def list_definitions(
         self,
         product_name: str = None,
         product_version: str = None,
@@ -154,7 +154,7 @@ Consider upgrading ansys-platform-instancemanagement.',
         --------
             >>> import ansys.platform.instancemanagement as pypim
             >>> client = pypim.connect()
-            >>> for definition in client.definitions(product_name="mapdl"):
+            >>> for definition in client.list_definitions(product_name="mapdl"):
             >>>     print(f"MAPDL version {definition.version} is available on the server.")
                 MAPDL version 221 is available on the server.
 
@@ -175,7 +175,7 @@ Consider upgrading ansys-platform-instancemanagement.',
             Definition._from_pim_v1(definition, self._stub) for definition in response.definitions
         ]
 
-    def instances(self, timeout: float = None) -> Sequence[Instance]:
+    def list_instances(self, timeout: float = None) -> Sequence[Instance]:
         """List the existing instances.
 
         Parameters
@@ -192,7 +192,7 @@ Consider upgrading ansys-platform-instancemanagement.',
         --------
             >>> import ansys.platform.instancemanagement as pypim
             >>> client = pypim.connect()
-            >>> for instance in client.instances():
+            >>> for instance in client.list_instances():
             >>>     status = "ready" if instance.ready else "not ready"
             >>>     print(f"The instance {instance.name} is {status}.")
                 The instance instances/mapdl-221-yAVne0ve is ready
@@ -253,7 +253,7 @@ Consider upgrading ansys-platform-instancemanagement.',
         logger.debug(
             "Creating a product instance for %s in version %s.", product_name, product_version
         )
-        definitions = self.definitions(
+        definitions = self.list_definitions(
             product_name=product_name, product_version=product_version, timeout=requests_timeout
         )
 
