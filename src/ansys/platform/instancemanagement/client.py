@@ -272,7 +272,7 @@ Consider upgrading ansys-platform-instancemanagement.',
         Parameters
         ----------
         name: str
-            Name of the instance to get (for example ``instances/mapdl-1212``).
+            Name of the instance to get (for example, ``instances/mapdl-1212``).
 
         timeout : float, optional
             Maximum time in seconds for the request. The default is ``None``.
