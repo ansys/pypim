@@ -10,7 +10,7 @@ import grpc_testing
 import pytest
 
 import ansys.platform.instancemanagement as pypim
-from conftest import LIST_DEFINITIONS_METHOD, LIST_INSTANCES_METHOD
+from conftest import GET_INSTANCE_METHOD, LIST_DEFINITIONS_METHOD, LIST_INSTANCES_METHOD
 
 
 @pytest.mark.parametrize(
@@ -148,6 +148,92 @@ def test_instances_request(
     # Assert
     # The client sent an empty ListInstanceRequest
     assert server_future.result() == pb2.ListInstancesRequest()
+
+
+def test_get_instance(
+    testing_pool: ThreadPoolExecutor,
+    testing_channel: grpc_testing.Channel,
+):
+    # Arrange
+    # A server providing an instance
+    def server():
+        _, request, rpc = testing_channel.take_unary_unary(GET_INSTANCE_METHOD)
+        instance = pypim.Instance._from_pim_v1(
+            pb2.Instance(
+                name="instances/my-instance",
+                definition_name="definitions/my-definition",
+                ready=False,
+                status_message="not yet ready",
+                services={
+                    "grpc": pb2.Service(
+                        uri="dns://some-service:651", headers={"token": "hello-world"}
+                    ),
+                    "http": pb2.Service(
+                        uri="https://some-service:651", headers={"token": "hello-world"}
+                    ),
+                },
+            )
+        )
+        rpc.terminate(instance, [], StatusCode.OK, "")
+        return request
+
+    server_future = testing_pool.submit(server)
+
+    # Act
+    # Get the instance from the client
+    client = pypim.Client(testing_channel)
+    instance = client.get_instance("instances/my-instance")
+
+    # Assert
+    # The client sent a request with the instance name
+    assert server_future.result() == pb2.GetInstanceRequest(name="instances/my-instance")
+
+    # The client created the corresponding instance object
+    assert instance == pypim.Instance(
+        name="instances/my-instance",
+        definition_name="definitions/my-definition",
+        ready=False,
+        status_message="not yet ready",
+        services={
+            "grpc": pypim.Service(uri="dns://some-service:651", headers={"token": "hello-world"}),
+            "http": pypim.Service(uri="https://some-service:651", headers={"token": "hello-world"}),
+        },
+    )
+
+
+def test_update_notfound(
+    testing_pool: ThreadPoolExecutor,
+    testing_channel: grpc_testing.Channel,
+):
+    # Arrange
+    # A server failing to provide instances
+    def server():
+        _, update_request, rpc = testing_channel.take_unary_unary(GET_INSTANCE_METHOD)
+        rpc.terminate(None, [], StatusCode.NOT_FOUND, "")
+        _, update_request, rpc = testing_channel.take_unary_unary(GET_INSTANCE_METHOD)
+        rpc.terminate(None, [], StatusCode.INTERNAL, "I'm a teapot.")
+        return update_request
+
+    testing_pool.submit(server)
+
+    # Act
+    # Try getting the instance
+    client = pypim.Client(testing_channel)
+    with pytest.raises(pypim.InstanceNotFoundError) as failure1:
+        client.get_instance("instances/does-not-exists")
+    with pytest.raises(pypim.RemoteError) as failure2:
+        client.get_instance("instances/server-error")
+
+    # Assert
+    # The user gets a useful error for the not found one
+    # and inspect the inner error
+    assert "instances/does-not-exists" in str(failure1)
+    assert failure1.value.__cause__.code() == grpc.StatusCode.NOT_FOUND
+
+    # The user gets the server error for the generic one
+    # and inspect the inner error
+    assert "I'm a teapot." in str(failure2)
+    assert failure2.value.__cause__.code() == grpc.StatusCode.INTERNAL
 
 
 @pytest.mark.parametrize(

@@ -5,6 +5,7 @@ import logging
 from typing import Sequence
 
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
+    GetInstanceRequest,
     ListDefinitionsRequest,
     ListInstancesRequest,
 )
@@ -15,6 +16,7 @@ import grpc
 
 from ansys.platform.instancemanagement.definition import Definition
 from ansys.platform.instancemanagement.exceptions import (
+    InstanceNotFoundError,
     InvalidConfigurationError,
     RemoteError,
     UnsupportedProductError,
@@ -263,3 +265,36 @@ Consider upgrading ansys-platform-instancemanagement.',
             )
         definition = definitions[0]
         return definition.create_instance(timeout=requests_timeout)
+
+    def get_instance(self, name: str, timeout: float = None) -> Instance:
+        """Get a remote product instance by name.
+
+        Parameters
+        ----------
+        name: str
+            Name of the instance to get (for example, ``instances/mapdl-1212``).
+
+        timeout : float, optional
+            Maximum time in seconds for the request. The default is ``None``.
+
+        Returns
+        -------
+        Instance
+            A remote instance.
+
+        Raises
+        ------
+            InstanceNotFoundError
+                The instance does not exist.
+        """
+        logger.debug("Getting the instance %s.", name)
+        request = GetInstanceRequest(name=name)
+
+        try:
+            instance = self._stub.GetInstance(request, timeout=timeout)
+        except grpc.RpcError as exc:
+            if exc.code() == grpc.StatusCode.NOT_FOUND:
+                raise InstanceNotFoundError(exc, f"The instance {name} does not exist.") from exc
+            raise RemoteError(exc, exc.details()) from exc
+
+        return Instance._from_pim_v1(instance, self._stub)
