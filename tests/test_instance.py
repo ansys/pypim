@@ -1,5 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
-from unittest.mock import create_autospec, call
+from unittest.mock import call, create_autospec
 
 from ansys.api.platform.instancemanagement.v1 import product_instance_manager_pb2 as pb2
 from ansys.api.platform.instancemanagement.v1 import product_instance_manager_pb2_grpc as pb2_grpc
