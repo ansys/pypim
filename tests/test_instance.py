@@ -1,5 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
-from unittest.mock import MagicMock, call
+from unittest.mock import create_autospec, call
 
 from ansys.api.platform.instancemanagement.v1 import product_instance_manager_pb2 as pb2
 from ansys.api.platform.instancemanagement.v1 import product_instance_manager_pb2_grpc as pb2_grpc
@@ -336,7 +336,7 @@ def test_wait_for_ready(testing_channel):
             instance._status_message = ""
             instance._services = {"http": pb2.Service(uri="http://example.com", headers={})}
 
-    instance.update = MagicMock()
+    instance.update = create_autospec(instance.update)
     instance.update.side_effect = update_side_effect
 
     # Act
@@ -357,12 +357,14 @@ def test_create_channel():
     # Two mocked services
     main_service = pypim.Service(uri="dns:example.com", headers={})
     main_channel = grpc.insecure_channel("dns:example.com")
-    object.__setattr__(main_service, "_build_grpc_channel", MagicMock(return_value=main_channel))
+    main_service._build_grpc_channel = create_autospec(
+        main_service._build_grpc_channel, return_value=main_channel
+    )
 
     sidecar_service = pypim.Service(uri="dns:ansysapis.com", headers={})
     sidecar_channel = grpc.insecure_channel("dns:ansysapis.com")
-    object.__setattr__(
-        sidecar_service, "_build_grpc_channel", MagicMock(return_value=sidecar_channel)
+    sidecar_service._build_grpc_channel = create_autospec(
+        sidecar_service._build_grpc_channel, return_value=sidecar_channel
     )
 
     # An instance containing these services
