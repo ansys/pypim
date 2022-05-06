@@ -438,7 +438,7 @@ def test_str():
             ready=False,
             status_message="Loading.",
             services={
-                "http": "http://example.com",
+                "my-http": "http://example.com",
             },
         )
     )
@@ -446,5 +446,5 @@ def test_str():
     assert "definitions/my-def" in instance_str
     assert "False" in instance_str
     assert "Loading." in instance_str
-    assert "http" in instance_str
+    assert "my-http" in instance_str
     assert "http://example.com" in instance_str
