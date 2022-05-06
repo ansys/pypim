@@ -37,7 +37,7 @@ Instead of:
 
 This guide exposes the guidelines to implement such ``launch_*`` method that
 takes in account PyPIM. Just like the entire PIM API, this guide is only
-targetted toward products that are stateful and require explicit lifecycle
+targeted toward products that are stateful and require explicit lifecycle
 management.
 
 *************
@@ -124,7 +124,7 @@ When stopping the product, the remote instance should also be deleted:
        if self.instance is not None:
            self.instance.delete()
 
-Note that it is the responsability of the PIM to clean-up any resource and
+Note that it is the responsibility of the PIM to clean-up any resource and
 process associated with the product. It's however fine to double down with any
 relevant product specific clean-up.
 
@@ -138,7 +138,7 @@ For a REST product, the base uri will be found under
 found in ``instance.services["http"].headers``.
 
 For another protocol, it will be up to an agreement between the PIM
-implementation and the client code to pass the required informations in a
+implementation and the client code to pass the required information in a
 dedicated entry in ``.services``.
 
 ********
@@ -148,7 +148,7 @@ dedicated entry in ``.services``.
 When testing the PyPIM integration, it is advised not to rely on any actual PIM
 implementation. Instead we recommend to mock the interaction with PyPIM.
 Verifying that a specific PIM implementation is able to start and provide an
-endpoint to the product in a specific environment is the responsability of the
+endpoint to the product in a specific environment is the responsibility of the
 team managing this environment.
 
 This test approach mocks PyPIM behavior, resulting in a verbose test with no
