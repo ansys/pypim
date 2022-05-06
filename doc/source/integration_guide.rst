@@ -50,7 +50,7 @@ Dependency
 ``PyPIM`` is following semantic versioning. A library should depend on pypim
 with the following ``require`` string:
 
-``"ansys-platform-instancemanagement~=1.0.0"``
+``"ansys-platform-instancemanagement~=1.0"``
 
 .. note::
 
