@@ -54,3 +54,18 @@ def test_create_instance(testing_channel):
     mock_instance_create.assert_called_once_with(
         definition_name="definitions/my_def", timeout=0.1, stub=stub
     )
+
+
+def test_str():
+    definition_str = str(
+        pypim.Definition(
+            name="definitions/my_def",
+            product_name="my_product",
+            product_version="221",
+            available_service_names=["grpc"],
+        )
+    )
+    assert "definitions/my_def" in definition_str
+    assert "my_product" in definition_str
+    assert "221" in definition_str
+    assert "grpc" in definition_str

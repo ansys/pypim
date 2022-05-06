@@ -89,6 +89,14 @@ class Definition:
             and self.available_service_names == obj.available_service_names
         )
 
+    def __str__(self):
+        """Human readable description."""
+        return (
+            f"Definition(name: {self.name}, product_name: {self.product_name},"
+            f" product_version: {self.product_version}, available_services_names:"
+            f" {self.available_service_names})"
+        )
+
     def create_instance(self, timeout: float = None) -> Instance:
         """Create a product instance from this definition.
 

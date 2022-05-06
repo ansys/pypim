@@ -430,3 +430,23 @@ def test_create_channel_not_supported():
     # The exception was raised with a descriptive error
     assert "instances/hello-world-32" in str(exc)
     assert "grpc" in str(exc)
+
+
+def test_str():
+    instance_str = str(
+        pypim.Instance(
+            name="instances/hello-world-32",
+            definition_name="definitions/my-def",
+            ready=False,
+            status_message="Loading.",
+            services={
+                "my-http": "http://example.com",
+            },
+        )
+    )
+    assert "instances/hello-world-32" in instance_str
+    assert "definitions/my-def" in instance_str
+    assert "False" in instance_str
+    assert "Loading." in instance_str
+    assert "my-http" in instance_str
+    assert "http://example.com" in instance_str
