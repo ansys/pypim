@@ -1,6 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor
 import os
-from unittest.mock import MagicMock, patch
+from unittest.mock import create_autospec, patch
 
 from ansys.api.platform.instancemanagement.v1 import product_instance_manager_pb2 as pb2
 from ansys.api.platform.instancemanagement.v1 import product_instance_manager_pb2_grpc as pb2_grpc
@@ -331,9 +331,11 @@ def test_create_instance(testing_channel):
         status_message="loading...",
         services={},
     )
-    object.__setattr__(definitions[0], "create_instance", MagicMock(return_value=instance))
-    object.__setattr__(definitions[1], "create_instance", MagicMock())
-    client.list_definitions = MagicMock(return_value=definitions)
+    definitions[0].create_instance = create_autospec(
+        definitions[0].create_instance, return_value=instance
+    )
+    definitions[1].create_instance = create_autospec(definitions[1].create_instance)
+    client.list_definitions = create_autospec(client.list_definitions, return_value=definitions)
 
     # Act
     created_instance = client.create_instance(
@@ -342,6 +344,7 @@ def test_create_instance(testing_channel):
 
     # Assert
     # The method created an instance from the first definition
+    client.list_definitions.assert_called()
     client.list_definitions.assert_called_once_with(
         product_name="definitions/the-good-one", product_version=None, timeout=0.32
     )
@@ -356,7 +359,7 @@ def test_unsupported_product(
     # Arrange
     # A client mocking a server not supporting the requested products
     client = pypim.Client(testing_channel)
-    client.list_definitions = MagicMock(return_value=[])
+    client.list_definitions = create_autospec(client.list_definitions, return_value=[])
 
     # Act
     # Attempt to create an unsupported product
