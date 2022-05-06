@@ -98,8 +98,25 @@ You can also use PyPIM without the ``with`` statement:
     if pypim.is_configured():
         pim = pypim.connect()
         instance = pim.create_instance(product_name="mapdl", product_version="221")
+        channel = instance.build_grpc_channel(options=[("grpc.max_receive_message_length", 8*1024**2)])
         mapdl = Mapdl(channel=channel)
         mapdl.prep7()
         ...
         instance.delete()
         pim.close()
+
+Integration
+-----------
+
+PyPIM can be integrated in PyAnsys library to transparently switch to a remote
+instance in a suitable environment. This process is described in the :doc:`integration guide <integration_guide>`.
+
+.. list-table:: Integration Status
+    :header-rows: 1
+    
+    * - Library
+      - Product Name
+      - Version Scheme
+    * - PyMAPDL
+      - ``mapdl``
+      - Unified 3 digits
