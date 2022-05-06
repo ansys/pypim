@@ -27,8 +27,8 @@ PyPIM
   :target: https://github.com/psf/black
   :alt: black
     
-PyPIM exposes a Pythonic interface to communicate with the Product Instance
-Management (PIM) API.
+`PyPIM <https://pypim.docs.pyansys.com>`_ exposes a Pythonic interface to
+communicate with the Product Instance Management (PIM) API.
 
 What is the PIM API?
 ============================================
@@ -66,6 +66,28 @@ Python 3.10 on Windows and Linux.
 .. code-block::
 
     pip install ansys-platform-instancemanagement
+
+Configuration
+-------------
+
+By default, PyPIM is configured externally instead of via code. Anywhere in the
+local storage, create a configuration file with the following format:
+
+.. code-block:: json
+
+    {
+        "version": 1,
+        "pim": {
+            "uri": "dns:pim.svc.com:80",
+            "headers": {
+                "metadata-info": "value"
+            },
+            "tls": false
+        }
+    }
+
+Then, define the environment variable
+``ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG`` to point to this file.
 
 Usage
 -----
@@ -108,10 +130,20 @@ You can also use PyPIM without the ``with`` statement:
 Integration
 -----------
 
-PyPIM can be integrated in PyAnsys library to transparently switch to a remote
-instance in a suitable environment. This process is described in the :doc:`integration guide <integration_guide>`.
+PyPIM can be integrated in PyAnsys libraries to transparently switch to a remote
+instance in a suitable environment. This process is described in the
+:doc:`integration guide <integration_guide>`.
 
-.. list-table:: Integration Status
+For example, starting MAPDL with PyPIM is actually as simple as:
+
+.. code-block:: python
+
+    from ansys.mapdl.core import launch_mapdl    
+    mapdl = launch_mapdl()
+
+PyPIM is integrated in the following libraries:
+
+.. list-table::
     :header-rows: 1
     
     * - Library
