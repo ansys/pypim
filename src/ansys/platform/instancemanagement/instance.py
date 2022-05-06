@@ -128,6 +128,13 @@ class Instance(contextlib.AbstractContextManager):
             and obj.services == self.services
         )
 
+    def __str__(self):
+        """Human readable description."""
+        return (
+            f"Instance(name: {self.name}, definition: {self.definition_name}, ready: {self.ready},"
+            f" status_message: {self.status_message}, services: {self.services})"
+        )
+
     @staticmethod
     def _create(definition_name: str, stub: ProductInstanceManagerStub, timeout: float = None):
         """Create a product instance from the given definition.

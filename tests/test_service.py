@@ -60,3 +60,10 @@ def test_build_channel(testing_pool, headers):
         assert metadata_dict[header] == value
 
     assert received_requests[0] == health_pb2.HealthCheckRequest(service="hello world")
+
+
+def test_str():
+    service_str = str(pypim.Service(uri="http://example.com", headers={"hello": "world"}))
+    assert "http://example.com" in service_str
+    assert "hello" in service_str
+    assert "world" in service_str
