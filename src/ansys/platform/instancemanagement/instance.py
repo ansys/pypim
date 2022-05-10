@@ -270,6 +270,11 @@ class Instance(contextlib.AbstractContextManager):
                 Product:             Ansys Mechanical Enterprise
                 MAPDL Version:       22.1
                 ansys.mapdl Version: 0.61.2
+
+            If the service exposes multiple ports, this method can be used to
+            connect to another port by providing the service name:
+
+            >>> filemanagement_channel=instance.build_grpc_channel(service_name="filemanagement")
         """
         if not self.ready:
             raise InstanceNotReadyError(self.name)
