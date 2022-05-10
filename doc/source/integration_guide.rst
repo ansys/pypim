@@ -180,7 +180,7 @@ The initial setup of such mock can look like:
         # Create a working gRPC channel to this product
         pim_channel = grpc.insecure_channel("localhost:50052")
 
-        # Mock the wait_for_ready method so that it immediately return
+        # Mock the wait_for_ready method so that it immediately returns
         mock_instance.wait_for_ready = create_autospec(mock_instance.wait_for_ready)
 
         # Mock the `build_grpc_channel` to return the working channel
