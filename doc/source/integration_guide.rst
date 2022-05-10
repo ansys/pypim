@@ -52,10 +52,6 @@ with the following ``require`` string:
 
 ``"ansys-platform-instancemanagement~=1.0"``
 
-.. note::
-
-   As the time of the writing, 1.0.0 is not yet released.
-
 Condition to use PyPIM
 ======================
 
