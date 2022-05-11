@@ -49,9 +49,9 @@ class Service:
         """Test for equality."""
         return isinstance(obj, Service) and obj.headers == self.headers and obj.uri == self.uri
 
-    def __str__(self):
-        """Human readable description."""
-        return f"Service(uri: {self.uri}, headers: {self.headers})"
+    def __repr__(self):
+        """Python callable representation."""
+        return f"Service(uri={repr(self.uri)}, headers={repr(self.headers)})"
 
     def _build_grpc_channel(
         self,

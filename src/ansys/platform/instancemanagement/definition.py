@@ -89,12 +89,12 @@ class Definition:
             and self.available_service_names == obj.available_service_names
         )
 
-    def __str__(self):
-        """Human readable description."""
+    def __repr__(self):
+        """Python-callable description."""
         return (
-            f"Definition(name: {self.name}, product_name: {self.product_name},"
-            f" product_version: {self.product_version}, available_services_names:"
-            f" {self.available_service_names})"
+            f"Definition(name={repr(self.name)}, product_name={repr(self.product_name)},"
+            f" product_version={repr(self.product_version)}, available_service_names="
+            f"{repr(self.available_service_names)})"
         )
 
     def create_instance(self, timeout: float = None) -> Instance:

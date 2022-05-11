@@ -128,11 +128,12 @@ class Instance(contextlib.AbstractContextManager):
             and obj.services == self.services
         )
 
-    def __str__(self):
-        """Human readable description."""
+    def __repr__(self):
+        """Python callable representation."""
         return (
-            f"Instance(name: {self.name}, definition: {self.definition_name}, ready: {self.ready},"
-            f" status_message: {self.status_message}, services: {self.services})"
+            f"Instance(name={repr(self.name)}, definition_name={repr(self.definition_name)},"
+            f" ready={repr(self.ready)}, status_message={repr(self.status_message)},"
+            f" services={repr(self.services)})"
         )
 
     @staticmethod
