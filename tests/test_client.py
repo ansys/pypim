@@ -438,7 +438,7 @@ def test_not_configured():
 
 
 @pytest.mark.parametrize(
-    ("bad_configuration,message_content"),
+    "bad_configuration,message_content",
     [
         (r"""not even the right format""", "json"),
         (r"""{"version": 2, "pim": "future format"}""", "Unsupported version"),

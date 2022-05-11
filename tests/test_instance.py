@@ -417,7 +417,7 @@ def test_create_channel_not_supported():
         ready=True,
         status_message=None,
         services={
-            "http": "http://example.com",
+            "http": pypim.Service(uri="http://example.com", headers={}),
         },
     )
 
@@ -440,7 +440,7 @@ def test_str():
             ready=False,
             status_message="Loading.",
             services={
-                "my-http": "http://example.com",
+                "my-http": pypim.Service(uri="http://example.com", headers={}),
             },
         )
     )
@@ -450,3 +450,19 @@ def test_str():
     assert "Loading." in instance_str
     assert "my-http" in instance_str
     assert "http://example.com" in instance_str
+
+
+def test_repr():
+    from ansys.platform.instancemanagement import Instance, Service  # noqa
+
+    instance = pypim.Instance(
+        name="instances/hello-world-32",
+        definition_name="definitions/my-def",
+        ready=False,
+        status_message="Loading.",
+        services={
+            "my-http": pypim.Service(uri="http://example.com", headers={}),
+        },
+    )
+    instance_repr = eval(repr(instance))
+    assert instance == instance_repr

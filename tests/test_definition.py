@@ -69,3 +69,16 @@ def test_str():
     assert "my_product" in definition_str
     assert "221" in definition_str
     assert "grpc" in definition_str
+
+
+def test_repr():
+    from ansys.platform.instancemanagement import Definition  # noqa
+
+    definition = pypim.Definition(
+        name="definitions/my_def",
+        product_name="my_product",
+        product_version="221",
+        available_service_names=["grpc"],
+    )
+
+    assert definition == eval(repr(definition))
