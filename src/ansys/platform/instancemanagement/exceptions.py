@@ -82,8 +82,8 @@ class UnsupportedProductError(RuntimeError):
         self.product_version = product_version
         if product_version:
             super().__init__(
-                f"The remote server does not support {self.product_name}\
-in version {self.product_version}."
+                f"The remote server does not support {self.product_name} in version"
+                f" {self.product_version}."
             )
         else:
             super().__init__(f"The remote server does not support {self.product_name}.")
