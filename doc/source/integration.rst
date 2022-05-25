@@ -4,7 +4,7 @@ Integration
 
 .. currentmodule:: ansys.platform.instancemanagement
 
-Even though PyPIM can be used by an application developer, it can also
+While PyPIM can be used by an application developer, it can also
 be used behind the scene by other PyAnsys libraries to manage remote
 instances of the products that they interact with. This enables an application
 developer to write code that works both in an environment configured with PyPIM
