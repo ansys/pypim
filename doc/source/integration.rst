@@ -131,12 +131,12 @@ While the code flow for a non-gRPC product is the same, connection information
 is more specific.
 
 * For a REST-ful product, the base uniform resource identifier (URI) must be
-found under ``instance.services["http"].uri`` and all requests must include the
-headers in ``instance.services["http"].headers``.
+  found under ``instance.services["http"].uri`` and all requests must include the
+  headers in ``instance.services["http"].headers``.
 
 * For other protocols, an agreement between the PIM implementation and the
-client code determines how to pass the required information in a
-dedicated entry in ``.services``.
+  client code determines how to pass the required information in a
+  dedicated entry in ``.services``.
 
 *******
 Testing
