@@ -50,7 +50,7 @@ def is_configured() -> bool:
     Returns
     -------
     bool
-       ``True`` when the environment is configured to use PyPIM, ``False`` when it is not.
+        ``True`` when the environment is configured to use PyPIM, ``False`` otherwise.
     """
     return CONFIGURATION_PATH_ENVIRONMENT_VARIABLE in os.environ
 
@@ -63,8 +63,8 @@ def connect() -> Client:
 
     The environment configuration consists in setting the environment variable
     ``ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG`` to the path of the PyPIM
-    configuration file. The configuration file is a simple json file containing
-    the URI of the PIM API and headers required to pass information.
+    configuration file. The configuration file is a simple JSON file containing
+    the URI of the PIM API and the headers required to pass information.
 
     The configuration file format is:
 

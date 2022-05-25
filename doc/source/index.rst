@@ -10,4 +10,4 @@
    
    api/index
    contributing
-   integration_guide
+   integration

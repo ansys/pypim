@@ -1,16 +1,16 @@
-###################
- Integration Guide
-###################
+###########
+Integration
+###########
 
 .. currentmodule:: ansys.platform.instancemanagement
 
-Even though PyPIM can be used by an application developer, it is also intended
-to be used behind the scene by other PyAnsys libraries to manage a remote
-instance of the product they interact with. This enables an application
-developer to write code that works both in an environment configured with PyPIM,
-or without.
+Even though PyPIM can be used by an application developer, it can also
+be used behind the scene by other PyAnsys libraries to manage remote
+instances of the products that they interact with. This enables an application
+developer to write code that works both in an environment configured with PyPIM
+and an environment without such a configuration.
 
-For example an application developer can write the following code:
+For example, an application developer can write the following code:
 
 .. code:: python
 
@@ -35,38 +35,36 @@ Instead of:
    else:
        mapdl = launch_mapdl()
 
-This guide exposes the guidelines to implement such ``launch_*`` method that
-takes in account PyPIM. Just like the entire PIM API, this guide is only
-targeted toward products that are stateful and require explicit lifecycle
+This topic provides guidelines for implementing the ``launch_*`` method that
+takes PyPIM into account. Just like the entire PIM API, this topic is targeted
+only toward products that are stateful and require explicit lifecycle
 management.
 
-*************
- Integration
-*************
+*****
+Usage
+*****
 
 Dependency
 ==========
 
-``PyPIM`` is following semantic versioning. A library should depend on pypim
-with the following ``require`` string:
+``PyPIM`` uses semantic versioning. To depend on PyPIM, a library
+must include the following ``require`` string:
 
 ``"ansys-platform-instancemanagement~=1.0"``
 
-Condition to use PyPIM
-======================
+Condition for PyPIM Usage
+=========================
 
-Using PyPIM is done transparently under certain conditions. The condition should
-be that the user requests to launch the product in an environment configured
-with PyPIM, without specifying an intent on how it should be launched, then
-PyPIM should be used. In other words, PyPIM should be the default startup method
-in an environment configured for PyPIM.
+The condition for using PyPIM transparently is that the user must
+be able to launch the product in an environment configured with PyPIM
+without specifying launch information. In other words, PyPIM must be
+the default startup method in an environment that is configured with PyPIM.
 
-Thus the right place for integrating it is a generic method such as
-``launch_my_product()``, or a constructor that usually is able to start a local
-process.
+To integrate PyPIM correctly, you should use either a generic method such as
+``launch_my_product()`` or a constructor that can start a local process.
 
 For example, with PyMAPDL in an environment configured with PyPIM, the following
-code uses PyPIM:
+code launches PyPIM for use:
 
 .. code:: python
 
@@ -74,7 +72,7 @@ code uses PyPIM:
 
    mapdl = launch_mapdl()
 
-But this code will not use PyPIM:
+However, this code does not launch PyPIM for use:
 
 .. code:: python
 
@@ -82,20 +80,21 @@ But this code will not use PyPIM:
 
    mapdl = launch_mapdl(exec_file="/usr/bin/mapdl")
 
-Starting a gRPC product
+Starting a gRPC Product
 =======================
 
-When PyPIM is used, the code flow should be:
+To use PyPIM, the code flow should first check if PyPIM is configured
+with :func:`is_configured` and then check to ensure that the user has not
+specified how to launch it.
 
-First, check if pypim is configured with :func:`is_configured` and the user has not
-given any indication on how to start it. If both conditions are met:
+If both conditions are met:
 
-#. Connect to pypim with :func:`connect`
+#. Connect to PyPIM with :func:`connect`
 #. Create an instance with :func:`Client.create_instance`
 #. Wait for the instance to be ready with :func:`Instance.wait_for_ready`
 #. Build a gRPC channel with :func:`Instance.build_grpc_channel`
 
-Typically, the resulting code will look like:
+Typically, the resulting code looks like this:
 
 .. code:: python
 
@@ -112,7 +111,7 @@ Typically, the resulting code will look like:
            self.process = subprocess.run(...)
            channel = grpc.insecure_chanel(...)
 
-When stopping the product, the remote instance should also be deleted:
+When stopping the product, ensure that the remote instance is deleted:
 
 .. code:: python
 
@@ -120,29 +119,31 @@ When stopping the product, the remote instance should also be deleted:
        if self.instance is not None:
            self.instance.delete()
 
-Note that it is the responsibility of the PIM to clean-up any resource and
-process associated with the product. It's however fine to double down with any
-relevant product specific clean-up.
+.. note::
+   While it is PyPIM's responsibility to clean up any resource and
+   process associated with the product, relevant product-specific cleanup
+   is still advised.
 
-Starting a non gRPC product
+Starting a Non-gRPC Product
 ===========================
 
-The code flow is the same, but the connection will be more specific.
+While the code flow for a non-gRPC product is the same, connection information
+is more specific.
 
-For a REST product, the base uri will be found under
-``instance.services["http"].uri`` and all the requests must include the headers
-found in ``instance.services["http"].headers``.
+* For a REST-ful product, the base uniform resource identifier (URI) must be
+found under ``instance.services["http"].uri`` and all requests must include the
+headers in ``instance.services["http"].headers``.
 
-For another protocol, it will be up to an agreement between the PIM
-implementation and the client code to pass the required information in a
+* For other protocols, an agreement between the PIM implementation and the
+client code determines how to pass the required information in a
 dedicated entry in ``.services``.
 
-********
- Testing
-********
+*******
+Testing
+*******
 
-When testing the PyPIM integration, it is advised not to rely on any actual PIM
-implementation. Instead we recommend to mock the interaction with PyPIM.
+When testing the PyPIM integration, you should not rely on an actual PIM
+implementation. Instead, you should mock the interaction with PyPIM.
 Verifying that a specific PIM implementation is able to start and provide an
 endpoint to the product in a specific environment is the responsibility of the
 team managing this environment.
@@ -151,7 +152,7 @@ This test approach mocks PyPIM behavior, resulting in a verbose test with no
 additional dependencies. It is also not subject to bugs in PyPIM or in a PIM
 implementation.
 
-The initial setup of such mock can look like:
+The initial setup of such a mock can look like this:
 
 .. code:: python
 
@@ -161,7 +162,7 @@ The initial setup of such mock can look like:
 
 
     def test_pim(monkeypatch):
-        # Actually start the product
+        # Start the product
         product = launch_my_product(port=50052)
 
         # Create a mock PyPIM instance object representing the running product
@@ -187,21 +188,21 @@ The initial setup of such mock can look like:
         # Mock the deletion method
         mock_instance.delete = create_autospec(mock_instance.delete)
 
-        # Mock the PyPIM client, so that on the "create_instance" call it returns the mock instance
+        # Mock the PyPIM client so that on the "create_instance" call it returns the mock instance
         # Note: the host and port here will not be used.
         mock_client = pypim.Client(channel=grpc.insecure_channel("localhost:12345"))
         mock_client.create_instance = create_autospec(
             mock_client.create_instance, return_value=mock_instance
         )
 
-        # Mock the general pypim connection and configuration check method to expose the mock client.
+        # Mock the general PyPIM connection and configuration check method to expose the mock client.
         mock_connect = create_autospec(pypim.connect, return_value=mock_client)
         mock_is_configured = create_autospec(pypim.is_configured, return_value=True)
         monkeypatch.setattr(pypim, "connect", mock_connect)
         monkeypatch.setattr(pypim, "is_configured", mock_is_configured)
 
 This initial setup is faking all the necessary parts of PyPIM. From here,
-calling ``launch_my_product()`` with no parameter is expected to only call the
+calling ``launch_my_product()`` with no parameter is expected to call only the
 mocks, which the test should now do:
 
 .. code:: python
@@ -241,8 +242,8 @@ When stopping the product, the test should also verify that the remote instance 
     
     assert mock_instance.delete.called
 
-********
- Example
-********
+*******
+Example
+*******
 
-An example of such integration can be seen `in PyMAPDL <https://github.com/pyansys/pymapdl/pull/1091/files>`_.
+An example of such an integration can be seen `in PyMAPDL <https://github.com/pyansys/pymapdl/pull/1091/files>`_.

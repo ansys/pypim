@@ -84,8 +84,8 @@ class Instance(contextlib.AbstractContextManager):
         """List of entry points exposed by the instance.
 
         This property is only filled when the instance is ready.
-        If the instance exposes a gRPC API, it is named ``grpc``.
-        If the instance exposes a REST-like API, it is named ``http``.
+        If the instance exposes a gRPC API, the name begins with "grpc".
+        If the instance exposes a REST-like API, the name begins with "http".
 
         It may contain additional entries for custom scenarios such as sidecar services
         or other protocols.
@@ -238,7 +238,7 @@ class Instance(contextlib.AbstractContextManager):
         Parameters
         ----------
         service_name : str, optional
-            Custom service name. The default is ``"grpc"``.
+            Custom service name. The name begins with "grpc".
         kwargs: list
             Named argument to pass to the gRPC channel creation.
 
