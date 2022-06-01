@@ -132,7 +132,7 @@ Integration
 
 PyPIM can be integrated in PyAnsys libraries to transparently switch to a remote
 instance in a suitable environment. This process is described in the documentation's
-integration topic.
+:ref:`integration topic`<integration>.
 
 For example, starting MAPDL with PyPIM is as simple as:
 
