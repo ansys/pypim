@@ -85,7 +85,7 @@ class Instance(contextlib.AbstractContextManager):
 
         This property is only filled when the instance is ready.
         If the instance exposes a gRPC API, it is named "grpc".
-        If the instance exposes a REST-like API, the name begins with "http".
+        If the instance exposes a REST-like API, it is named "http".
 
         It may contain additional entries for custom scenarios such as sidecar services
         or other protocols.
