@@ -238,7 +238,7 @@ class Instance(contextlib.AbstractContextManager):
         Parameters
         ----------
         service_name : str, optional
-            Custom service name. The name begins with "grpc".
+            Custom service name. The default is "grpc".
         kwargs: list
             Named argument to pass to the gRPC channel creation.
 
