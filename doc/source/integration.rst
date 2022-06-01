@@ -1,8 +1,6 @@
 .. _integration:
 
 ###########
-
-(part 2 to link from the readme to here)
 Integration
 ###########
 
