@@ -84,7 +84,7 @@ class Instance(contextlib.AbstractContextManager):
         """List of entry points exposed by the instance.
 
         This property is only filled when the instance is ready.
-        If the instance exposes a gRPC API, the name begins with "grpc".
+        If the instance exposes a gRPC API, it is named "grpc".
         If the instance exposes a REST-like API, the name begins with "http".
 
         It may contain additional entries for custom scenarios such as sidecar services

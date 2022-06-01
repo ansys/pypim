@@ -135,7 +135,7 @@ Consider upgrading ansys-platform-instancemanagement.',
         product_version: str = None,
         timeout: float = None,
     ) -> Sequence[Definition]:
-        """Get a list of supported product definitions.
+        """Get the list of supported product definitions.
 
         Parameters
         ----------

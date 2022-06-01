@@ -1,4 +1,8 @@
+.. _integration:
+
 ###########
+
+(part 2 to link from the readme to here)
 Integration
 ###########
 
@@ -61,10 +65,10 @@ without specifying launch information. In other words, PyPIM must be
 the default startup method in an environment that is configured with PyPIM.
 
 To integrate PyPIM correctly, you should use either a generic method such as
-``launch_my_product()`` or a constructor that can start a local process.
+``launch_my_product()`` or a constructor that usually starts a local process.
 
 For example, with PyMAPDL in an environment configured with PyPIM, the following
-code launches PyPIM for use:
+code uses PyPIM:
 
 .. code:: python
 
@@ -72,7 +76,7 @@ code launches PyPIM for use:
 
    mapdl = launch_mapdl()
 
-However, this code does not launch PyPIM for use:
+However, this code does not use PyPIM:
 
 .. code:: python
 
@@ -122,7 +126,7 @@ When stopping the product, ensure that the remote instance is deleted:
 .. note::
    While it is PyPIM's responsibility to clean up any resource and
    process associated with the product, relevant product-specific cleanup
-   is still advised.
+   can still be performed.
 
 Starting a Non-gRPC Product
 ===========================

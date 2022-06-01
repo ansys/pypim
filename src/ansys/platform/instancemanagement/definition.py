@@ -56,8 +56,8 @@ class Definition:
     def available_service_names(self) -> Sequence[str]:
         """List of the available service names.
 
-        If the product exposes a gRPC API, the service name begins with "grpc".
-        If the product exposes a REST-like API, the service name begins with "http".
+        If the product exposes a gRPC API, the service is named "grpc".
+        If the product exposes a REST-like API, the service is named "http".
         Custom entries might also be listed, either for sidecar services or
         other protocols.
         """
