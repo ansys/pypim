@@ -88,10 +88,10 @@ class Client(contextlib.AbstractContextManager):
         """
         logger.debug("Initializing from %s", config_path)
 
-        # Note: this configuration should likely become a full-featured object
-        # to be shared across PyPIM class at some point.
-        # The configuration is a plain json file with the settings to create the
-        # grpc channel.
+        # Note: At some point, this configuration is likely to become a
+        # full-featured object to be shared across the PyPIM class.
+        # The configuration is a plain JSON file with the settings for creating
+        # the gRPC channel.
 
         with open(config_path, "r") as f:
             try:
@@ -225,9 +225,9 @@ Consider upgrading ansys-platform-instancemanagement.',
         Parameters
         ----------
         product_name : str
-            Name of the product to start (for example, ``mapdl``).
+            Name of the product to start. For example, ``mapdl``.
         product_version : str, optional
-            Version of the product (for example, ``"222"``). The default is ``None``.
+            Version of the product. For example, ``"222"``. The default is ``None``.
         requests_timeout : float, optional
             Maximum time for each request in seconds. The default is ``None``.
 
@@ -272,7 +272,7 @@ Consider upgrading ansys-platform-instancemanagement.',
         Parameters
         ----------
         name: str
-            Name of the instance to get (for example, ``instances/mapdl-1212``).
+            Name of the instance to get. For example, ``instances/mapdl-1212``.
 
         timeout : float, optional
             Maximum time in seconds for the request. The default is ``None``.

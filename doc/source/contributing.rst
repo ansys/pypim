@@ -23,7 +23,7 @@ Run this code to clone and install the latest version of PyPIM in development mo
 
 Running Tests
 -------------
-Test automation relies on `tox`_. `tox`_ can be installed with:
+Test automation relies on `tox`_, which can be installed with:
 
 .. code-block::
 
@@ -68,12 +68,11 @@ You can also directly install PyPIM in your current environment with:
 
 Release Process
 ---------------
-
 PyPIM follows the same `branching model`_ as other PyAnsys libraries and the
 same `release procedure`_.
 
 The only notable difference is that the documentation is created with ``tox -e
-doc`` instead of using ``make``.
+doc`` rather than with ``make``.
 
 .. _`branching model`: https://dev.docs.pyansys.com/guidelines/dev_practices.html#branching-model
 .. _`release procedure`: https://dev.docs.pyansys.com/guidelines/dev_practices.html#release-procedures
