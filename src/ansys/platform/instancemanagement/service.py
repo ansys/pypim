@@ -11,16 +11,16 @@ from ansys.platform.instancemanagement.interceptor import header_adder_intercept
 
 
 class Service:
-    """An entry point to communicate with a remote product."""
+    """Provides an entry point for communicating with a remote product."""
 
     _uri: str
     _headers: Mapping[str, str]
 
     @property
     def uri(self) -> str:
-        """URI to reach the service.
+        """Uniform resource indicator (URI) to reach the service.
 
-        For gRPC, this is a valid URI, following gRPC-name resolution
+        For gRPC, this is a valid URI following gRPC-name resolution
         syntax: https://grpc.github.io/grpc/core/md_doc_naming.html
 
         For HTTP/REST, this is a valid http or https URI. It is the base

@@ -37,8 +37,8 @@ class Definition:
     def product_name(self) -> str:
         """Name of the product.
 
-        This is the name of the product that can be started (for example, ``"mapdl"`` or
-        ``"fluent"``).
+        This is the name of the product that can be started. For example, ``"mapdl"`` or
+        ``"fluent"``.
         """
         return self._product_name
 
@@ -56,8 +56,8 @@ class Definition:
     def available_service_names(self) -> Sequence[str]:
         """List of the available service names.
 
-        If the product exposes a gRPC API, the service will be named "grpc".
-        If the product exposes a REST-like API, the service will be named "http".
+        If the product exposes a gRPC API, the service is named "grpc".
+        If the product exposes a REST-like API, the service is named "http".
         Custom entries might also be listed, either for sidecar services or
         other protocols.
         """
