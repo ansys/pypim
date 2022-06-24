@@ -12,7 +12,7 @@ before attempting to contribute to PyPIM.
 
 The following contribution information is specific to PyPIM.
 
-Cloning the PyPIM Repository
+Cloning the PyPIM repository
 ----------------------------
 Run this code to clone and install the latest version of PyPIM in development mode:
 
@@ -21,7 +21,7 @@ Run this code to clone and install the latest version of PyPIM in development mo
     git clone https://github.com/pyansys/pypim.git
     cd pypim/
 
-Running Tests
+Running tests
 -------------
 Test automation relies on `tox`_, which can be installed with:
 
@@ -39,7 +39,7 @@ the tests with the following code:
 
 .. _`tox`: https://tox.wiki/en/latest/install.html#installation-with-pip
 
-Building the Documentation
+Building the documentation
 --------------------------
 You can build PyPIM documentation with:
 
@@ -47,7 +47,7 @@ You can build PyPIM documentation with:
     
     tox -e doc
 
-Building the Package
+Building the package
 --------------------
 
 The PyPIM package is built using `flit`.
@@ -66,7 +66,7 @@ You can also directly install PyPIM in your current environment with:
 
 .. _`flit`: https://flit.pypa.io/en/latest/#install
 
-Release Process
+Release process
 ---------------
 PyPIM follows the same `branching model`_ as other PyAnsys libraries and the
 same `release procedure`_.

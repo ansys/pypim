@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 class Client(contextlib.AbstractContextManager):
-    """Provides an high-level client object for interacting with the PIM API.
+    """Provides a high-level client object for interacting with the PIM API.
 
     This class exposes the methods of the PIM API.
     """
@@ -272,7 +272,9 @@ Consider upgrading ansys-platform-instancemanagement.',
         Parameters
         ----------
         name: str
-            Name of the instance to get. For example, ``instances/mapdl-1212``.
+            Name of the instance to get. This name is assigned by the server and
+            always start with ``instances/``. You should not rely on any static value.
+            For example, the name assigned to the instance might be ``instances/mapdl-a25g813``.
 
         timeout : float, optional
             Maximum time in seconds for the request. The default is ``None``.

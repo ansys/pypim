@@ -54,7 +54,7 @@ must include the following ``require`` string:
 
 ``"ansys-platform-instancemanagement~=1.0"``
 
-Condition for PyPIM Usage
+Condition for PyPIM usage
 =========================
 
 The condition for using PyPIM transparently is that the user must
@@ -82,7 +82,7 @@ However, this code does not use PyPIM:
 
    mapdl = launch_mapdl(exec_file="/usr/bin/mapdl")
 
-Starting a gRPC Product
+Starting a gRPC product
 =======================
 
 To use PyPIM, the code flow should first check if PyPIM is configured
@@ -126,7 +126,7 @@ When stopping the product, ensure that the remote instance is deleted:
    process associated with the product, relevant product-specific cleanup
    can still be performed.
 
-Starting a Non-gRPC Product
+Starting a Non-gRPC product
 ===========================
 
 While the code flow for a non-gRPC product is the same, connection information
