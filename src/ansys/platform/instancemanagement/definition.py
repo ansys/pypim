@@ -28,7 +28,7 @@ class Definition:
     def name(self) -> str:
         """Name of the definition.
 
-        This name is chosen by the server and always start with `definitions/`.
+        This name is assigned by the server and always starts with ``"definitions/"``.
         This name is arbitrary. You should not rely on any static value.
         """
         return self._name
@@ -48,7 +48,7 @@ class Definition:
 
         This is a string describing the version.
         When the product is following the release process for the Ansys unified installation,
-        the version is three digits, such as "221".
+        the version is three digits, such as ``221``.
         """
         return self._product_version
 
@@ -56,8 +56,8 @@ class Definition:
     def available_service_names(self) -> Sequence[str]:
         """List of the available service names.
 
-        If the product exposes a gRPC API, the service is named "grpc".
-        If the product exposes a REST-like API, the service is named "http".
+        If the product exposes a gRPC API, the service is named ``grpc``.
+        If the product exposes a REST-like API, the service is named ``http``.
         Custom entries might also be listed, either for sidecar services or
         other protocols.
         """

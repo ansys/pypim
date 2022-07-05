@@ -21,9 +21,9 @@ class Service:
         """Uniform resource indicator (URI) to reach the service.
 
         For gRPC, this is a valid URI following gRPC-name resolution
-        syntax: https://grpc.github.io/grpc/core/md_doc_naming.html
+        syntax. For example, https://grpc.github.io/grpc/core/md_doc_naming.html.
 
-        For HTTP/REST, this is a valid http or https URI. It is the base
+        For HTTP or REST, this is a valid http or https URI. It is the base
         path of the service API.
         """
         return self._uri
