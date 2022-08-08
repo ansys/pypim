@@ -1,5 +1,0 @@
-[run]
-source = ansys.platform.instancemanagement
-
-[report]
-show_missing = true
