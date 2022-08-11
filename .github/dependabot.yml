@@ -11,3 +11,8 @@ updates:
     ignore:
       # PyPim should not bring additional grpc constraints to other repositories
       - dependency-name: "grpcio"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github"
+    schedule:
+      interval: "daily"
