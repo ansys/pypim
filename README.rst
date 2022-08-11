@@ -140,15 +140,3 @@ For example, starting MAPDL with PyPIM is as simple as:
 
     from ansys.mapdl.core import launch_mapdl    
     mapdl = launch_mapdl()
-
-PyPIM is integrated in the following libraries:
-
-.. list-table::
-    :header-rows: 1
-    
-    * - Library
-      - Product Name
-      - Version Scheme
-    * - PyMAPDL
-      - ``mapdl``
-      - Unified 3 digits
