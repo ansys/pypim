@@ -52,7 +52,7 @@ To use PyPIM, you must have access to the PIM API.
 
 .. note::
     The PIM API is a work in progress. Even though the API definition and the
-    PyPIM client are published, the service itself is not publicly exposed yet.
+    PyPIM client are published, the service itself is not publicly exposed.
 
 PyPIM itself is pure Python and relies on `gRPC`_.
 
