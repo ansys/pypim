@@ -29,7 +29,7 @@ Instead of:
 
    if pypim.is_configured():
        pim = pypim.connect()
-       instance = pypim.create_instance(product_name="mapdl")
+       instance = pim.create_instance(product_name="mapdl")
        channel = instance.build_grpc_channel(
            options=[("grpc.max_receive_message_length", 8 * 1024**2)]
        )
@@ -105,7 +105,7 @@ Typically, the resulting code looks like this:
    def launch_my_product(self, ...):
        if pypim.is_configured() and not user_has_specified_how_to_launch_the_product:
            pim = pypim.connect()
-           self.instance = pypim.create_instance("my_product_name")
+           self.instance = pim.create_instance("my_product_name")
            self.instance.wait_for_ready()
            channel = self.instance.build_grpc_channel()
        else:
