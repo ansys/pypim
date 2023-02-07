@@ -5,6 +5,8 @@ try:
 except ModuleNotFoundError:
     import importlib_metadata
 
+import os
+
 from ansys.platform.instancemanagement.client import Client
 from ansys.platform.instancemanagement.configuration import (
     CONFIGURATION_PATH_ENVIRONMENT_VARIABLE,
