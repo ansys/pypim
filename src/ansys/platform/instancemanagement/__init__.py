@@ -5,10 +5,12 @@ try:
 except ModuleNotFoundError:
     import importlib_metadata
 
-import os
-
 from ansys.platform.instancemanagement.client import Client
-from ansys.platform.instancemanagement.configuration import Configuration
+from ansys.platform.instancemanagement.configuration import (
+    CONFIGURATION_PATH_ENVIRONMENT_VARIABLE,
+    Configuration,
+    is_configured,
+)
 from ansys.platform.instancemanagement.definition import Definition
 from ansys.platform.instancemanagement.exceptions import (
     InstanceNotFoundError,
@@ -42,19 +44,6 @@ __all__ = [
 ]
 
 __version__ = importlib_metadata.version(__name__.replace(".", "-"))
-
-CONFIGURATION_PATH_ENVIRONMENT_VARIABLE = "ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG"
-
-
-def is_configured() -> bool:
-    """Check if the environment is configured to use PyPIM.
-
-    Returns
-    -------
-    bool
-        ``True`` when the environment is configured to use PyPIM, ``False`` otherwise.
-    """
-    return CONFIGURATION_PATH_ENVIRONMENT_VARIABLE in os.environ
 
 
 def connect() -> Client:
@@ -113,48 +102,3 @@ def connect() -> Client:
     if not is_configured():
         raise NotConfiguredError("The environment is not configured to use PyPIM.")
     return Client._from_configuration(os.environ[CONFIGURATION_PATH_ENVIRONMENT_VARIABLE])
-
-
-def default_configuration() -> Configuration:
-    """Create a PyPIM configuration based on the environment configuration.
-
-    Before calling this method, :func:`~is_configured()` should be called to check if
-    the environment is configured to use PyPIM.
-
-    The environment configuration consists in setting the environment variable
-    ``ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG`` to the path of the PyPIM
-    configuration file. The configuration file is a simple JSON file containing
-    the URI of the PIM API and the headers required to pass information.
-
-    The configuration file format is:
-
-    .. code-block:: json
-
-        {
-            "version": 1,
-            "pim": {
-                "uri": "dns:pim.svc.com:80",
-                "headers": {
-                    "metadata-info": "value"
-                },
-                "tls": false
-            }
-        }
-
-
-    Returns
-    -------
-    Configuration
-        PyPIM configuration, with the settings.
-
-    Raises
-    ------
-    NotConfiguredError
-        The environment is not configured to use PyPIM.
-
-    InvalidConfigurationError
-        The configuration is invalid.
-    """
-    if not is_configured():
-        raise NotConfiguredError("The environment is not configured to use PyPIM.")
-    return Configuration.from_file(os.environ[CONFIGURATION_PATH_ENVIRONMENT_VARIABLE])

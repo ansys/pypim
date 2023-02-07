@@ -7,7 +7,7 @@ from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 impor
 )
 import grpc
 
-from ansys.platform.instancemanagement import default_configuration
+from ansys.platform.instancemanagement.configuration import Configuration
 from ansys.platform.instancemanagement.interceptor import header_adder_interceptor
 
 
@@ -76,7 +76,7 @@ class Service:
         potential_port_number = self.uri.split(":")[-1]
         is_secure_port = potential_port_number.isdecimal() and int(potential_port_number) == 443
         if is_secure_port:
-            configuration = default_configuration()
+            configuration = Configuration.from_environment()
             credentials = grpc.composite_channel_credentials(
                 grpc.ssl_channel_credentials(),
                 grpc.access_token_call_credentials(configuration.access_token),
