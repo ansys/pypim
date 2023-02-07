@@ -1,6 +1,5 @@
 """Client class module."""
 import contextlib
-import json
 import logging
 from typing import Sequence
 
@@ -14,10 +13,10 @@ from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2_grpc 
 )
 import grpc
 
+from ansys.platform.instancemanagement.configuration import Configuration
 from ansys.platform.instancemanagement.definition import Definition
 from ansys.platform.instancemanagement.exceptions import (
     InstanceNotFoundError,
-    InvalidConfigurationError,
     RemoteError,
     UnsupportedProductError,
 )
@@ -86,47 +85,29 @@ class Client(contextlib.AbstractContextManager):
         InvalidConfigurationError
             The configuration is not valid.
         """
-        logger.debug("Initializing from %s", config_path)
-
         # Note: At some point, this configuration is likely to become a
         # full-featured object to be shared across the PyPIM class.
         # The configuration is a plain JSON file with the settings for creating
         # the gRPC channel.
 
-        with open(config_path, "r") as f:
-            try:
-                configuration = json.load(f)
-            except json.JSONDecodeError:
-                raise InvalidConfigurationError(config_path, "Invalid json.")
+        configuration = Configuration.from_file(config_path)
 
         # What follows should likely be done with a schema validation
-        try:
-            version = configuration["version"]
-            if version != 1:
-                raise InvalidConfigurationError(
-                    config_path,
-                    f'Unsupported version "{version}".\
-Consider upgrading ansys-platform-instancemanagement.',
-                )
-
-            pim_configuration = configuration["pim"]
-            tls = pim_configuration["tls"]
-            if tls:
-                raise InvalidConfigurationError(
-                    config_path, f"Secured connection is not yet supported."
-                )
-
-            uri = pim_configuration["uri"]
-            headers = [(key, value) for key, value in pim_configuration["headers"].items()]
-        except KeyError as e:
-            key = e.args[0]
-            raise InvalidConfigurationError(
-                config_path, f"The configuration is missing the entry {key}."
+        if configuration.tls:
+            logger.info("The connection to the server will use a secure channel.")
+            channel_credentials = grpc.composite_channel_credentials(
+                grpc.ssl_channel_credentials(),
+                grpc.access_token_call_credentials(configuration.access_token),
             )
-
-        channel = grpc.intercept_channel(
-            grpc.insecure_channel(uri), header_adder_interceptor(headers)
-        )
+            channel = grpc.intercept_channel(
+                grpc.secure_channel(configuration.uri, channel_credentials),
+                header_adder_interceptor(configuration.headers),
+            )
+        else:
+            channel = grpc.intercept_channel(
+                grpc.insecure_channel(configuration.uri),
+                header_adder_interceptor(configuration.headers),
+            )
         return Client(channel)
 
     def list_definitions(
