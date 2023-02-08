@@ -456,7 +456,7 @@ def test_not_configured():
         (
             r"""{"version": 1, "pim": {"uri": "dns:127.0.0.1:5000", "tls": true,
             "headers": {"token": "007","identity": "james bond"}}}""",
-            "not yet supported",
+            "authorization header with a bearer token is required",
         ),
     ],
 )
