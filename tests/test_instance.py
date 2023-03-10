@@ -1,4 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
+import os
 from unittest.mock import call, create_autospec
 
 from ansys.api.platform.instancemanagement.v1 import product_instance_manager_pb2 as pb2
@@ -11,6 +12,31 @@ import pytest
 
 import ansys.platform.instancemanagement as pypim
 from conftest import CREATE_INSTANCE_METHOD, DELETE_INSTANCE_METHOD, GET_INSTANCE_METHOD
+
+
+@pytest.fixture(scope="session", autouse=True)
+def configuration_mock():
+    # Arrange
+    # A valid configuration file setting up the uri and metadata
+    config_path = str("config.json")
+    config = r"""{
+    "version": 1,
+    "pim": {
+        "uri": "dns:instancemanagement.example.com:443",
+        "headers": {
+            "authorization": "Bearer 007"
+        },
+        "tls": false
+    }
+}"""
+
+    with open(config_path, "w") as f:
+        f.write(config)
+
+    # Act
+    # Connect the client based on this configuration
+    # and run a request
+    os.environ["ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG"] = config_path
 
 
 def test_from_pim_v1_proto():
