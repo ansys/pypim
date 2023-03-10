@@ -94,7 +94,7 @@ class Client(contextlib.AbstractContextManager):
 
         # What follows should likely be done with a schema validation
         if configuration.tls:
-            logger.info("The connection to the server will use a secure channel.")
+            logger.debug("The connection to the server will use a secure channel.")
             channel_credentials = grpc.composite_channel_credentials(
                 grpc.ssl_channel_credentials(),
                 grpc.access_token_call_credentials(configuration.access_token),
