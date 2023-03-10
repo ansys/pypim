@@ -187,7 +187,9 @@ Consider upgrading ansys-platform-instancemanagement.',
         if not is_configured():
             raise NotConfiguredError("The environment is not configured to use PyPIM.")
 
-        return Configuration.from_file(os.path.expandvars(os.environ[CONFIGURATION_PATH_ENVIRONMENT_VARIABLE]))
+        return Configuration.from_file(
+            os.path.expandvars(os.environ[CONFIGURATION_PATH_ENVIRONMENT_VARIABLE])
+        )
 
 
 def is_configured() -> bool:

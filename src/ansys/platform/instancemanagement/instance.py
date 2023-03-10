@@ -17,9 +17,9 @@ from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 impor
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2_grpc import (
     ProductInstanceManagerStub,
 )
-from ansys.platform.instancemanagement.configuration import Configuration
 import grpc
 
+from ansys.platform.instancemanagement.configuration import Configuration
 from ansys.platform.instancemanagement.exceptions import (
     InstanceNotFoundError,
     InstanceNotReadyError,
@@ -286,8 +286,8 @@ class Instance(contextlib.AbstractContextManager):
             raise UnsupportedServiceError(self.name, service_name)
 
         configuration = Configuration.from_environment()
-        if configuration.tls:   
-            return service._build_grpcs_channel(**kwargs, configuration)
+        if configuration.tls:
+            return service._build_grpcs_channel(configuration, **kwargs)
         else:
             return service._build_grpc_channel(**kwargs)
 

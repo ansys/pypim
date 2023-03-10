@@ -103,4 +103,6 @@ def connect() -> Client:
     """
     if not is_configured():
         raise NotConfiguredError("The environment is not configured to use PyPIM.")
-    return Client._from_configuration(os.path.expandvars(os.environ[CONFIGURATION_PATH_ENVIRONMENT_VARIABLE]))
+    return Client._from_configuration(
+        os.path.expandvars(os.environ[CONFIGURATION_PATH_ENVIRONMENT_VARIABLE])
+    )

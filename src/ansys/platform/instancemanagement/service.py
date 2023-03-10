@@ -97,13 +97,13 @@ class Service:
         """
         headers = self.headers.items()
         interceptor = header_adder_interceptor(headers)
-       
+
         credentials = grpc.composite_channel_credentials(
             grpc.ssl_channel_credentials(),
             grpc.access_token_call_credentials(configuration.access_token),
         )
         channel = grpc.secure_channel(self.uri, credentials, **kwargs)
-       
+
         return grpc.intercept_channel(channel, interceptor)
 
     @staticmethod
