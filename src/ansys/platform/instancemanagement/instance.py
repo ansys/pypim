@@ -17,6 +17,7 @@ from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 impor
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2_grpc import (
     ProductInstanceManagerStub,
 )
+from ansys.platform.instancemanagement.configuration import Configuration
 import grpc
 
 from ansys.platform.instancemanagement.exceptions import (
@@ -284,7 +285,11 @@ class Instance(contextlib.AbstractContextManager):
         if not service:
             raise UnsupportedServiceError(self.name, service_name)
 
-        return service._build_grpc_channel(**kwargs)
+        configuration = Configuration.from_environment()
+        if configuration.tls:   
+            return service._build_grpcs_channel(**kwargs)
+        else:
+            return service._build_grpc_channel(**kwargs)
 
     @staticmethod
     def _from_pim_v1(instance: InstanceV1, stub: ProductInstanceManagerStub = None):

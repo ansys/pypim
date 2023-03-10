@@ -73,17 +73,37 @@ class Service:
         """
         headers = self.headers.items()
         interceptor = header_adder_interceptor(headers)
-        potential_port_number = self.uri.split(":")[-1]
-        is_secure_port = potential_port_number.isdecimal() and int(potential_port_number) == 443
-        if is_secure_port:
-            configuration = Configuration.from_environment()
-            credentials = grpc.composite_channel_credentials(
-                grpc.ssl_channel_credentials(),
-                grpc.access_token_call_credentials(configuration.access_token),
-            )
-            channel = grpc.secure_channel(self.uri, credentials, **kwargs)
-        else:
-            channel = grpc.insecure_channel(self.uri, **kwargs)
+        channel = grpc.insecure_channel(self.uri, **kwargs)
+        return grpc.intercept_channel(channel, interceptor)
+
+    def _build_grpcs_channel(
+        self,
+        configuration: Configuration,
+        **kwargs,
+    ) -> grpc.Channel:
+        """Build a secure gRPC channel communicating with the product instance.
+
+        Parameters
+        -----------
+        configuration: pim configuration
+        kwargs: list, optional
+            Named arguments for gRPC construction.
+            They are passed to ``grpc.secure_channel``.
+
+        Returns
+        -------
+        grpc.Channel
+            gRPC channel ready to be used for communicating with the service.
+        """
+        headers = self.headers.items()
+        interceptor = header_adder_interceptor(headers)
+       
+        credentials = grpc.composite_channel_credentials(
+            grpc.ssl_channel_credentials(),
+            grpc.access_token_call_credentials(configuration.access_token),
+        )
+        channel = grpc.secure_channel(self.uri, credentials, **kwargs)
+       
         return grpc.intercept_channel(channel, interceptor)
 
     @staticmethod
