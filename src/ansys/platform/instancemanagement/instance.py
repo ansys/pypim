@@ -287,7 +287,7 @@ class Instance(contextlib.AbstractContextManager):
 
         configuration = Configuration.from_environment()
         if configuration.tls:   
-            return service._build_grpcs_channel(**kwargs)
+            return service._build_grpcs_channel(**kwargs, configuration)
         else:
             return service._build_grpc_channel(**kwargs)
 
