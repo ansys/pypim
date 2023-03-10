@@ -21,7 +21,7 @@ class Configuration:
     Raises:
         InvalidConfigurationError: configuration file is not a well formatted json file
         InvalidConfigurationError: version is not supported
-        InvalidConfigurationError: a key is missing in fthe configuration file
+        InvalidConfigurationError: a key is missing in the configuration file
 
     Returns:
         Configuration: settings to configure the PIM client
