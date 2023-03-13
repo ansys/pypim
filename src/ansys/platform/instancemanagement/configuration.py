@@ -97,8 +97,8 @@ class Configuration:
         with open(config_path, "r") as f:
             try:
                 configuration = json.load(f)
-            except json.JSONDecodeError:
-                raise InvalidConfigurationError(config_path, "Invalid json.")
+            except json.JSONDecodeError as e:
+                raise InvalidConfigurationError(config_path, "Invalid json.") from e
 
         # What follows should likely be done with a schema validation
         try:
