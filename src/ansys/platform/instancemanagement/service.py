@@ -66,7 +66,7 @@ class Service:
         configuration: pim configuration
         kwargs: list, optional
             Named arguments for gRPC construction.
-            They are passed to ``grpc.secure_channel``.
+            They are passed to ``grpc.secure_channel`` or ``grpc.insecure_channel``.
 
         Returns
         -------
