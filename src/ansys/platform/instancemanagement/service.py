@@ -56,29 +56,7 @@ class Service:
 
     def _build_grpc_channel(
         self,
-        **kwargs,
-    ) -> grpc.Channel:
-        """Build a gRPC channel communicating with the product instance.
-
-        Parameters
-        -----------
-        kwargs: list, optional
-            Named arguments for gRPC construction.
-            They are passed to ``grpc.insecure_channel``.
-
-        Returns
-        -------
-        grpc.Channel
-            gRPC channel ready to be used for communicating with the service.
-        """
-        headers = self.headers.items()
-        interceptor = header_adder_interceptor(headers)
-        channel = grpc.insecure_channel(self.uri, **kwargs)
-        return grpc.intercept_channel(channel, interceptor)
-
-    def _build_grpcs_channel(
-        self,
-        configuration: Configuration,
+        configuration: Configuration = None,
         **kwargs,
     ) -> grpc.Channel:
         """Build a secure gRPC channel communicating with the product instance.
@@ -98,11 +76,14 @@ class Service:
         headers = self.headers.items()
         interceptor = header_adder_interceptor(headers)
 
-        credentials = grpc.composite_channel_credentials(
-            grpc.ssl_channel_credentials(),
-            grpc.access_token_call_credentials(configuration.access_token),
-        )
-        channel = grpc.secure_channel(self.uri, credentials, **kwargs)
+        if configuration is not None and configuration.tls:
+            credentials = grpc.composite_channel_credentials(
+                grpc.ssl_channel_credentials(),
+                grpc.access_token_call_credentials(configuration.access_token),
+            )
+            channel = grpc.secure_channel(self.uri, credentials, **kwargs)
+        else:
+            channel = grpc.insecure_channel(self.uri, **kwargs)
 
         return grpc.intercept_channel(channel, interceptor)
 

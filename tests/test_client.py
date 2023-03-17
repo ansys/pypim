@@ -306,7 +306,7 @@ def test_list_instances_response(
     assert instances == expected_instances
 
 
-def test_create_instance(testing_channel):
+def test_create_instance_without_configuration(testing_channel):
     # Arrange
     # A client with two definitions
     client = pypim.Client(testing_channel)
@@ -348,7 +348,64 @@ def test_create_instance(testing_channel):
     client.list_definitions.assert_called_once_with(
         product_name="definitions/the-good-one", product_version=None, timeout=0.32
     )
-    definitions[0].create_instance.assert_called_once_with(timeout=0.32)
+    definitions[0].create_instance.assert_called_once_with(timeout=0.32, configuration=None)
+    definitions[1].create_instance.assert_not_called()
+    assert created_instance == instance
+
+
+def test_create_instance(testing_channel):
+    # Arrange
+    # A client with two definitions
+    configuration = pypim.Configuration(
+        headers=[],
+        tls=False,
+        uri="dns:instancemanagement.example.com:443",
+        access_token="Bearer 007",
+    )
+    client = pypim.Client(testing_channel, configuration)
+
+    definitions = [
+        pypim.Definition(
+            name="definitions/the-good-one",
+            product_name="calculator",
+            product_version="221",
+            available_service_names=["fax"],
+        ),
+        pypim.Definition(
+            name="definitions/the-bad-one",
+            product_name="calculator",
+            product_version="195",
+            available_service_names=["fax"],
+        ),
+    ]
+    instance = pypim.Instance(
+        definition_name="definitions/the-good-one",
+        name="instances/calculator-42",
+        ready=False,
+        status_message="loading...",
+        services={},
+    )
+
+    definitions[0].create_instance = create_autospec(
+        definitions[0].create_instance, return_value=instance
+    )
+    definitions[1].create_instance = create_autospec(definitions[1].create_instance)
+    client.list_definitions = create_autospec(client.list_definitions, return_value=definitions)
+
+    # Act
+    created_instance = client.create_instance(
+        product_name="definitions/the-good-one", requests_timeout=0.32
+    )
+
+    # Assert
+    # The method created an instance from the first definition
+    client.list_definitions.assert_called()
+    client.list_definitions.assert_called_once_with(
+        product_name="definitions/the-good-one", product_version=None, timeout=0.32
+    )
+    definitions[0].create_instance.assert_called_once_with(
+        timeout=0.32, configuration=configuration
+    )
     definitions[1].create_instance.assert_not_called()
     assert created_instance == instance
 

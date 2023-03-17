@@ -33,9 +33,10 @@ class Client(contextlib.AbstractContextManager):
     """
 
     _channel: grpc.Channel
+    _configuration: Configuration
     _stub: ProductInstanceManagerStub
 
-    def __init__(self, channel: grpc.Channel) -> None:
+    def __init__(self, channel: grpc.Channel, configuration: Configuration = None) -> None:
         """Initialize the client library.
 
         Parameters
@@ -53,6 +54,7 @@ class Client(contextlib.AbstractContextManager):
         """
         logger.info("Connecting.")
         self._channel = channel
+        self._configuration = configuration
         self._stub = ProductInstanceManagerStub(self._channel)
 
     def __exit__(self, *_):
@@ -91,24 +93,22 @@ class Client(contextlib.AbstractContextManager):
         # the gRPC channel.
 
         configuration = Configuration.from_file(config_path)
+        grpc_channel = grpc.insecure_channel(configuration.uri)
 
-        # What follows should likely be done with a schema validation
         if configuration.tls:
             logger.debug("The connection to the server will use a secure channel.")
             channel_credentials = grpc.composite_channel_credentials(
                 grpc.ssl_channel_credentials(),
                 grpc.access_token_call_credentials(configuration.access_token),
             )
-            channel = grpc.intercept_channel(
-                grpc.secure_channel(configuration.uri, channel_credentials),
-                header_adder_interceptor(configuration.headers),
-            )
-        else:
-            channel = grpc.intercept_channel(
-                grpc.insecure_channel(configuration.uri),
-                header_adder_interceptor(configuration.headers),
-            )
-        return Client(channel)
+            grpc_channel = grpc.secure_channel(configuration.uri, channel_credentials)
+
+        channel = grpc.intercept_channel(
+            grpc_channel,
+            header_adder_interceptor(configuration.headers),
+        )
+
+        return Client(channel, configuration)
 
     def list_definitions(
         self,
@@ -188,7 +188,10 @@ class Client(contextlib.AbstractContextManager):
         except grpc.RpcError as exc:
             raise RemoteError(exc, exc.details()) from exc
 
-        return [Instance._from_pim_v1(instance, self._stub) for instance in response.instances]
+        return [
+            Instance._from_pim_v1(instance, self._stub, self._configuration)
+            for instance in response.instances
+        ]
 
     def create_instance(
         self,
@@ -245,7 +248,9 @@ class Client(contextlib.AbstractContextManager):
                 product_name=product_name, product_version=product_version
             )
         definition = definitions[0]
-        return definition.create_instance(timeout=requests_timeout)
+        return definition.create_instance(
+            timeout=requests_timeout, configuration=self._configuration
+        )
 
     def get_instance(self, name: str, timeout: float = None) -> Instance:
         """Get a remote product instance by name.
@@ -280,4 +285,4 @@ class Client(contextlib.AbstractContextManager):
                 raise InstanceNotFoundError(exc, f"The instance {name} does not exist.") from exc
             raise RemoteError(exc, exc.details()) from exc
 
-        return Instance._from_pim_v1(instance, self._stub)
+        return Instance._from_pim_v1(instance, self._stub, self._configuration)
