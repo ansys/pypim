@@ -14,9 +14,8 @@ import ansys.platform.instancemanagement as pypim
 from conftest import CREATE_INSTANCE_METHOD, DELETE_INSTANCE_METHOD, GET_INSTANCE_METHOD
 
 
-@pytest.fixture(scope="session", autouse=True, params=[True, False])
-def configuration_mock(request):
-    pytest.isSecure = request.param
+# @pytest.fixture(scope="session", autouse=True, params=[True, False])
+def configuration_mock(secure_conexion: bool):
     # A valid configuration file setting up the uri and metadata
     config_path = str("tests/config.json")
     config = (
@@ -30,7 +29,7 @@ def configuration_mock(request):
         "tls": %s
     }
 }"""
-        % str(request.param).lower()
+        % str(secure_conexion).lower()
     )
 
     with open(config_path, "w") as f:
@@ -39,7 +38,7 @@ def configuration_mock(request):
     # Connect the client based on this configuration
     # and run a request
     os.environ["ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG"] = config_path
-    pytest.configuration = pypim.Configuration.from_environment()
+    return pypim.Configuration.from_environment()
 
 
 def test_from_pim_v1_proto():
@@ -381,33 +380,25 @@ def test_wait_for_ready(testing_channel):
     assert instance.services == {"http": pb2.Service(uri="http://example.com", headers={})}
 
 
-def test_create_channel():
+def test_create_secure_channel():
+    configuration_mock(secure_conexion=True)
     # Arrange
     # Two mocked services
     main_service = pypim.Service(uri="dns:example.com", headers={})
     sidecar_service = pypim.Service(uri="dns:ansysapis.com", headers={})
-    if pytest.isSecure:
-        credentials = grpc.composite_channel_credentials(
-            grpc.ssl_channel_credentials(),
-            grpc.access_token_call_credentials("007"),
-        )
-        main_channel = grpc.secure_channel("dns:example.com", credentials)
-        main_service._build_grpcs_channel = create_autospec(
-            main_service._build_grpcs_channel, return_value=main_channel
-        )
-        sidecar_channel = grpc.secure_channel("dns:ansysapis.com", credentials)
-        sidecar_service._build_grpcs_channel = create_autospec(
-            sidecar_service._build_grpcs_channel, return_value=sidecar_channel
-        )
-    else:
-        main_channel = grpc.insecure_channel("dns:example.com")
-        main_service._build_grpc_channel = create_autospec(
-            main_service._build_grpc_channel, return_value=main_channel
-        )
-        sidecar_channel = grpc.insecure_channel("dns:ansysapis.com")
-        sidecar_service._build_grpc_channel = create_autospec(
-            sidecar_service._build_grpc_channel, return_value=sidecar_channel
-        )
+
+    credentials = grpc.composite_channel_credentials(
+        grpc.ssl_channel_credentials(),
+        grpc.access_token_call_credentials("007"),
+    )
+    main_channel = grpc.secure_channel("dns:example.com", credentials)
+    main_service._build_grpcs_channel = create_autospec(
+        main_service._build_grpcs_channel, return_value=main_channel
+    )
+    sidecar_channel = grpc.secure_channel("dns:ansysapis.com", credentials)
+    sidecar_service._build_grpcs_channel = create_autospec(
+        sidecar_service._build_grpcs_channel, return_value=sidecar_channel
+    )
 
     # An instance containing these services
     instance = pypim.Instance(
@@ -423,12 +414,45 @@ def test_create_channel():
     channel2 = instance.build_grpc_channel(service_name="other")
 
     # Assert: The services were called
-    if pytest.isSecure:
-        main_service._build_grpcs_channel.assert_called_once()
-        sidecar_service._build_grpcs_channel.assert_called_once()
-    else:
-        main_service._build_grpc_channel.assert_called_once()
-        sidecar_service._build_grpc_channel.assert_called_once()
+    main_service._build_grpcs_channel.assert_called_once()
+    sidecar_service._build_grpcs_channel.assert_called_once()
+
+    assert channel1 == main_channel
+    assert channel2 == sidecar_channel
+
+
+def test_create_unsecure_channel():
+    configuration_mock(secure_conexion=False)
+    # Arrange
+    # Two mocked services
+    main_service = pypim.Service(uri="dns:example.com", headers={})
+    sidecar_service = pypim.Service(uri="dns:ansysapis.com", headers={})
+
+    main_channel = grpc.insecure_channel("dns:example.com")
+    main_service._build_grpc_channel = create_autospec(
+        main_service._build_grpc_channel, return_value=main_channel
+    )
+    sidecar_channel = grpc.insecure_channel("dns:ansysapis.com")
+    sidecar_service._build_grpc_channel = create_autospec(
+        sidecar_service._build_grpc_channel, return_value=sidecar_channel
+    )
+
+    # An instance containing these services
+    instance = pypim.Instance(
+        name="instances/hello-world-32",
+        definition_name="definitions/my-def",
+        ready=True,
+        status_message="Creating...",
+        services={"grpc": main_service, "other": sidecar_service},
+    )
+
+    # Act: Create two channels
+    channel1 = instance.build_grpc_channel()
+    channel2 = instance.build_grpc_channel(service_name="other")
+
+    # Assert: The services were called
+    main_service._build_grpc_channel.assert_called_once()
+    sidecar_service._build_grpc_channel.assert_called_once()
 
     assert channel1 == main_channel
     assert channel2 == sidecar_channel
