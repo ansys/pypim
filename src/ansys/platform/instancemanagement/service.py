@@ -59,7 +59,7 @@ class Service:
         configuration: Configuration = None,
         **kwargs,
     ) -> grpc.Channel:
-        """Build a secure gRPC channel communicating with the product instance.
+        """Build a gRPC channel communicating with the product instance.
 
         Parameters
         -----------
