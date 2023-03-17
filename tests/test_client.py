@@ -399,7 +399,6 @@ def test_create_instance(testing_channel):
 
     # Assert
     # The method created an instance from the first definition
-    client.list_definitions.assert_called()
     client.list_definitions.assert_called_once_with(
         product_name="definitions/the-good-one", product_version=None, timeout=0.32
     )
