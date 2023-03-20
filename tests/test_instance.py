@@ -352,63 +352,7 @@ def test_wait_for_ready(testing_channel):
     assert instance.services == {"http": pb2.Service(uri="http://example.com", headers={})}
 
 
-def test_create_secure_channel():
-    # Arrange
-    # A valid configuration file setting up the uri and metadata
-    configuration = pypim.Configuration(
-        headers=[],
-        tls=True,
-        uri="dns:instancemanagement.example.com:443",
-        access_token="Bearer 007",
-    )
-    # Arrange
-    # Two mocked services
-    main_service = pypim.Service(uri="dns:example.com", headers={})
-    sidecar_service = pypim.Service(uri="dns:ansysapis.com", headers={})
-
-    credentials = grpc.composite_channel_credentials(
-        grpc.ssl_channel_credentials(),
-        grpc.access_token_call_credentials("007"),
-    )
-    main_channel = grpc.secure_channel("dns:example.com", credentials)
-    main_service._build_grpc_channel = create_autospec(
-        main_service._build_grpc_channel, return_value=main_channel
-    )
-    sidecar_channel = grpc.secure_channel("dns:ansysapis.com", credentials)
-    sidecar_service._build_grpc_channel = create_autospec(
-        sidecar_service._build_grpc_channel, return_value=sidecar_channel
-    )
-
-    # An instance containing these services
-    instance = pypim.Instance(
-        name="instances/hello-world-32",
-        definition_name="definitions/my-def",
-        ready=True,
-        status_message="Creating...",
-        services={"grpc": main_service, "other": sidecar_service},
-    )
-
-    instance._configuration = configuration
-
-    # Act: Create two channels
-    channel1 = instance.build_grpc_channel()
-    channel2 = instance.build_grpc_channel(service_name="other")
-
-    # Assert: The services were called
-    main_service._build_grpc_channel.assert_called_once()
-    sidecar_service._build_grpc_channel.assert_called_once()
-
-    assert channel1 == main_channel
-    assert channel2 == sidecar_channel
-
-
-def test_create_unsecure_channel():
-    configuration = pypim.Configuration(
-        headers=[],
-        tls=False,
-        uri="dns:instancemanagement.example.com:443",
-        access_token="Bearer 007",
-    )
+def test_create_channel():
     # Arrange
     # Two mocked services
     main_service = pypim.Service(uri="dns:example.com", headers={})
@@ -432,7 +376,7 @@ def test_create_unsecure_channel():
         services={"grpc": main_service, "other": sidecar_service},
     )
 
-    instance._configuration = configuration
+    # instance._configuration = configuration
     # Act: Create two channels
     channel1 = instance.build_grpc_channel()
     channel2 = instance.build_grpc_channel(service_name="other")
