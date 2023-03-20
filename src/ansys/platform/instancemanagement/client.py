@@ -93,7 +93,6 @@ class Client(contextlib.AbstractContextManager):
         # the gRPC channel.
 
         configuration = Configuration.from_file(config_path)
-        grpc_channel = grpc.insecure_channel(configuration.uri)
 
         if configuration.tls:
             logger.debug("The connection to the server will use a secure channel.")
@@ -102,6 +101,8 @@ class Client(contextlib.AbstractContextManager):
                 grpc.access_token_call_credentials(configuration.access_token),
             )
             grpc_channel = grpc.secure_channel(configuration.uri, channel_credentials)
+        else:
+            grpc_channel = grpc.insecure_channel(configuration.uri)
 
         channel = grpc.intercept_channel(
             grpc_channel,
