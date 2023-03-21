@@ -9,6 +9,7 @@ from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2_grpc 
     ProductInstanceManagerStub,
 )
 
+from ansys.platform.instancemanagement.configuration import Configuration
 from ansys.platform.instancemanagement.instance import Instance
 
 
@@ -97,7 +98,9 @@ class Definition:
             f"{repr(self.available_service_names)})"
         )
 
-    def create_instance(self, timeout: float = None) -> Instance:
+    def create_instance(
+        self, timeout: float = None, configuration: Configuration = None
+    ) -> Instance:
         """Create a product instance from this definition.
 
         Parameters
@@ -110,7 +113,9 @@ class Definition:
         instance
             Product instance.
         """
-        return Instance._create(definition_name=self.name, stub=self._stub, timeout=timeout)
+        return Instance._create(
+            definition_name=self.name, stub=self._stub, timeout=timeout, configuration=configuration
+        )
 
     @staticmethod
     def _from_pim_v1(definition: DefinitionV1, stub: ProductInstanceManagerStub = None):

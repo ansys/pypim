@@ -356,12 +356,12 @@ def test_create_channel():
     # Arrange
     # Two mocked services
     main_service = pypim.Service(uri="dns:example.com", headers={})
+    sidecar_service = pypim.Service(uri="dns:ansysapis.com", headers={})
+
     main_channel = grpc.insecure_channel("dns:example.com")
     main_service._build_grpc_channel = create_autospec(
         main_service._build_grpc_channel, return_value=main_channel
     )
-
-    sidecar_service = pypim.Service(uri="dns:ansysapis.com", headers={})
     sidecar_channel = grpc.insecure_channel("dns:ansysapis.com")
     sidecar_service._build_grpc_channel = create_autospec(
         sidecar_service._build_grpc_channel, return_value=sidecar_channel
@@ -376,6 +376,7 @@ def test_create_channel():
         services={"grpc": main_service, "other": sidecar_service},
     )
 
+    # instance._configuration = configuration
     # Act: Create two channels
     channel1 = instance.build_grpc_channel()
     channel2 = instance.build_grpc_channel(service_name="other")
@@ -383,6 +384,7 @@ def test_create_channel():
     # Assert: The services were called
     main_service._build_grpc_channel.assert_called_once()
     sidecar_service._build_grpc_channel.assert_called_once()
+
     assert channel1 == main_channel
     assert channel2 == sidecar_channel
 

@@ -8,6 +8,11 @@ except ModuleNotFoundError:
 import os
 
 from ansys.platform.instancemanagement.client import Client
+from ansys.platform.instancemanagement.configuration import (
+    CONFIGURATION_PATH_ENVIRONMENT_VARIABLE,
+    Configuration,
+    is_configured,
+)
 from ansys.platform.instancemanagement.definition import Definition
 from ansys.platform.instancemanagement.exceptions import (
     InstanceNotFoundError,
@@ -27,6 +32,7 @@ __all__ = [
     "is_configured",
     "connect",
     "Client",
+    "Configuration",
     "Instance",
     "Service",
     "Definition",
@@ -40,19 +46,6 @@ __all__ = [
 ]
 
 __version__ = importlib_metadata.version(__name__.replace(".", "-"))
-
-CONFIGURATION_PATH_ENVIRONMENT_VARIABLE = "ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG"
-
-
-def is_configured() -> bool:
-    """Check if the environment is configured to use PyPIM.
-
-    Returns
-    -------
-    bool
-        ``True`` when the environment is configured to use PyPIM, ``False`` otherwise.
-    """
-    return CONFIGURATION_PATH_ENVIRONMENT_VARIABLE in os.environ
 
 
 def connect() -> Client:
@@ -110,4 +103,6 @@ def connect() -> Client:
     """
     if not is_configured():
         raise NotConfiguredError("The environment is not configured to use PyPIM.")
-    return Client._from_configuration(os.environ[CONFIGURATION_PATH_ENVIRONMENT_VARIABLE])
+    return Client._from_configuration(
+        os.path.expandvars(os.environ[CONFIGURATION_PATH_ENVIRONMENT_VARIABLE])
+    )

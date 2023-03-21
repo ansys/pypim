@@ -45,14 +45,20 @@ def test_create_instance(testing_channel):
             stub=stub,
         )
 
+        configuration = pypim.Configuration(
+            headers=[],
+            tls=False,
+            uri="dns:instancemanagement.example.com:443",
+            access_token="Bearer 007",
+        )
         # Act
         # Create the instance from the definition
-        definition.create_instance(0.1)
+        definition.create_instance(0.1, configuration)
 
     # Assert
     # The mocked Instance class was correctly called
     mock_instance_create.assert_called_once_with(
-        definition_name="definitions/my_def", timeout=0.1, stub=stub
+        definition_name="definitions/my_def", timeout=0.1, stub=stub, configuration=configuration
     )
 
 

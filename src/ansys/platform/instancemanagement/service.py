@@ -7,6 +7,7 @@ from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 impor
 )
 import grpc
 
+from ansys.platform.instancemanagement.configuration import Configuration
 from ansys.platform.instancemanagement.interceptor import header_adder_interceptor
 
 
@@ -55,15 +56,17 @@ class Service:
 
     def _build_grpc_channel(
         self,
+        configuration: Configuration = None,
         **kwargs,
     ) -> grpc.Channel:
         """Build a gRPC channel communicating with the product instance.
 
         Parameters
         -----------
+        configuration: pim configuration
         kwargs: list, optional
             Named arguments for gRPC construction.
-            They are passed to ``grpc.insecure_channel``.
+            They are passed to ``grpc.secure_channel`` or ``grpc.insecure_channel``.
 
         Returns
         -------
@@ -72,7 +75,16 @@ class Service:
         """
         headers = self.headers.items()
         interceptor = header_adder_interceptor(headers)
-        channel = grpc.insecure_channel(self.uri, **kwargs)
+
+        if configuration is not None and configuration.tls:
+            credentials = grpc.composite_channel_credentials(
+                grpc.ssl_channel_credentials(),
+                grpc.access_token_call_credentials(configuration.access_token),
+            )
+            channel = grpc.secure_channel(self.uri, credentials, **kwargs)
+        else:
+            channel = grpc.insecure_channel(self.uri, **kwargs)
+
         return grpc.intercept_channel(channel, interceptor)
 
     @staticmethod

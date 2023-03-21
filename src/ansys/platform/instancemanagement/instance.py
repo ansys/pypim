@@ -19,6 +19,7 @@ from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2_grpc 
 )
 import grpc
 
+from ansys.platform.instancemanagement.configuration import Configuration
 from ansys.platform.instancemanagement.exceptions import (
     InstanceNotFoundError,
     InstanceNotReadyError,
@@ -39,6 +40,7 @@ class Instance(contextlib.AbstractContextManager):
 
     _stub: ProductInstanceManagerStub
 
+    _configuration: Configuration
     _definition_name: str
     _name: str
     _ready: bool
@@ -102,6 +104,7 @@ class Instance(contextlib.AbstractContextManager):
         stub: ProductInstanceManagerStub = None,
     ):
         """Create an Instance."""
+        self._configuration = None
         self._definition_name = definition_name
         self._name = name
         self._ready = ready
@@ -137,7 +140,12 @@ class Instance(contextlib.AbstractContextManager):
         )
 
     @staticmethod
-    def _create(definition_name: str, stub: ProductInstanceManagerStub, timeout: float = None):
+    def _create(
+        definition_name: str,
+        stub: ProductInstanceManagerStub,
+        timeout: float = None,
+        configuration: Configuration = None,
+    ):
         """Create a product instance from the given definition.
 
         Parameters
@@ -152,7 +160,7 @@ class Instance(contextlib.AbstractContextManager):
         """
         request = CreateInstanceRequest(instance=InstanceV1(definition_name=definition_name))
         instance = stub.CreateInstance(request, timeout=timeout)
-        return Instance._from_pim_v1(instance, stub)
+        return Instance._from_pim_v1(instance, stub, configuration)
 
     def delete(self, timeout: float = None):
         """Delete the remote product instance.
@@ -284,10 +292,14 @@ class Instance(contextlib.AbstractContextManager):
         if not service:
             raise UnsupportedServiceError(self.name, service_name)
 
-        return service._build_grpc_channel(**kwargs)
+        return service._build_grpc_channel(configuration=self._configuration, **kwargs)
 
     @staticmethod
-    def _from_pim_v1(instance: InstanceV1, stub: ProductInstanceManagerStub = None):
+    def _from_pim_v1(
+        instance: InstanceV1,
+        stub: ProductInstanceManagerStub = None,
+        configuration: Configuration = None,
+    ):
         """Create a PyPIM instance from the raw protobuf message.
 
         Parameters
@@ -297,7 +309,7 @@ class Instance(contextlib.AbstractContextManager):
         stub : ProductInstanceManagerStub, optional
             PIM stub.
         """
-        return Instance(
+        instance = Instance(
             name=instance.name,
             definition_name=instance.definition_name,
             status_message=instance.status_message,
@@ -307,3 +319,5 @@ class Instance(contextlib.AbstractContextManager):
             ready=instance.ready,
             stub=stub,
         )
+        instance._configuration = configuration
+        return instance
