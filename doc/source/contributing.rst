@@ -35,6 +35,7 @@ the tests with this command:
     
     tox -e py
 
+
 .. _`tox`: https://tox.wiki/en/latest/install.html#installation-with-pip
 
 Build the documentation
@@ -56,12 +57,14 @@ To build the package, use this command:
     
     flit build
 
+
 You can also directly install PyPIM in your current environment with
 this command:
 
 .. code-block::
     
     flit install
+
 
 .. _`flit`: https://flit.pypa.io/en/latest/#install
 

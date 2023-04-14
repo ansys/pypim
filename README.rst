@@ -46,7 +46,7 @@ The PIM API is not intended to manage stateless services, to be a job management
 system, or a fully featured service orchestration API. Its purpose is to expose
 a minimum feature set for managing service-oriented apps.
 
-Getting Started
+Getting started
 ===============
 To use PyPIM, you must have access to the PIM API.
 
@@ -140,3 +140,4 @@ For example, starting MAPDL with PyPIM is as simple as using this code:
 
     from ansys.mapdl.core import launch_mapdl    
     mapdl = launch_mapdl()
+

@@ -204,6 +204,7 @@ The initial setup of such a mock can look like this:
         monkeypatch.setattr(pypim, "connect", mock_connect)
         monkeypatch.setattr(pypim, "is_configured", mock_is_configured)
 
+
 This initial setup is faking all the necessary parts of PyPIM. From here,
 calling the ``launch_my_product()`` method with no parameter is expected
 to call only the mocks, which the test should now do:
@@ -211,6 +212,7 @@ to call only the mocks, which the test should now do:
 .. code:: python
     
     my_product = launch_my_product()
+
 
 After this call, the test is ready to make all the assertions verifying that the PyPIM workflow was applied:
 
@@ -236,6 +238,7 @@ After this call, the test is ready to make all the assertions verifying that the
     # It connected using the channel created by PyPIM
     assert my_product._channel == pim_channel
 
+
 When stopping the product, the test should also verify that the remote instance is deleted:
 
 .. code:: python
@@ -244,6 +247,7 @@ When stopping the product, the test should also verify that the remote instance 
     my_product.stop()
     
     assert mock_instance.delete.called
+
 
 *******
 Example
