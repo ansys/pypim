@@ -1,29 +1,27 @@
-============
-Contributing
-============
+==========
+Contribute
+==========
 
 Overall guidance on contributing to a PyAnsys repository appears in the
 `Contributing`_ topic in the *PyAnsys Developer's Guide*. Ensure that you are
-thoroughly familiar with it and all `Guidelines and Best Practices`_
-before attempting to contribute to PyPIM.
+thoroughly familiar with this guide before attempting to contribute to PyPIM.
  
-.. _`Contributing`: https://dev.docs.pyansys.com/overview/contributing.html
-.. _`Guidelines and Best Practices`: https://dev.docs.pyansys.com/guidelines/index.html
+.. _`Contributing`: https://dev.docs.pyansys.com/how-to/contributing.html
 
 The following contribution information is specific to PyPIM.
 
-Cloning the PyPIM repository
-----------------------------
-Run this code to clone and install the latest version of PyPIM in development mode:
+Clone the PyPIM repository
+--------------------------
+To clone and install the latest version of PyPIM in development mode, run this code:
 
 .. code-block::
     
     git clone https://github.com/pyansys/pypim.git
     cd pypim/
 
-Running tests
--------------
-Test automation relies on `tox`_, which can be installed with:
+Run tests
+---------
+Test automation relies on `tox`_, which can be installed with this command:
 
 .. code-block::
 
@@ -31,7 +29,7 @@ Test automation relies on `tox`_, which can be installed with:
 
 
 Tests are entirely based on mocks and do not require any external software. Run
-the tests with the following code:
+the tests with this command:
 
 .. code-block::
     
@@ -39,26 +37,27 @@ the tests with the following code:
 
 .. _`tox`: https://tox.wiki/en/latest/install.html#installation-with-pip
 
-Building the documentation
---------------------------
-You can build PyPIM documentation with:
+Build the documentation
+-----------------------
+You can build PyPIM documentation with this command:
 
 .. code-block::
     
     tox -e doc
 
-Building the package
---------------------
+Build the package
+-----------------
 
-The PyPIM package is built using `flit`.
+The PyPIM package is built using `flit`_.
 
-You can build the package with:
+To build the package, use this command:
 
 .. code-block::
     
     flit build
 
-You can also directly install PyPIM in your current environment with:
+You can also directly install PyPIM in your current environment with
+this command:
 
 .. code-block::
     

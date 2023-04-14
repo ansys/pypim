@@ -33,7 +33,7 @@ communicate with the Product Instance Management (PIM) API.
 What is the PIM API?
 ============================================
 
-The PIM API is a gRPC API enabling library and application developers to
+The PIM API is a gRPC API-enabling both library and app developers to
 start a product in a remote environment and communicate with its API.
 
 The PIM API is intended to be as simple as possible to be adaptable in a variety of
@@ -44,15 +44,15 @@ features and assumes that all the configuration is set on a server.
 
 The PIM API is not intended to manage stateless services, to be a job management
 system, or a fully featured service orchestration API. Its purpose is to expose
-a minimum feature set for managing service-oriented applications.
+a minimum feature set for managing service-oriented apps.
 
 Getting Started
 ===============
 To use PyPIM, you must have access to the PIM API.
 
 .. note::
-    The PIM API is a work in progress. Even though the API definition and the
-    PyPIM client are published, the service itself is not publicly exposed.
+   The PIM API is a work in progress. Even though the API definition and the
+   PyPIM client are published, the service itself is not publicly exposed.
 
 PyPIM itself is pure Python and relies on `gRPC`_.
 
@@ -71,7 +71,7 @@ Configuration
 -------------
 
 By default, PyPIM is configured externally instead of via code. Anywhere in the
-local storage, create a configuration file with the following format:
+local storage, create a configuration file with this format:
 
 .. code-block:: json
 
@@ -87,14 +87,14 @@ local storage, create a configuration file with the following format:
     }
 
 Then, define the environment variable
-``ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG`` to point to this file.
+``ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG`` to point to this configuration file.
 
 Usage
 -----
 PyPIM is a single module called ``ansys.platform.instancemanagement``, shortened
 to ``pypim``.
 
-To start MAPDL and communicate with PyPIM:
+To start MAPDL and communicate with PyPIM, use this code:
 
 .. code-block:: python
     
@@ -110,7 +110,7 @@ To start MAPDL and communicate with PyPIM:
                 mapdl.prep7()
                 ...
 
-You can also use PyPIM without the ``with`` statement:
+You can also use PyPIM without the ``with`` statement, as shown in this code:
 
 .. code-block:: python
     
@@ -131,10 +131,10 @@ Integration
 -----------
 
 PyPIM can be integrated in PyAnsys libraries to transparently switch to a remote
-instance in a suitable environment. This process is described in the
-integration topic.
+instance in a suitable environment. This process is described in `Integration <https://pypim.docs.pyansys.com/integration.html>`_
+in the PyPIM documentation.
 
-For example, starting MAPDL with PyPIM is as simple as:
+For example, starting MAPDL with PyPIM is as simple as using this code:
 
 .. code-block:: python
 
