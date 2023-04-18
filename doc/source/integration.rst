@@ -127,7 +127,7 @@ is deleted:
    process associated with the product, relevant product-specific cleanup
    can still be performed.
 
-Start a Non-gRPC product
+Start a non-gRPC product
 ========================
 
 While the code flow for a non-gRPC product is the same, connection information
