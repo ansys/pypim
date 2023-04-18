@@ -6,13 +6,13 @@ Integration
 
 .. currentmodule:: ansys.platform.instancemanagement
 
-While PyPIM can be used by an application developer, it can also
+While PyPIM can be used by an app developer, it can also
 be used behind the scene by other PyAnsys libraries to manage remote
-instances of the products that they interact with. This enables an application
+instances of the products that they interact with. This enables an app
 developer to write code that works both in an environment configured with PyPIM
 and an environment without such a configuration.
 
-For example, an application developer can write the following code:
+For example, an app developer can write the following code:
 
 .. code:: python
 
@@ -20,7 +20,7 @@ For example, an application developer can write the following code:
 
    mapdl = launch_mapdl()
 
-Instead of:
+The preceding code replaces this much longer code:
 
 .. code:: python
 
@@ -37,8 +37,8 @@ Instead of:
    else:
        mapdl = launch_mapdl()
 
-This topic provides guidelines for implementing the ``launch_*`` method that
-takes PyPIM into account. Just like the entire PIM API, this topic is targeted
+This page provides guidelines for implementing the ``launch_*`` method that
+takes PyPIM into account. Just like the entire PIM API, this page is targeted
 only toward products that are stateful and require explicit lifecycle
 management.
 
@@ -57,15 +57,15 @@ must include the following ``require`` string:
 Condition for PyPIM usage
 =========================
 
-The condition for using PyPIM transparently is that the user must
+The condition for using PyPIM transparently is that you must
 be able to launch the product in an environment configured with PyPIM
 without specifying launch information. In other words, PyPIM must be
 the default startup method in an environment that is configured with PyPIM.
 
 To integrate PyPIM correctly, you should use either a generic method such as
-``launch_my_product()`` or a constructor that usually starts a local process.
+the ``launch_my_product()`` method or a constructor that usually starts a local process.
 
-For example, with PyMAPDL in an environment configured with PyPIM, the following
+For example, with PyMAPDL in an environment configured with PyPIM, this
 code uses PyPIM:
 
 .. code:: python
@@ -82,19 +82,19 @@ However, this code does not use PyPIM:
 
    mapdl = launch_mapdl(exec_file="/usr/bin/mapdl")
 
-Starting a gRPC product
-=======================
+Start a gRPC product
+====================
 
 To use PyPIM, the code flow should first check if PyPIM is configured
-with :func:`is_configured` and then check to ensure that the user has not
-specified how to launch it.
+to use the :func:`is_configured` method and then check to ensure that the caller
+of the ``launch_my_product()`` method has not specified how to launch it.
 
 If both conditions are met:
 
-#. Connect to PyPIM with :func:`connect`
-#. Create an instance with :func:`Client.create_instance`
-#. Wait for the instance to be ready with :func:`Instance.wait_for_ready`
-#. Build a gRPC channel with :func:`Instance.build_grpc_channel`
+#. Connect to PyPIM with the :func:`connect` method.
+#. Create an instance with :func:`Client.create_instance` method.
+#. Wait for the instance to be ready with the :func:`Instance.wait_for_ready` method.
+#. Build a gRPC channel with the :func:`Instance.build_grpc_channel` method.
 
 Typically, the resulting code looks like this:
 
@@ -113,7 +113,8 @@ Typically, the resulting code looks like this:
            self.process = subprocess.run(...)
            channel = grpc.insecure_chanel(...)
 
-When stopping the product, ensure that the remote instance is deleted:
+When stopping the product, use this code to ensure that the remote instance
+is deleted:
 
 .. code:: python
 
@@ -126,8 +127,8 @@ When stopping the product, ensure that the remote instance is deleted:
    process associated with the product, relevant product-specific cleanup
    can still be performed.
 
-Starting a Non-gRPC product
-===========================
+Start a non-gRPC product
+========================
 
 While the code flow for a non-gRPC product is the same, connection information
 is more specific.
@@ -203,13 +204,15 @@ The initial setup of such a mock can look like this:
         monkeypatch.setattr(pypim, "connect", mock_connect)
         monkeypatch.setattr(pypim, "is_configured", mock_is_configured)
 
+
 This initial setup is faking all the necessary parts of PyPIM. From here,
-calling ``launch_my_product()`` with no parameter is expected to call only the
-mocks, which the test should now do:
+calling the ``launch_my_product()`` method with no parameter is expected
+to call only the mocks, which the test should now do:
 
 .. code:: python
     
     my_product = launch_my_product()
+
 
 After this call, the test is ready to make all the assertions verifying that the PyPIM workflow was applied:
 
@@ -235,6 +238,7 @@ After this call, the test is ready to make all the assertions verifying that the
     # It connected using the channel created by PyPIM
     assert my_product._channel == pim_channel
 
+
 When stopping the product, the test should also verify that the remote instance is deleted:
 
 .. code:: python
@@ -244,8 +248,10 @@ When stopping the product, the test should also verify that the remote instance 
     
     assert mock_instance.delete.called
 
+
 *******
 Example
 *******
 
-An example of such an integration can be seen `in PyMAPDL <https://github.com/pyansys/pymapdl/pull/1091/files>`_.
+An example of such an integration can be seen in this
+`PyMAPDL pull request <https://github.com/pyansys/pymapdl/pull/1091/files>`_.
