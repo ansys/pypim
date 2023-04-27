@@ -10,7 +10,6 @@ on:
 jobs:
 
   style:
-    code-style:
     name: Code style
     runs-on: ubuntu-latest
     steps:
