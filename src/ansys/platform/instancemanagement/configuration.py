@@ -48,7 +48,7 @@ class Configuration:
 
         If ``True``, the ``access_token`` property is used to create a secure connection.
 
-        If ``False``, an unsecure connection is used.
+        If ``False``, an insecure connection is used.
         """
         return self._tls
 
