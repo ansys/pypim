@@ -1,26 +1,32 @@
 repos:
 
 - repo: https://github.com/psf/black
-  rev: 23.3.0
+  rev: 23.7.0
   hooks:
   - id: black
     args: [
       src, tests
     ]
 
+- repo: https://github.com/adamchainz/blacken-docs
+  rev: 1.15.0
+  hooks:
+  - id: blacken-docs
+    additional_dependencies: [black==23.7.0]
+
 - repo: https://github.com/pycqa/isort
-  rev: 5.11.5
+  rev: 5.12.0
   hooks:
   - id: isort
 
 - repo: https://github.com/PyCQA/flake8
-  rev: 4.0.1
+  rev: 6.0.0
   hooks:
   - id: flake8
     args: [src, tests, doc]
 
 - repo: https://github.com/codespell-project/codespell
-  rev: v2.2.4
+  rev: v2.2.5
   hooks:
   - id: codespell
 
@@ -31,3 +37,11 @@ repos:
     additional_dependencies: [toml]
     args: ["--match-dir='^(src)'"]
     exclude: "^(tests/)"
+
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.4.0
+  hooks:
+  - id: check-merge-conflict
+  - id: debug-statements
+  - id: check-yaml
+  - id: trailing-whitespace
