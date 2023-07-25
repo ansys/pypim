@@ -7,7 +7,7 @@
 
 .. toctree::
    :hidden:
-   
+
    api/index
    contributing
    integration

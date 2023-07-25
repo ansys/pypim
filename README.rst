@@ -26,7 +26,7 @@ PyPIM
 .. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg?style=flat
   :target: https://github.com/psf/black
   :alt: black
-    
+
 `PyPIM <https://pypim.docs.pyansys.com>`_ exposes a Pythonic interface to
 communicate with the Product Instance Management (PIM) API.
 
@@ -97,15 +97,18 @@ to ``pypim``.
 To start MAPDL and communicate with PyPIM, use this code:
 
 .. code-block:: python
-    
     import ansys.platform.instancemanagement as pypim
     from ansys.mapdl.core import Mapdl
-    
+
     if pypim.is_configured():
         with pypim.connect() as pim:
-            with pim.create_instance(product_name="mapdl", product_version="221") as instance:
+            with pim.create_instance(
+                product_name="mapdl", product_version="221"
+            ) as instance:
                 instance.wait_for_ready()
-                channel = instance.build_grpc_channel(options=[("grpc.max_receive_message_length", 8*1024**2)])
+                channel = instance.build_grpc_channel(
+                    options=[("grpc.max_receive_message_length", 8 * 1024**2)]
+                )
                 mapdl = Mapdl(channel=channel)
                 mapdl.prep7()
                 ...
@@ -113,14 +116,15 @@ To start MAPDL and communicate with PyPIM, use this code:
 You can also use PyPIM without the ``with`` statement, as shown in this code:
 
 .. code-block:: python
-    
     import ansys.platform.instancemanagement as pypim
     from ansys.mapdl.core import Mapdl
-    
+
     if pypim.is_configured():
         pim = pypim.connect()
         instance = pim.create_instance(product_name="mapdl", product_version="221")
-        channel = instance.build_grpc_channel(options=[("grpc.max_receive_message_length", 8*1024**2)])
+        channel = instance.build_grpc_channel(
+            options=[("grpc.max_receive_message_length", 8 * 1024**2)]
+        )
         mapdl = Mapdl(channel=channel)
         mapdl.prep7()
         ...
@@ -138,6 +142,7 @@ For example, starting MAPDL with PyPIM is as simple as using this code:
 
 .. code-block:: python
 
-    from ansys.mapdl.core import launch_mapdl    
+    from ansys.mapdl.core import launch_mapdl
+
     mapdl = launch_mapdl()
 

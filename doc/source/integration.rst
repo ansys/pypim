@@ -100,18 +100,19 @@ Typically, the resulting code looks like this:
 
 .. code:: python
 
-   import ansys.platform.instancemanagement as pypim
+    import ansys.platform.instancemanagement as pypim
 
-   def launch_my_product(self, ...):
-       if pypim.is_configured() and not user_has_specified_how_to_launch_the_product:
-           pim = pypim.connect()
-           self.instance = pim.create_instance("my_product_name")
-           self.instance.wait_for_ready()
-           channel = self.instance.build_grpc_channel()
-       else:
-           # usual start-up
-           self.process = subprocess.run(...)
-           channel = grpc.insecure_chanel(...)
+
+    def launch_my_product():
+        if pypim.is_configured():
+            pim = pypim.connect()
+            self.instance = pim.create_instance("my_product_name")
+            self.instance.wait_for_ready()
+            channel = self.instance.build_grpc_channel()
+        else:
+            # usual start-up
+            self.process = subprocess.run(...)
+            channel = grpc.insecure_chanel(...)
 
 When stopping the product, use this code to ensure that the remote instance
 is deleted:
@@ -210,7 +211,7 @@ calling the ``launch_my_product()`` method with no parameter is expected
 to call only the mocks, which the test should now do:
 
 .. code:: python
-    
+
     my_product = launch_my_product()
 
 
@@ -242,10 +243,10 @@ After this call, the test is ready to make all the assertions verifying that the
 When stopping the product, the test should also verify that the remote instance is deleted:
 
 .. code:: python
-    
+
     # Stop the product
     my_product.stop()
-    
+
     assert mock_instance.delete.called
 
 

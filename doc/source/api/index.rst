@@ -14,7 +14,7 @@ click the links in the navigation pane to view API documentation.
 .. autosummary::
     :toctree: _autosummary
     :nosignatures:
-    
+
     Client
     Definition
     Instance
