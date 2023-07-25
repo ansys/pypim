@@ -1,7 +1,9 @@
 """Sphinx documentation configuration file."""
-from datetime import datetime
 
-from ansys_sphinx_theme import pyansys_logo_black
+from datetime import datetime
+import os
+
+from ansys_sphinx_theme import get_version_match, pyansys_logo_black
 
 from ansys.platform.instancemanagement import __version__
 
@@ -10,24 +12,33 @@ project = "ansys-platform-instancemanagement"
 copyright = f"(c) {datetime.now().year} ANSYS, Inc. All rights reserved"
 author = "ANSYS, Inc."
 release = version = __version__
+cname = os.getenv("DOCUMENTATION_CNAME", default="nocname.com")
+switcher_version = get_version_match(__version__)
 
-# use the default pyansys logo
+# HTML configuration
 html_logo = pyansys_logo_black
 html_theme = "ansys_sphinx_theme"
-
 html_short_title = html_title = "PyPIM"
 html_show_sourcelink = True
-
-# specify the location of your github repo
+html_context = {
+    "github_user": "ansys",
+    "github_repo": "pypim",
+    "github_version": "main",
+    "doc_path": "doc/source",
+}
 html_theme_options = {
-    "github_url": "https://github.com/pyansys/pypim",
+    "github_url": "https://github.com/ansys/pypim",
     "show_prev_next": False,
     "show_breadcrumbs": True,
     "additional_breadcrumbs": [
         ("PyAnsys", "https://docs.pyansys.com/"),
     ],
+    "switcher": {
+        "json_url": f"https://{cname}/versions.json",
+        "version_match": switcher_version,
+    },
+    "check_switcher": False,
 }
-
 html_static_path = ["_static"]
 
 # Sphinx extensions
