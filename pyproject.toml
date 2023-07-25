@@ -8,13 +8,13 @@ name = "ansys-platform-instancemanagement"
 version = "1.1.dev0"
 description = "A Python wrapper for Ansys platform instancemanagement"
 readme = "README.rst"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 license = {file = "LICENSE"}
 authors = [
-    {name = "ANSYS, Inc.", email = "pyansys.support@ansys.com"},
+    {name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"},
 ]
 maintainers = [
-    {name = "PyAnsys developers", email = "pyansys.maintainers@ansys.com"},
+    {name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"},
 ]
 
 classifiers = [
@@ -33,6 +33,10 @@ name = "ansys.platform.instancemanagement"
 
 [project.urls]
 Source = "https://github.com/pyansys/pypim"
+Issues = "https://github.com/pyansys/pypim/issues"
+Discussions = "https://github.com/pyansys/pypim/discussions"
+Documentation = "https://pypim.docs.pyansys.com/"
+Releases = "https://github.com/pyansys/pypim/releases"
 
 [tool.black]
 line-length = 100
