@@ -85,9 +85,9 @@ However, this code does not use PyPIM:
 Start a gRPC product
 ====================
 
-To use PyPIM, the code flow should first check if PyPIM is configured
-to use the :func:`is_configured` method and then check to ensure that the caller
-of the ``launch_my_product()`` method has not specified how to launch it.
+To use PyPIM, the code flow should first verify if PyPIM is configured to use
+the :func:`is_configured` method. Then, ensure that the caller of the
+``launch_my_product()`` method has not specified how to launch it.
 
 If both conditions are met:
 

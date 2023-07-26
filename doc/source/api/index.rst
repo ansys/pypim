@@ -1,5 +1,5 @@
 =============
-API Reference
+API reference
 =============
 
 Welcome to PyPIM API documentation. Use the search feature or
