@@ -1,5 +1,5 @@
 =============
-API Reference
+API reference
 =============
 
 Welcome to PyPIM API documentation. Use the search feature or
@@ -14,7 +14,7 @@ click the links in the navigation pane to view API documentation.
 .. autosummary::
     :toctree: _autosummary
     :nosignatures:
-    
+
     Client
     Definition
     Instance
