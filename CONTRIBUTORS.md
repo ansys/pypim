@@ -6,5 +6,5 @@
 
 ## Individual Contributors
 
-* [Stéphane Marguerine](https://github.com/stmarguerin)
+* [Stéphane Marguerin](https://github.com/stmarguerin)
 * [Kathy Pippert](https://github.com/PipKat)
