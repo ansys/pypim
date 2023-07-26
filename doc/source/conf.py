@@ -52,7 +52,7 @@ extensions = [
 
 # Intersphinx mapping
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/dev", None),
+    "python": ("https://docs.python.org/3", None),
     "grpc": ("https://grpc.github.io/grpc/python/", None),
     # kept here as an example
     # "scipy": ("https://docs.scipy.org/doc/scipy/reference", None),
