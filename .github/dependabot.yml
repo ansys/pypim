@@ -1,13 +1,14 @@
 version: 2
 updates:
-  - package-ecosystem: "pip" # See documentation for possible values
-    directory: "/requirements" # Location of package manifests
-    insecure-external-code-execution: allow
+  - package-ecosystem: "pip"
+    directory: "/"
     schedule:
       interval: "daily"
     labels:
       - "maintenance"
       - "dependencies"
+    commit-message:
+      prefix: "maint"
     ignore:
       # PyPim should not bring additional grpc constraints to other repositories
       - dependency-name: "grpcio"
@@ -16,3 +17,11 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    labels:
+      - "maintenance"
+    commit-message:
+      prefix: "maint"
+    groups:
+       actions:
+          patterns:
+            - "*"
