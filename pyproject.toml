@@ -54,10 +54,10 @@ name = "ansys.platform.instancemanagement"
 
 [project.urls]
 Source = "https://github.com/pyansys/pypim"
-Issues = "https://github.com/pyansys/pypim/issues"
-Discussions = "https://github.com/pyansys/pypim/discussions"
+Issues = "https://github.com/ansys/pypim/issues"
+Discussions = "https://github.com/ansys/pypim/discussions"
 Documentation = "https://pypim.docs.pyansys.com/"
-Releases = "https://github.com/pyansys/pypim/releases"
+Releases = "https://github.com/ansys/pypim/releases"
 
 [tool.black]
 line-length = 100
