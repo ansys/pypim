@@ -15,7 +15,7 @@ PyPIM
    :target: https://codecov.io/gh/pyansys/pypim
    :alt: Code Coverage
 
-.. |CI| image:: https://img.shields.io/github/workflow/status/pyansys/pypim/GitHub%20CI/main
+.. |CI| image:: https://github.com/pyansys/pypim/actions/workflows/ci_cd.yml/badge.svg
     :target: https://github.com/pyansys/pypim/actions/workflows/ci_cd.yml
     :alt: GitHub Workflow Status (branch)
 
