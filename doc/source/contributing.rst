@@ -36,7 +36,7 @@ the tests with this command:
     tox -e py
 
 
-.. _`tox`: https://tox.wiki/en/latest/install.html#installation-with-pip
+.. _`tox`: https://tox.wiki/en/latest/installation.html
 
 Build the documentation
 -----------------------
@@ -70,11 +70,6 @@ this command:
 
 Release process
 ---------------
-PyPIM follows the same `branching model`_ as other PyAnsys libraries and the
-same `release procedure`_.
+PyPIM follows the same `release procedure`_ as other PyAnsys libraries.
 
-The only notable difference is that the documentation is created with ``tox -e
-doc`` rather than with ``make``.
-
-.. _`branching model`: https://dev.docs.pyansys.com/guidelines/dev_practices.html#branching-model
-.. _`release procedure`: https://dev.docs.pyansys.com/guidelines/dev_practices.html#release-procedures
+.. _`release procedure`: https://dev.docs.pyansys.com/how-to/releasing.html
