@@ -83,7 +83,7 @@ jobs:
 
       - name: "Upload coverage to Codecov"
         if: matrix.python-version ==  ${{ env.MAIN_PYTHON_VERSION }} && matrix.os == 'ubuntu-latest'
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v3
 
   build-library:
     name: "Build library"
