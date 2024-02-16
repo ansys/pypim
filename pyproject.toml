@@ -11,10 +11,10 @@ readme = "README.rst"
 requires-python = ">=3.8"
 license = {file = "LICENSE"}
 authors = [
-    {name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"},
+    {name = "ANSYS, Inc.", email = "pyansys.maintainers@ansys.com"},
 ]
 maintainers = [
-    {name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"},
+    {name = "ANSYS, Inc.", email = "pyansys.maintainers@ansys.com"},
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -53,7 +53,7 @@ doc = [
 name = "ansys.platform.instancemanagement"
 
 [project.urls]
-Source = "https://github.com/pyansys/pypim"
+Source = "https://github.com/ansys/pypim"
 Issues = "https://github.com/ansys/pypim/issues"
 Discussions = "https://github.com/ansys/pypim/discussions"
 Documentation = "https://pypim.docs.pyansys.com/"
