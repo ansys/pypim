@@ -11,12 +11,12 @@ PyPIM
     :target: https://pypi.org/project/ansys-platform-instancemanagement/
     :alt: PyPI
 
-.. |codecov| image:: https://codecov.io/gh/pyansys/pypim/branch/main/graph/badge.svg
-   :target: https://codecov.io/gh/pyansys/pypim
+.. |codecov| image:: https://codecov.io/gh/ansys/pypim/branch/main/graph/badge.svg
+   :target: https://codecov.io/gh/ansys/pypim
    :alt: Code Coverage
 
-.. |CI| image:: https://github.com/pyansys/pypim/actions/workflows/ci_cd.yml/badge.svg
-    :target: https://github.com/pyansys/pypim/actions/workflows/ci_cd.yml
+.. |CI| image:: https://github.com/ansys/pypim/actions/workflows/ci_cd.yml/badge.svg
+    :target: https://github.com/ansys/pypim/actions/workflows/ci_cd.yml
     :alt: GitHub Workflow Status (branch)
 
 .. |MIT| image:: https://img.shields.io/badge/License-MIT-yellow.svg
