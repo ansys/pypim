@@ -255,4 +255,4 @@ Example
 *******
 
 An example of such an integration can be seen in this
-`PyMAPDL pull request <https://github.com/pyansys/pymapdl/pull/1091/files>`_.
+`PyMAPDL pull request <https://github.com/ansys/pymapdl/pull/1091/files>`_.
