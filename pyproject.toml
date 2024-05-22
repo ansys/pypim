@@ -43,7 +43,7 @@ tests = [
 ]
 doc = [
     "ansys-api-platform-instancemanagement==1.0.0",
-    "ansys-sphinx-theme==0.15.2",
+    "ansys-sphinx-theme==0.16.2",
     "numpydoc==1.7.0",
     "Sphinx==7.3.7",
     "sphinx-copybutton==0.5.2",
