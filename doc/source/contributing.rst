@@ -16,7 +16,7 @@ To clone and install the latest version of PyPIM in development mode, run this c
 
 .. code-block::
 
-    git clone https://github.com/pyansys/pypim.git
+    git clone https://github.com/ansys/pypim.git
     cd pypim/
 
 Run tests
