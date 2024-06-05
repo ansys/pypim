@@ -38,7 +38,7 @@ tests = [
     "grpcio-health-checking==1.62.2",
     "grpcio-testing",
     "six~=1.16",
-    "pytest==8.2.1",
+    "pytest==8.2.2",
     "pytest-cov==5.0.0",
 ]
 doc = [
