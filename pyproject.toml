@@ -35,7 +35,7 @@ dependencies = [
 [project.optional-dependencies]
 tests = [
     "ansys-api-platform-instancemanagement==1.1.0",
-    "grpcio-health-checking==1.62.2",
+    "grpcio-health-checking==1.65.5",
     "grpcio-testing",
     "six~=1.16",
     "pytest==8.2.1",
