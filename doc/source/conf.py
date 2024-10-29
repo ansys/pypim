@@ -96,3 +96,8 @@ source_suffix = ".rst"
 
 # The master toctree document.
 master_doc = "index"
+
+# Ignored links
+linkcheck_ignore = [
+    "https://opensource.org/licenses/MIT",
+]
