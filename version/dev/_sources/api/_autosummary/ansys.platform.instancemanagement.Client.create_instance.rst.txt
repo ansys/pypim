@@ -1,0 +1,6 @@
+create\_instance
+================
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. automethod:: Client.create_instance
