@@ -45,7 +45,7 @@ doc = [
     "ansys-api-platform-instancemanagement==1.1.2",
     "ansys-sphinx-theme==1.2.6",
     "numpydoc==1.8.0",
-    "Sphinx==8.1.3",
+    "Sphinx==8.2.0",
     "sphinx-copybutton==0.5.2",
 ]
 
