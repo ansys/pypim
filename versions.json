@@ -1,0 +1,12 @@
+[
+  {
+    "name": "dev",
+    "version": "dev",
+    "url": "https://pypim.docs.pyansys.com/version/dev/"
+  },
+  {
+    "name": "1.1 (stable)",
+    "version": "1.1",
+    "url": "https://pypim.docs.pyansys.com/version/stable/"
+  }
+]
