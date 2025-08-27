@@ -25,6 +25,9 @@ html_context = {
     "github_repo": "pypim",
     "github_version": "main",
     "doc_path": "doc/source",
+    "pyansys_tags": [
+        "Platform"
+    ]
 }
 html_theme_options = {
     "github_url": "https://github.com/ansys/pypim",
