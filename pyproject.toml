@@ -39,7 +39,7 @@ tests = [
     "grpcio-testing",
     "six~=1.16",
     "pytest==8.4.2",
-    "pytest-cov==6.2.1",
+    "pytest-cov==6.3.0",
 ]
 doc = [
     "ansys-api-platform-instancemanagement==1.1.3",
