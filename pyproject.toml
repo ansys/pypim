@@ -74,3 +74,6 @@ source = ["ansys.platform.instancemanagement"]
 
 [tool.coverage.report]
 show_missing = true
+
+[tool.codespell]
+ignore-multiline-regex= "default_section = .*"
