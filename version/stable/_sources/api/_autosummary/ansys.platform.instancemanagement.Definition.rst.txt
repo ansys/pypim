@@ -1,0 +1,35 @@
+﻿Definition
+==========
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoclass:: Definition
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      
+      Definition.create_instance
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Definition.available_service_names
+      Definition.name
+      Definition.product_name
+      Definition.product_version
+   
+   

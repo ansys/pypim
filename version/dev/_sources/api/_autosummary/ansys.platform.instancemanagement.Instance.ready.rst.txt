@@ -1,0 +1,6 @@
+ready
+=====
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoproperty:: Instance.ready

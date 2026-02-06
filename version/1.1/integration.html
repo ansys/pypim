@@ -1,0 +1,725 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Integration &#8212; PyPIM</title>
+
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=649a27d8" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/css/ansys_sphinx_theme.css?v=068850c2" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+ 
+<link href="_static/css/breadcrumbs.css" rel="stylesheet" />
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=db414e59"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/js/table.js?v=b64f5182"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'integration';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pypim.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1';
+        </script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Contribute" href="contributing.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <link rel="canonical" href="https://pypim.docs.pyansys.com/version/stable/integration.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+<!-- If there is no MiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+   
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="api/index.html">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
+                        Integration
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      1.1  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pypim" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(
+      (text) => (document.getElementById("announcement_msg").innerHTML = text),
+    )
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>   <div class="container-xl">
+  <div class="row">
+    <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+    <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul> 
+<li class="nav-item nav-item-additional-breadcrumb">
+  <a href="https://docs.pyansys.com/">PyAnsys</a> » 
+</li>
+ 
+<li class="nav-item nav-item-0">
+  <a href="index.html">PyPIM</a> » 
+</li>
+ 
+        <li class="nav-item nav-item-this"><a href="">Integration</a></li> 
+      </ul>
+    </div></div>
+  </div>
+</div>
+ 
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="api/index.html">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
+                        Integration
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      1.1  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pypim" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="integration">
+<span id="id1"></span><h1>Integration<a class="headerlink" href="#integration" title="Permalink to this heading">#</a></h1>
+<p>While PyPIM can be used by an app developer, it can also
+be used behind the scene by other PyAnsys libraries to manage remote
+instances of the products that they interact with. This enables an app
+developer to write code that works both in an environment configured with PyPIM
+and an environment without such a configuration.</p>
+<p>For example, an app developer can write the following code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ansys.mapdl.core</span> <span class="kn">import</span> <span class="n">launch_mapdl</span>
+
+<span class="n">mapdl</span> <span class="o">=</span> <span class="n">launch_mapdl</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The preceding code replaces this much longer code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ansys.platform.instancemanagement</span> <span class="k">as</span> <span class="nn">pypim</span>
+<span class="kn">from</span> <span class="nn">ansys.mapdl.core</span> <span class="kn">import</span> <span class="n">launch_mapdl</span>
+
+<span class="k">if</span> <span class="n">pypim</span><span class="o">.</span><span class="n">is_configured</span><span class="p">():</span>
+    <span class="n">pim</span> <span class="o">=</span> <span class="n">pypim</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+    <span class="n">instance</span> <span class="o">=</span> <span class="n">pim</span><span class="o">.</span><span class="n">create_instance</span><span class="p">(</span><span class="n">product_name</span><span class="o">=</span><span class="s2">&quot;mapdl&quot;</span><span class="p">)</span>
+    <span class="n">channel</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">build_grpc_channel</span><span class="p">(</span>
+        <span class="n">options</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;grpc.max_receive_message_length&quot;</span><span class="p">,</span> <span class="mi">8</span> <span class="o">*</span> <span class="mi">1024</span><span class="o">**</span><span class="mi">2</span><span class="p">)]</span>
+    <span class="p">)</span>
+    <span class="n">mapdl</span> <span class="o">=</span> <span class="n">Mapdl</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="n">channel</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">mapdl</span> <span class="o">=</span> <span class="n">launch_mapdl</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This page provides guidelines for implementing the <code class="docutils literal notranslate"><span class="pre">launch_*</span></code> method that
+takes PyPIM into account. Just like the entire PIM API, this page is targeted
+only toward products that are stateful and require explicit lifecycle
+management.</p>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">#</a></h2>
+<section id="dependency">
+<h3>Dependency<a class="headerlink" href="#dependency" title="Permalink to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">PyPIM</span></code> uses semantic versioning. To depend on PyPIM, a library
+must include the following <code class="docutils literal notranslate"><span class="pre">require</span></code> string:</p>
+<p><code class="docutils literal notranslate"><span class="pre">&quot;ansys-platform-instancemanagement~=1.0&quot;</span></code></p>
+</section>
+<section id="condition-for-pypim-usage">
+<h3>Condition for PyPIM usage<a class="headerlink" href="#condition-for-pypim-usage" title="Permalink to this heading">#</a></h3>
+<p>The condition for using PyPIM transparently is that you must
+be able to launch the product in an environment configured with PyPIM
+without specifying launch information. In other words, PyPIM must be
+the default startup method in an environment that is configured with PyPIM.</p>
+<p>To integrate PyPIM correctly, you should use either a generic method such as
+the <code class="docutils literal notranslate"><span class="pre">launch_my_product()</span></code> method or a constructor that usually starts a local process.</p>
+<p>For example, with PyMAPDL in an environment configured with PyPIM, this
+code uses PyPIM:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ansys.mapdl.core</span> <span class="kn">import</span> <span class="n">launch_mapdl</span>
+
+<span class="n">mapdl</span> <span class="o">=</span> <span class="n">launch_mapdl</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>However, this code does not use PyPIM:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ansys.mapdl.core</span> <span class="kn">import</span> <span class="n">launch_mapdl</span>
+
+<span class="n">mapdl</span> <span class="o">=</span> <span class="n">launch_mapdl</span><span class="p">(</span><span class="n">exec_file</span><span class="o">=</span><span class="s2">&quot;/usr/bin/mapdl&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="start-a-grpc-product">
+<h3>Start a gRPC product<a class="headerlink" href="#start-a-grpc-product" title="Permalink to this heading">#</a></h3>
+<p>To use PyPIM, the code flow should first verify if PyPIM is configured to use
+the <a class="reference internal" href="api/index.html#ansys.platform.instancemanagement.is_configured" title="ansys.platform.instancemanagement.is_configured"><code class="xref py py-func docutils literal notranslate"><span class="pre">is_configured()</span></code></a> method. Then, ensure that the caller of the
+<code class="docutils literal notranslate"><span class="pre">launch_my_product()</span></code> method has not specified how to launch it.</p>
+<p>If both conditions are met:</p>
+<ol class="arabic simple">
+<li><p>Connect to PyPIM with the <a class="reference internal" href="api/index.html#ansys.platform.instancemanagement.connect" title="ansys.platform.instancemanagement.connect"><code class="xref py py-func docutils literal notranslate"><span class="pre">connect()</span></code></a> method.</p></li>
+<li><p>Create an instance with <a class="reference internal" href="api/_autosummary/ansys.platform.instancemanagement.Client.create_instance.html#ansys.platform.instancemanagement.Client.create_instance" title="ansys.platform.instancemanagement.Client.create_instance"><code class="xref py py-func docutils literal notranslate"><span class="pre">Client.create_instance()</span></code></a> method.</p></li>
+<li><p>Wait for the instance to be ready with the <a class="reference internal" href="api/_autosummary/ansys.platform.instancemanagement.Instance.wait_for_ready.html#ansys.platform.instancemanagement.Instance.wait_for_ready" title="ansys.platform.instancemanagement.Instance.wait_for_ready"><code class="xref py py-func docutils literal notranslate"><span class="pre">Instance.wait_for_ready()</span></code></a> method.</p></li>
+<li><p>Build a gRPC channel with the <a class="reference internal" href="api/_autosummary/ansys.platform.instancemanagement.Instance.build_grpc_channel.html#ansys.platform.instancemanagement.Instance.build_grpc_channel" title="ansys.platform.instancemanagement.Instance.build_grpc_channel"><code class="xref py py-func docutils literal notranslate"><span class="pre">Instance.build_grpc_channel()</span></code></a> method.</p></li>
+</ol>
+<p>Typically, the resulting code looks like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ansys.platform.instancemanagement</span> <span class="k">as</span> <span class="nn">pypim</span>
+
+
+<span class="k">def</span> <span class="nf">launch_my_product</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">pypim</span><span class="o">.</span><span class="n">is_configured</span><span class="p">():</span>
+        <span class="n">pim</span> <span class="o">=</span> <span class="n">pypim</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instance</span> <span class="o">=</span> <span class="n">pim</span><span class="o">.</span><span class="n">create_instance</span><span class="p">(</span><span class="s2">&quot;my_product_name&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">wait_for_ready</span><span class="p">()</span>
+        <span class="n">channel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">build_grpc_channel</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># usual start-up</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+        <span class="n">channel</span> <span class="o">=</span> <span class="n">grpc</span><span class="o">.</span><span class="n">insecure_chanel</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When stopping the product, use this code to ensure that the remote instance
+is deleted:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">instance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>While it is PyPIM’s responsibility to clean up any resource and
+process associated with the product, relevant product-specific cleanup
+can still be performed.</p>
+</div>
+</section>
+<section id="start-a-non-grpc-product">
+<h3>Start a non-gRPC product<a class="headerlink" href="#start-a-non-grpc-product" title="Permalink to this heading">#</a></h3>
+<p>While the code flow for a non-gRPC product is the same, connection information
+is more specific.</p>
+<ul class="simple">
+<li><p>For a REST-ful product, the base uniform resource identifier (URI) must be
+found under <code class="docutils literal notranslate"><span class="pre">instance.services[&quot;http&quot;].uri</span></code> and all requests must include the
+headers in <code class="docutils literal notranslate"><span class="pre">instance.services[&quot;http&quot;].headers</span></code>.</p></li>
+<li><p>For other protocols, an agreement between the PIM implementation and the
+client code determines how to pass the required information in a
+dedicated entry in <code class="docutils literal notranslate"><span class="pre">.services</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this heading">#</a></h2>
+<p>When testing the PyPIM integration, you should not rely on an actual PIM
+implementation. Instead, you should mock the interaction with PyPIM.
+Verifying that a specific PIM implementation is able to start and provide an
+endpoint to the product in a specific environment is the responsibility of the
+team managing this environment.</p>
+<p>This test approach mocks PyPIM behavior, resulting in a verbose test with no
+additional dependencies. It is also not subject to bugs in PyPIM or in a PIM
+implementation.</p>
+<p>The initial setup of such a mock can look like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">unittest.mock</span> <span class="kn">import</span> <span class="n">create_autospec</span>
+<span class="kn">import</span> <span class="nn">grpc</span>
+<span class="kn">import</span> <span class="nn">ansys.platform.instancemanagement</span> <span class="k">as</span> <span class="nn">pypim</span>
+
+
+<span class="k">def</span> <span class="nf">test_pim</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="c1"># Start the product</span>
+    <span class="n">product</span> <span class="o">=</span> <span class="n">launch_my_product</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">50052</span><span class="p">)</span>
+
+    <span class="c1"># Create a mock PyPIM instance object representing the running product</span>
+    <span class="n">mock_instance</span> <span class="o">=</span> <span class="n">pypim</span><span class="o">.</span><span class="n">Instance</span><span class="p">(</span>
+        <span class="n">definition_name</span><span class="o">=</span><span class="s2">&quot;definitions/fake-product&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;instances/fake-product&quot;</span><span class="p">,</span>
+        <span class="n">ready</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">status_message</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">services</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;grpc&quot;</span><span class="p">:</span> <span class="n">pypim</span><span class="o">.</span><span class="n">Service</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="s2">&quot;localhost:50052&quot;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{})},</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Create a working gRPC channel to this product</span>
+    <span class="n">pim_channel</span> <span class="o">=</span> <span class="n">grpc</span><span class="o">.</span><span class="n">insecure_channel</span><span class="p">(</span><span class="s2">&quot;localhost:50052&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Mock the wait_for_ready method so that it immediately returns</span>
+    <span class="n">mock_instance</span><span class="o">.</span><span class="n">wait_for_ready</span> <span class="o">=</span> <span class="n">create_autospec</span><span class="p">(</span><span class="n">mock_instance</span><span class="o">.</span><span class="n">wait_for_ready</span><span class="p">)</span>
+
+    <span class="c1"># Mock the `build_grpc_channel` to return the working channel</span>
+    <span class="n">mock_instance</span><span class="o">.</span><span class="n">build_grpc_channel</span> <span class="o">=</span> <span class="n">create_autospec</span><span class="p">(</span>
+        <span class="n">mock_instance</span><span class="o">.</span><span class="n">build_grpc_channel</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">pim_channel</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Mock the deletion method</span>
+    <span class="n">mock_instance</span><span class="o">.</span><span class="n">delete</span> <span class="o">=</span> <span class="n">create_autospec</span><span class="p">(</span><span class="n">mock_instance</span><span class="o">.</span><span class="n">delete</span><span class="p">)</span>
+
+    <span class="c1"># Mock the PyPIM client so that on the &quot;create_instance&quot; call it returns the mock instance</span>
+    <span class="c1"># Note: the host and port here will not be used.</span>
+    <span class="n">mock_client</span> <span class="o">=</span> <span class="n">pypim</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="n">grpc</span><span class="o">.</span><span class="n">insecure_channel</span><span class="p">(</span><span class="s2">&quot;localhost:12345&quot;</span><span class="p">))</span>
+    <span class="n">mock_client</span><span class="o">.</span><span class="n">create_instance</span> <span class="o">=</span> <span class="n">create_autospec</span><span class="p">(</span>
+        <span class="n">mock_client</span><span class="o">.</span><span class="n">create_instance</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">mock_instance</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Mock the general PyPIM connection and configuration check method to expose the mock client.</span>
+    <span class="n">mock_connect</span> <span class="o">=</span> <span class="n">create_autospec</span><span class="p">(</span><span class="n">pypim</span><span class="o">.</span><span class="n">connect</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">mock_client</span><span class="p">)</span>
+    <span class="n">mock_is_configured</span> <span class="o">=</span> <span class="n">create_autospec</span><span class="p">(</span><span class="n">pypim</span><span class="o">.</span><span class="n">is_configured</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">pypim</span><span class="p">,</span> <span class="s2">&quot;connect&quot;</span><span class="p">,</span> <span class="n">mock_connect</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">pypim</span><span class="p">,</span> <span class="s2">&quot;is_configured&quot;</span><span class="p">,</span> <span class="n">mock_is_configured</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This initial setup is faking all the necessary parts of PyPIM. From here,
+calling the <code class="docutils literal notranslate"><span class="pre">launch_my_product()</span></code> method with no parameter is expected
+to call only the mocks, which the test should now do:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_product</span> <span class="o">=</span> <span class="n">launch_my_product</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>After this call, the test is ready to make all the assertions verifying that the PyPIM workflow was applied:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># The launch method checked if it was in a PyPIM environment</span>
+<span class="k">assert</span> <span class="n">mock_is_configured</span><span class="o">.</span><span class="n">called</span>
+
+<span class="c1"># It connected to PyPIM</span>
+<span class="k">assert</span> <span class="n">mock_connect</span><span class="o">.</span><span class="n">called</span>
+
+<span class="c1"># It created a remote instance through PyPIM</span>
+<span class="n">mock_client</span><span class="o">.</span><span class="n">create_instance</span><span class="o">.</span><span class="n">assert_called_with</span><span class="p">(</span>
+    <span class="n">product_name</span><span class="o">=</span><span class="s2">&quot;my_product_name&quot;</span><span class="p">,</span> <span class="n">product_version</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+
+<span class="c1"># It waited for this instance to be ready</span>
+<span class="k">assert</span> <span class="n">mock_instance</span><span class="o">.</span><span class="n">wait_for_ready</span><span class="o">.</span><span class="n">called</span>
+
+<span class="c1"># It created an gRPC channel from this instance</span>
+<span class="k">assert</span> <span class="n">mock_instance</span><span class="o">.</span><span class="n">build_grpc_channel</span><span class="o">.</span><span class="n">called</span>
+
+<span class="c1"># It connected using the channel created by PyPIM</span>
+<span class="k">assert</span> <span class="n">my_product</span><span class="o">.</span><span class="n">_channel</span> <span class="o">==</span> <span class="n">pim_channel</span>
+</pre></div>
+</div>
+<p>When stopping the product, the test should also verify that the remote instance is deleted:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Stop the product</span>
+<span class="n">my_product</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+<span class="k">assert</span> <span class="n">mock_instance</span><span class="o">.</span><span class="n">delete</span><span class="o">.</span><span class="n">called</span>
+</pre></div>
+</div>
+</section>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this heading">#</a></h2>
+<p>An example of such an integration can be seen in this
+<a class="reference external" href="https://github.com/pyansys/pymapdl/pull/1091/files">PyMAPDL pull request</a>.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dependency">Dependency</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#condition-for-pypim-usage">Condition for PyPIM usage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#start-a-grpc-product">Start a gRPC product</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#start-a-non-grpc-product">Start a non-gRPC product</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#testing">Testing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="_sources/integration.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright (c) 2023 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  0.10.2. <br />Last updated on
+  <span id="date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var lastModifiedDate = new Date(document.lastModified);
+  var date = lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("date").innerHTML = date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

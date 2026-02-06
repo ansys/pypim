@@ -1,0 +1,6 @@
+list\_definitions
+=================
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. automethod:: Client.list_definitions
