@@ -2,8 +2,6 @@
 
 ## Project Lead
 
-* [Pierre Lulé](https://github.com/plule-ansys)
-
 ## Individual Contributors
 
 * [Alex Kaszynski](https://github.com/akaszynski)
@@ -15,3 +13,4 @@
 * [Revathy Venugopal](https://github.com/Revathyvenugopal162)
 * [Roberto Pastor Muela](https://github.com/RobPasMue)
 * [Stéphane](https://github.com/stmarguerin)
+* [Pierre Lulé](https://github.com/plule-ansys)
