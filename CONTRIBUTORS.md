@@ -2,6 +2,7 @@
 
 ## Project Lead
 
+* [Blanche Jérôme](https://github.com/jerome-blanche)
 ## Individual Contributors
 
 * [Alex Kaszynski](https://github.com/akaszynski)
