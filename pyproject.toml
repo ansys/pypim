@@ -75,5 +75,14 @@ source = ["ansys.platform.instancemanagement"]
 [tool.coverage.report]
 show_missing = true
 
+[tool.pytest.ini_options]
+addopts = [
+    "--cov=ansys.platform.instancemanagement",
+    "--cov-report=term-missing",
+    "--cov-report=html:.cov/html",
+    "--cov-report=xml:.cov/xml",
+    "-v",
+]
+
 [tool.codespell]
 ignore-multiline-regex= "default_section = .*"
