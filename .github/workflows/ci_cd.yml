@@ -63,7 +63,6 @@ jobs:
       - uses: ansys/actions/build-wheelhouse@v10
         with:
           library-name: ${{ env.LIBRARY_NAME }}
-          library-namespace: ${{ env.LIBRARY_NAMESPACE }}
           operating-system: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
 
@@ -83,8 +82,11 @@ jobs:
           pytest-extra-args: "--cov=ansys.platform.instancemanagement --cov-report=term --cov-report=html:.cov/html"
 
       - name: "Upload coverage to Codecov"
-        if: matrix.python-version ==  ${{ env.MAIN_PYTHON_VERSION }} && matrix.os == 'ubuntu-latest'
+        if: ${{ matrix.python-version ==  env.MAIN_PYTHON_VERSION && matrix.os == 'ubuntu-latest' }}
         uses: codecov/codecov-action@v6
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: .cov/xml
 
   build-library:
     name: "Build library"
