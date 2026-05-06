@@ -7,6 +7,7 @@
 ## Individual Contributors
 
 * [Alex Kaszynski](https://github.com/akaszynski)
+* [Bastien Lasnier](https://github.com/blasnier)
 * [Jorge Martínez](https://github.com/jorgepiloto)
 * [Kathy Pippert](https://github.com/PipKat)
 * [Mathilde](https://github.com/mgalloue)
