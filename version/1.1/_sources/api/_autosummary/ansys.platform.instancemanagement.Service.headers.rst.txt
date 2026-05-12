@@ -1,0 +1,6 @@
+headers
+=======
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoproperty:: Service.headers

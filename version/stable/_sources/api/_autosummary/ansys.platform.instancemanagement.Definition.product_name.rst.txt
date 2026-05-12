@@ -1,0 +1,6 @@
+product\_name
+=============
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoproperty:: Definition.product_name

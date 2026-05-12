@@ -1,0 +1,6 @@
+close
+=====
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. automethod:: Client.close
