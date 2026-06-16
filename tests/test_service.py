@@ -20,12 +20,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from ansys.api.platform.instancemanagement.v1 import product_instance_manager_pb2 as pb2
 import grpc
 import grpc_health.v1.health_pb2 as health_pb2
 import grpc_health.v1.health_pb2_grpc as health_pb2_grpc
 import pytest
 
+from ansys.api.platform.instancemanagement.v1 import product_instance_manager_pb2 as pb2
 import ansys.platform.instancemanagement as pypim
 
 

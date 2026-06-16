@@ -1,13 +1,5 @@
 repos:
 
-- repo: https://github.com/psf/black
-  rev: 25.12.0
-  hooks:
-  - id: black
-    args:
-    - src
-    - tests
-
 - repo: https://github.com/adamchainz/blacken-docs
   rev: 1.20.0
   hooks:
@@ -15,34 +7,10 @@ repos:
     additional_dependencies:
     - black==23.7.0
 
-- repo: https://github.com/pycqa/isort
-  rev: 7.0.0
-  hooks:
-  - id: isort
-
-- repo: https://github.com/PyCQA/flake8
-  rev: 7.3.0
-  hooks:
-  - id: flake8
-    args:
-    - src
-    - tests
-    - doc
-
 - repo: https://github.com/codespell-project/codespell
   rev: v2.4.1
   hooks:
   - id: codespell
-
-- repo: https://github.com/pycqa/pydocstyle
-  rev: 6.3.0
-  hooks:
-  - id: pydocstyle
-    additional_dependencies:
-    - toml
-    args:
-    - --match-dir='^(src)'
-    exclude: ^(tests/)
 
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v6.0.0
@@ -58,3 +26,9 @@ repos:
   - id: add-license-headers
     args:
     - --start_year=2022
+
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.15.17
+  hooks:
+    - id: ruff-check
+    - id: ruff-format

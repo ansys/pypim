@@ -22,7 +22,6 @@
 
 """Exceptions raised by PyPIM."""
 
-
 import grpc
 
 
@@ -54,7 +53,8 @@ class InstanceNotReadyError(RuntimeError):
 
 class UnsupportedServiceError(ValueError):
     """Indicates an attempt was made to communicate with an instance using a service that is not\
-        supported."""
+        supported.
+    """
 
     instance_name: str
     """Name of the instance."""

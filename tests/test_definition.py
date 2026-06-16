@@ -22,9 +22,10 @@
 
 from unittest.mock import patch
 
-from ansys.api.platform.instancemanagement.v1 import product_instance_manager_pb2 as pb2
-from ansys.api.platform.instancemanagement.v1 import product_instance_manager_pb2_grpc as pb2_grpc
-
+from ansys.api.platform.instancemanagement.v1 import (
+    product_instance_manager_pb2 as pb2,
+    product_instance_manager_pb2_grpc as pb2_grpc,
+)
 import ansys.platform.instancemanagement as pypim
 
 

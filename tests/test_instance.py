@@ -23,16 +23,18 @@
 from concurrent.futures import ThreadPoolExecutor
 from unittest.mock import call, create_autospec
 
-from ansys.api.platform.instancemanagement.v1 import product_instance_manager_pb2 as pb2
-from ansys.api.platform.instancemanagement.v1 import product_instance_manager_pb2_grpc as pb2_grpc
+from conftest import CREATE_INSTANCE_METHOD, DELETE_INSTANCE_METHOD, GET_INSTANCE_METHOD
 from google.protobuf.empty_pb2 import Empty
 import grpc
 from grpc import StatusCode
 import grpc_testing
 import pytest
 
+from ansys.api.platform.instancemanagement.v1 import (
+    product_instance_manager_pb2 as pb2,
+    product_instance_manager_pb2_grpc as pb2_grpc,
+)
 import ansys.platform.instancemanagement as pypim
-from conftest import CREATE_INSTANCE_METHOD, DELETE_INSTANCE_METHOD, GET_INSTANCE_METHOD
 
 
 def test_from_pim_v1_proto():
@@ -93,9 +95,9 @@ def test_create(
     expected_creation_request = pb2.CreateInstanceRequest(
         instance=pb2.Instance(definition_name="definitions/my-def")
     )
-    assert (
-        received_creation_request == expected_creation_request
-    ), "The request to create an instance did not match what was expected"
+    assert received_creation_request == expected_creation_request, (
+        "The request to create an instance did not match what was expected"
+    )
 
     # The instance was created as expected
     expected_instance = pypim.Instance(
@@ -105,9 +107,9 @@ def test_create(
         status_message="loading...",
         services={},
     )
-    assert (
-        instance == expected_instance
-    ), "The response to create an instance was not correctly translated"
+    assert instance == expected_instance, (
+        "The response to create an instance was not correctly translated"
+    )
 
 
 def test_delete(
@@ -143,9 +145,9 @@ def test_delete(
     # The server got the request for the correct instance
     received_deletion_request = server_future.result()
     expected_deletion_request = pb2.DeleteInstanceRequest(name="instances/hello-world-32")
-    assert (
-        received_deletion_request == expected_deletion_request
-    ), "The request to create an instance did not match what was expected"
+    assert received_deletion_request == expected_deletion_request, (
+        "The request to create an instance did not match what was expected"
+    )
 
 
 def test_context_manager(
@@ -201,9 +203,9 @@ def test_context_manager(
         status_message="loading...",
         services={},
     )
-    assert (
-        instance == expected_instance
-    ), "The response to create an instance was not correctly translated"
+    assert instance == expected_instance, (
+        "The response to create an instance was not correctly translated"
+    )
 
 
 def test_update(

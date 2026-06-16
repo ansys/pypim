@@ -24,11 +24,11 @@
 
 from typing import Mapping
 
+import grpc
+
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
     Service as ServiceV1,
 )
-import grpc
-
 from ansys.platform.instancemanagement.configuration import Configuration
 from ansys.platform.instancemanagement.interceptor import header_adder_interceptor
 
@@ -84,7 +84,7 @@ class Service:
         """Build a gRPC channel communicating with the product instance.
 
         Parameters
-        -----------
+        ----------
         configuration: pim configuration
         kwargs: list, optional
             Named arguments for gRPC construction.

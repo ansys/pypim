@@ -30,7 +30,6 @@ from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 impor
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2_grpc import (
     ProductInstanceManagerStub,
 )
-
 from ansys.platform.instancemanagement.configuration import Configuration
 from ansys.platform.instancemanagement.instance import Instance
 

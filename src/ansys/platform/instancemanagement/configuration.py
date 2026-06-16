@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """Configuration class module."""
+
 import json
 import logging
 import os
@@ -40,12 +41,14 @@ logger = logging.getLogger(__name__)
 class Configuration:
     """Configuration for the PIM client.
 
-    Raises:
+    Raises
+    ------
         InvalidConfigurationError: configuration file is not a well formatted json file
         InvalidConfigurationError: version is not supported
         InvalidConfigurationError: a key is missing in the configuration file
 
-    Returns:
+    Returns
+    -------
         Configuration: settings to configure the PIM client
     """
 
@@ -148,8 +151,10 @@ Consider upgrading ansys-platform-instancemanagement.',
             # using a case insensitive comparison, and the key contains a Bearer token.
             header_authorization = next(
                 filter(
-                    lambda p: re.match("authorization", p[0], flags=re.IGNORECASE)
-                    and re.match("Bearer ", p[1]),
+                    lambda p: (
+                        re.match("authorization", p[0], flags=re.IGNORECASE)
+                        and re.match("Bearer ", p[1])
+                    ),
                     headers,
                 ),
                 None,
