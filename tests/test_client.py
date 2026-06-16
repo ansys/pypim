@@ -478,7 +478,7 @@ def test_initialize_from_configuration(testing_pool, tmp_path):
     port = server.add_insecure_port("127.0.0.1:0")
     server.start()
     # A valid configuration file setting up the uri and metadata
-    config_path = str(tmp_path / "config.json")
+    config_path = tmp_path / "config.json"
     config = (
         r"""{
     "version": 1,
@@ -494,13 +494,13 @@ def test_initialize_from_configuration(testing_pool, tmp_path):
         % port
     )
 
-    with open(config_path, "w") as f:
+    with config_path.open("w") as f:
         f.write(config)
 
     # Act
     # Connect the client based on this configuration
     # and run a request
-    with patch.dict(os.environ, {"ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG": config_path}):
+    with patch.dict(os.environ, {"ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG": str(config_path)}):
         with pypim.connect() as client:
             client.list_definitions(product_name="hello-world", product_version="231")
 
@@ -542,7 +542,7 @@ def test_not_configured():
 )
 def test_bad_configuration(tmp_path, bad_configuration, message_content):
     config_path = tmp_path / "pim.json"
-    with open(config_path, "w") as f:
+    with config_path.open("w") as f:
         f.write(bad_configuration)
 
     with pytest.raises(pypim.InvalidConfigurationError) as exc:

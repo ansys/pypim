@@ -25,6 +25,7 @@
 import json
 import logging
 import os
+from pathlib import Path
 import re
 from typing import Sequence, Tuple
 
@@ -118,8 +119,9 @@ class Configuration:
         InvalidConfigurationError
             The configuration is not valid.
         """
-        logger.debug("Initializing from %s", config_path)
-        with open(config_path, "r") as f:
+        config_file_path = Path(config_path)
+        logger.debug("Initializing from %s", config_file_path)
+        with config_file_path.open("r") as f:
             try:
                 configuration = json.load(f)
             except json.JSONDecodeError as e:

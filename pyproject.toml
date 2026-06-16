@@ -105,6 +105,7 @@ lint.select = [
   "PTH", # flake8-use-pathlib, https://beta.ruff.rs/docs/rules/#flake8-use-pathlib-pth
 ]
 lint.ignore = []
+lint.per-file-ignores = { "tests/*.py" = ["D100", "D103", "N802"] }
 lint.isort.combine-as-imports = true
 lint.isort.force-sort-within-sections = true
 lint.isort.known-first-party = [ "ansys" ]

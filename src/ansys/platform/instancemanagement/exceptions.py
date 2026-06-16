@@ -52,8 +52,9 @@ class InstanceNotReadyError(RuntimeError):
 
 
 class UnsupportedServiceError(ValueError):
-    """Indicates an attempt was made to communicate with an instance using a service that is not\
-        supported.
+    """Indicates an attempt to use an unsupported instance service.
+
+    Raised when a requested service name is not exposed by the instance.
     """
 
     instance_name: str
