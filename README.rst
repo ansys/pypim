@@ -60,8 +60,8 @@ PyPIM itself is pure Python and relies on `gRPC`_.
 
 Installation
 ------------
-The ``ansys-platform-instancemanagement`` package is tested for Python 3.7 through
-Python 3.10 on Windows and Linux.
+The ``ansys-platform-instancemanagement`` package is tested for Python 3.10 through
+Python 3.14 on Windows and Linux.
 
 .. code-block::
 
