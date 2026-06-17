@@ -21,9 +21,12 @@
 # SOFTWARE.
 
 """Client class module."""
+
 import contextlib
 import logging
 from typing import Sequence
+
+import grpc
 
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
     GetInstanceRequest,
@@ -33,8 +36,6 @@ from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 impor
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2_grpc import (
     ProductInstanceManagerStub,
 )
-import grpc
-
 from ansys.platform.instancemanagement.configuration import Configuration
 from ansys.platform.instancemanagement.definition import Definition
 from ansys.platform.instancemanagement.exceptions import (

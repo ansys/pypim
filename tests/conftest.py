@@ -22,9 +22,12 @@
 
 from concurrent.futures import ThreadPoolExecutor
 
-from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import DESCRIPTOR
 import grpc_testing
 import pytest
+
+from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
+    DESCRIPTOR,
+)
 
 PIM_SERVICE = DESCRIPTOR.services_by_name["ProductInstanceManager"]
 LIST_DEFINITIONS_METHOD = PIM_SERVICE.methods_by_name["ListDefinitions"]
