@@ -91,9 +91,8 @@ class Service:
         ----------
         configuration: Configuration | None, optional
             PIM configuration.
-        kwargs: list, optional
-            Named arguments for gRPC construction.
-            They are passed to ``grpc.secure_channel`` or ``grpc.insecure_channel``.
+        **kwargs
+            Keyword arguments passed to ``grpc.secure_channel`` or ``grpc.insecure_channel``.
 
         Returns
         -------

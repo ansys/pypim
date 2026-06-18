@@ -173,7 +173,12 @@ class Client(contextlib.AbstractContextManager):
             product_name,
             product_version,
         )
-        request = ListDefinitionsRequest(product_name=product_name, product_version=product_version)  # pyright: ignore[reportArgumentType]
+        request_kwargs = {}
+        if product_name is not None:
+            request_kwargs["product_name"] = product_name
+        if product_version is not None:
+            request_kwargs["product_version"] = product_version
+        request = ListDefinitionsRequest(**request_kwargs)
 
         try:
             response = self._stub.ListDefinitions(request, timeout=timeout)

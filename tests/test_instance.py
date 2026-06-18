@@ -28,7 +28,7 @@ from google.protobuf.empty_pb2 import Empty
 import grpc
 from grpc import StatusCode
 import grpc_testing
-from grpc_testing._channel._channel import TestingChannel
+from grpc_testing import Channel as TestingChannel
 import pytest
 
 from ansys.api.platform.instancemanagement.v1 import (
