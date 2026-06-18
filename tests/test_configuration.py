@@ -58,7 +58,7 @@ def test_not_configured():
 )
 def test_bad_configuration(tmp_path, bad_configuration, message_content):
     config_path = tmp_path / "pim.json"
-    with open(config_path, "w") as f:
+    with config_path.open("w") as f:
         f.write(bad_configuration)
 
     with pytest.raises(pypim.InvalidConfigurationError) as exc:
@@ -70,7 +70,7 @@ def test_bad_configuration(tmp_path, bad_configuration, message_content):
 def test_initialize_from_environment(tmp_path):
     # Arrange
     # A valid configuration file setting up the uri and metadata
-    config_path = str(tmp_path / "config.json")
+    config_path = tmp_path / "config.json"
     config = r"""{
     "version": 1,
     "pim": {
@@ -82,13 +82,13 @@ def test_initialize_from_environment(tmp_path):
     }
 }"""
 
-    with open(config_path, "w") as f:
+    with config_path.open("w") as f:
         f.write(config)
 
     # Act
     # Connect the client based on this configuration
     # and run a request
-    with patch.dict(os.environ, {"ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG": config_path}):
+    with patch.dict(os.environ, {"ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG": str(config_path)}):
         configuration = pypim.Configuration.from_environment()
 
     # Assert

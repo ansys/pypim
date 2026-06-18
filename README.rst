@@ -66,9 +66,9 @@ Installation
    with ``pip`` and the command line. If they are new to you, you should read
    the `Python Packaging User Guide Tutorial on pip <https://packaging.python.org/en/latest/tutorials/installing-packages/>`
    before proceeding.
-
-The ``ansys-platform-instancemanagement`` package is tested for Python 3.7 through
-Python 3.10 on Windows and Linux.
+   
+The ``ansys-platform-instancemanagement`` package is tested for Python 3.10 through
+Python 3.14 on Windows and Linux.
 
 .. code-block::
 

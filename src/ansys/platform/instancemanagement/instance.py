@@ -22,25 +22,22 @@
 
 """Instance class module."""
 
-
 import contextlib
 import logging
 import time
 from typing import Mapping
 
+import grpc
+
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
     CreateInstanceRequest,
     DeleteInstanceRequest,
     GetInstanceRequest,
-)
-from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
     Instance as InstanceV1,
 )
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2_grpc import (
     ProductInstanceManagerStub,
 )
-import grpc
-
 from ansys.platform.instancemanagement.configuration import Configuration
 from ansys.platform.instancemanagement.exceptions import (
     InstanceNotFoundError,
@@ -289,7 +286,7 @@ class Instance(contextlib.AbstractContextManager):
         --------
             >>> import ansys.platform.instancemanagement as pypim
             >>> from ansys.mapdl.core import Mapdl
-            >>> pim=pypim.connect()
+            >>> pim = pypim.connect()
             >>> instance = pim.create_instance(product_name="mapdl", product_version="221")
             >>> instance.wait_for_ready()
             >>> channel = instance.build_grpc_channel(
@@ -305,7 +302,7 @@ class Instance(contextlib.AbstractContextManager):
             If the service exposes multiple ports, this method can be used to
             connect to another port by providing the service name:
 
-            >>> filemanagement_channel=instance.build_grpc_channel(service_name="filemanagement")
+            >>> filemanagement_channel = instance.build_grpc_channel(service_name="filemanagement")
         """
         if not self.ready:
             raise InstanceNotReadyError(self.name)
