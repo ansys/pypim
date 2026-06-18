@@ -226,6 +226,9 @@ class Instance(contextlib.AbstractContextManager):
 
         RemoteError
             Unexpected server error.
+
+        RuntimeError
+            If the instance was not initialized with a ProductInstanceManagerStub.
         """
         if self._stub is None:
             raise RuntimeError("Cannot update instance without a ProductInstanceManagerStub.")

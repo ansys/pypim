@@ -137,6 +137,13 @@ class Definition:
         -------
         instance
             Product instance.
+
+        Raises
+        ------
+        TimeoutError
+            If the instance creation times out.
+        RuntimeError
+            If the definition was not initialized with a ProductInstanceManagerStub.
         """
         if self._stub is None:
             raise RuntimeError("Cannot create instance without a ProductInstanceManagerStub.")
