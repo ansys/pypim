@@ -44,7 +44,7 @@ class Definition:
     _product_name: str
     _product_version: str
     _available_service_names: Sequence[str]
-    _stub: ProductInstanceManagerStub = None
+    _stub: ProductInstanceManagerStub | None = None
 
     @property
     def name(self) -> str:
@@ -91,7 +91,7 @@ class Definition:
         product_name: str,
         product_version: str,
         available_service_names: Sequence[str],
-        stub: ProductInstanceManagerStub = None,
+        stub: ProductInstanceManagerStub | None = None,
     ):
         """Create a Definition."""
         self._name = name
@@ -120,22 +120,32 @@ class Definition:
         )
 
     def create_instance(
-        self, timeout: float = None, configuration: Configuration = None
+        self,
+        timeout: float | None = None,
+        configuration: Configuration | None = None,
     ) -> Instance:
         """Create a product instance from this definition.
 
         Parameters
         ----------
-        timeout : float
+        timeout : float, optional
             Time in seconds to create the instance. The default is ``None``.
+        configuration : Configuration, optional
+            Configuration to use when creating the instance. The default is ``None``.
 
         Returns
         -------
         instance
             Product instance.
         """
+        if self._stub is None:
+            raise RuntimeError("Cannot create instance without a ProductInstanceManagerStub.")
+
         return Instance._create(
-            definition_name=self.name, stub=self._stub, timeout=timeout, configuration=configuration
+            definition_name=self.name,
+            stub=self._stub,
+            timeout=timeout,
+            configuration=configuration,
         )
 
     @staticmethod

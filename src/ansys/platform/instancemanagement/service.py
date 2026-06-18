@@ -63,7 +63,11 @@ class Service:
         """
         return self._headers
 
-    def __init__(self, uri: str, headers: Mapping[str, str]):
+    def __init__(
+        self,
+        uri: str,
+        headers: Mapping[str, str],
+    ):
         """Create a Service."""
         self._uri = uri
         self._headers = headers
@@ -78,14 +82,15 @@ class Service:
 
     def _build_grpc_channel(
         self,
-        configuration: Configuration = None,
+        configuration: Configuration | None = None,
         **kwargs,
     ) -> grpc.Channel:
         """Build a gRPC channel communicating with the product instance.
 
         Parameters
         ----------
-        configuration: pim configuration
+        configuration: Configuration | None, optional
+            PIM configuration.
         kwargs: list, optional
             Named arguments for gRPC construction.
             They are passed to ``grpc.secure_channel`` or ``grpc.insecure_channel``.
@@ -95,9 +100,6 @@ class Service:
         grpc.Channel
             gRPC channel ready to be used for communicating with the service.
         """
-        headers = self.headers.items()
-        interceptor = header_adder_interceptor(headers)
-
         if configuration is not None and configuration.tls:
             credentials = grpc.composite_channel_credentials(
                 grpc.ssl_channel_credentials(),
@@ -107,10 +109,12 @@ class Service:
         else:
             channel = grpc.insecure_channel(self.uri, **kwargs)
 
+        headers = self.headers.items()
+        interceptor = header_adder_interceptor(headers)
         return grpc.intercept_channel(channel, interceptor)
 
     @staticmethod
-    def _from_pim_v1(service: ServiceV1):
+    def from_pim_v1(service: ServiceV1):
         """Build a definition from the PIM API v1 protobuf object.
 
         Parameters

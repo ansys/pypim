@@ -57,9 +57,9 @@ class Instance(contextlib.AbstractContextManager):
     automatically stop the remote instance when the tasks are finished.
     """
 
-    _stub: ProductInstanceManagerStub
+    _stub: ProductInstanceManagerStub | None
 
-    _configuration: Configuration
+    _configuration: Configuration | None
     _definition_name: str
     _name: str
     _ready: bool
@@ -120,10 +120,11 @@ class Instance(contextlib.AbstractContextManager):
         ready: bool,
         status_message: str,
         services: Mapping[str, Service],
-        stub: ProductInstanceManagerStub = None,
+        stub: ProductInstanceManagerStub | None = None,
+        configuration: Configuration | None = None,
     ):
         """Create an Instance."""
-        self._configuration = None
+        self._configuration = configuration
         self._definition_name = definition_name
         self._name = name
         self._ready = ready
@@ -162,15 +163,21 @@ class Instance(contextlib.AbstractContextManager):
     def _create(
         definition_name: str,
         stub: ProductInstanceManagerStub,
-        timeout: float = None,
-        configuration: Configuration = None,
-    ):
+        timeout: float | None = None,
+        configuration: Configuration | None = None,
+    ) -> "Instance":
         """Create a product instance from the given definition.
 
         Parameters
         ----------
-        timeout : float
+        definition_name : str
+            Name of the definition to create the instance from.
+        stub : ProductInstanceManagerStub
+            PIM stub.
+        timeout : float, optional
             Time in seconds to create the instance. The default is ``None``.
+        configuration : Configuration, optional
+            Configuration to use when creating the instance. The default is ``None``.
 
         Returns
         -------
@@ -181,18 +188,30 @@ class Instance(contextlib.AbstractContextManager):
         instance = stub.CreateInstance(request, timeout=timeout)
         return Instance._from_pim_v1(instance, stub, configuration)
 
-    def delete(self, timeout: float = None):
+    def delete(self, timeout: float | None = None) -> None:
         """Delete the remote product instance.
 
         Parameters
         ----------
         timeout : float, optional
             Time in seconds to delete the instance. The default is ``None``.
+
+        Raises
+        ------
+        InstanceNotFoundError
+            The instance was already deleted.
+        RemoteError
+            Unexpected server error.
+        RuntimeError
+            If the instance was not initialized with a ProductInstanceManagerStub.
         """
+        if self._stub is None:
+            raise RuntimeError("Cannot delete instance without a ProductInstanceManagerStub.")
+
         request = DeleteInstanceRequest(name=self.name)
         self._stub.DeleteInstance(request, timeout=timeout)
 
-    def update(self, timeout: float = None):
+    def update(self, timeout: float | None = None) -> None:
         """Update the instance information from the remote status.
 
         Parameters
@@ -208,6 +227,9 @@ class Instance(contextlib.AbstractContextManager):
         RemoteError
             Unexpected server error.
         """
+        if self._stub is None:
+            raise RuntimeError("Cannot update instance without a ProductInstanceManagerStub.")
+
         request = GetInstanceRequest(name=self.name)
 
         try:
@@ -227,11 +249,13 @@ class Instance(contextlib.AbstractContextManager):
 
         self._status_message = instance.status_message
         self._services = {
-            name: Service._from_pim_v1(value) for name, value in instance.services.items()
+            name: Service.from_pim_v1(value) for name, value in instance.services.items()
         }
         self._ready = instance.ready
 
-    def wait_for_ready(self, polling_interval: float = 0.5, timeout_per_request: float = None):
+    def wait_for_ready(
+        self, polling_interval: float = 0.5, timeout_per_request: float | None = None
+    ) -> None:
         """Wait for the instance to be ready.
 
         After calling this method, the instance services are filled and ready to
@@ -257,7 +281,7 @@ class Instance(contextlib.AbstractContextManager):
             time.sleep(polling_interval)
             self.update(timeout=timeout_per_request)
 
-    def build_grpc_channel(self, service_name: str = "grpc", **kwargs):
+    def build_grpc_channel(self, service_name: str = "grpc", **kwargs) -> grpc.Channel:
         """Build a gRPC channel to communicate with this instance.
 
         The instance must be ready before calling this method.
@@ -311,14 +335,17 @@ class Instance(contextlib.AbstractContextManager):
         if not service:
             raise UnsupportedServiceError(self.name, service_name)
 
-        return service._build_grpc_channel(configuration=self._configuration, **kwargs)
+        return service._build_grpc_channel(
+            configuration=self._configuration,
+            **kwargs,
+        )
 
     @staticmethod
     def _from_pim_v1(
         instance: InstanceV1,
-        stub: ProductInstanceManagerStub = None,
-        configuration: Configuration = None,
-    ):
+        stub: ProductInstanceManagerStub | None = None,
+        configuration: Configuration | None = None,
+    ) -> "Instance":
         """Create a PyPIM instance from the raw protobuf message.
 
         Parameters
@@ -327,16 +354,23 @@ class Instance(contextlib.AbstractContextManager):
             Raw protobuf message from the PIM API.
         stub : ProductInstanceManagerStub, optional
             PIM stub.
+        configuration : Configuration, optional
+            Configuration to use for the instance.
+
+        Returns
+        -------
+        Instance
+            PyPIM instance.
         """
-        instance = Instance(
+        py_instance = Instance(
             name=instance.name,
             definition_name=instance.definition_name,
             status_message=instance.status_message,
             services={
-                name: Service._from_pim_v1(value) for name, value in instance.services.items()
+                name: Service.from_pim_v1(value) for name, value in instance.services.items()
             },
             ready=instance.ready,
             stub=stub,
+            configuration=configuration,
         )
-        instance._configuration = configuration
-        return instance
+        return py_instance
