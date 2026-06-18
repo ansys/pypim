@@ -249,7 +249,7 @@ class Instance(contextlib.AbstractContextManager):
 
         self._status_message = instance.status_message
         self._services = {
-            name: Service.from_pim_v1(value) for name, value in instance.services.items()
+            name: Service._from_pim_v1(value) for name, value in instance.services.items()
         }
         self._ready = instance.ready
 
@@ -346,12 +346,12 @@ class Instance(contextlib.AbstractContextManager):
         stub: ProductInstanceManagerStub | None = None,
         configuration: Configuration | None = None,
     ) -> "Instance":
-        """Create a PyPIM instance from the raw protobuf message.
+        """Create a PyPIM instance from the PIM API v1 raw protobuf message.
 
         Parameters
         ----------
         instance : InstanceV1
-            Raw protobuf message from the PIM API.
+            Raw PIM API v1 protobuf message.
         stub : ProductInstanceManagerStub, optional
             PIM stub.
         configuration : Configuration, optional
@@ -367,7 +367,7 @@ class Instance(contextlib.AbstractContextManager):
             definition_name=instance.definition_name,
             status_message=instance.status_message,
             services={
-                name: Service.from_pim_v1(value) for name, value in instance.services.items()
+                name: Service._from_pim_v1(value) for name, value in instance.services.items()
             },
             ready=instance.ready,
             stub=stub,

@@ -32,7 +32,7 @@ import ansys.platform.instancemanagement as pypim
 
 
 def test_from_pim_v1_proto():
-    service = pypim.Service.from_pim_v1(
+    service = pypim.Service._from_pim_v1(
         pb2.Service(uri="dns://some-service", headers={"token": "some-token"})
     )
     assert service.uri == "dns://some-service"

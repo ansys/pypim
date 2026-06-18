@@ -113,8 +113,8 @@ class Service:
         return grpc.intercept_channel(channel, interceptor)
 
     @staticmethod
-    def from_pim_v1(service: ServiceV1):
-        """Build a definition from the PIM API v1 protobuf object.
+    def _from_pim_v1(service: ServiceV1) -> "Service":
+        """Create a PyPIM service from the PIM API v1 raw protobuf message.
 
         Parameters
         ----------
@@ -124,7 +124,6 @@ class Service:
         Returns
         -------
         Service
-            The PyPIM service
-            PyPIM service definition.
+            The PyPIM service.
         """
         return Service(uri=service.uri, headers=service.headers)
