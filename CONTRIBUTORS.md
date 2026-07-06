@@ -8,6 +8,7 @@
 
 * [Alex Kaszynski](https://github.com/akaszynski)
 * [Bastien Lasnier](https://github.com/blasnier)
+* [James Derrick](https://github.com/jgd10)
 * [Jorge Martínez](https://github.com/jorgepiloto)
 * [Kathy Pippert](https://github.com/PipKat)
 * [Mathilde](https://github.com/mgalloue)
