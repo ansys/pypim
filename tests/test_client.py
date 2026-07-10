@@ -427,7 +427,8 @@ def test_create_instance(testing_channel):
         product_name="definitions/the-good-one", product_version=None, timeout=0.32
     )
     definitions[0].create_instance.assert_called_once_with(
-        timeout=0.32, configuration=configuration
+        timeout=0.32,
+        configuration=configuration,
     )
     definitions[1].create_instance.assert_not_called()
     assert created_instance == instance
@@ -510,6 +511,65 @@ def test_initialize_from_configuration(testing_pool, tmp_path):
     received_metadata_dict = dict(received_metadata[0])
     assert received_metadata_dict["token"] == "007"
     assert received_metadata_dict["identity"] == "james bond"
+
+
+def test_initialize_from_configuration_tls(tmp_path):
+    config = pypim.Configuration(
+        uri="dns:instancemanagement.example.com:443",
+        headers=(("identity", "james bond"),),
+        tls=True,
+        access_token="007",
+    )
+
+    with (
+        patch.object(pypim.Configuration, "from_file", return_value=config),
+        patch("ansys.platform.instancemanagement.client.grpc.ssl_channel_credentials") as ssl_mock,
+        patch(
+            "ansys.platform.instancemanagement.client.grpc.access_token_call_credentials"
+        ) as token_mock,
+        patch(
+            "ansys.platform.instancemanagement.client.grpc.composite_channel_credentials"
+        ) as composite_mock,
+        patch("ansys.platform.instancemanagement.client.grpc.secure_channel") as secure_mock,
+        patch("ansys.platform.instancemanagement.client.grpc.intercept_channel") as intercept_mock,
+        patch(
+            "ansys.platform.instancemanagement.client.header_adder_interceptor"
+        ) as interceptor_mock,
+        patch("ansys.platform.instancemanagement.client.Client") as client_ctor_mock,
+    ):
+        ssl_creds = object()
+        token_creds = object()
+        channel_creds = object()
+        raw_channel = object()
+        intercepted_channel = object()
+        client_obj = object()
+
+        ssl_mock.return_value = ssl_creds
+        token_mock.return_value = token_creds
+        composite_mock.return_value = channel_creds
+        secure_mock.return_value = raw_channel
+        interceptor_mock.return_value = "interceptor"
+        intercept_mock.return_value = intercepted_channel
+        client_ctor_mock.return_value = client_obj
+
+        created_client = pypim.Client._from_configuration(str(tmp_path / "config.json"))
+
+    token_mock.assert_called_once_with("007")
+    composite_mock.assert_called_once_with(ssl_creds, token_creds)
+    secure_mock.assert_called_once_with(config.uri, channel_creds)
+    interceptor_mock.assert_called_once_with(config.headers)
+    intercept_mock.assert_called_once_with(raw_channel, "interceptor")
+    client_ctor_mock.assert_called_once_with(intercepted_channel, config)
+    assert created_client is client_obj
+
+
+def test_close_closes_channel(testing_channel):
+    channel = create_autospec(testing_channel, spec_set=True, instance=True)
+    client = pypim.Client(channel)
+
+    client.close()
+
+    channel.close.assert_called_once()
 
 
 def test_not_configured():

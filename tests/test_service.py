@@ -20,6 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from unittest.mock import patch
+
 import grpc
 import grpc_health.v1.health_pb2 as health_pb2
 import grpc_health.v1.health_pb2_grpc as health_pb2_grpc
@@ -89,3 +91,77 @@ def test_str():
     assert "http://example.com" in service_str
     assert "hello" in service_str
     assert "world" in service_str
+
+
+def test_service_equality():
+    """Test that services with same settings are equal."""
+    service1 = pypim.Service(uri="dns:service:50051", headers={"token": "abc"})
+    service2 = pypim.Service(uri="dns:service:50051", headers={"token": "abc"})
+    assert service1 == service2
+
+
+def test_service_inequality_different_uri():
+    """Test that services with different URIs are not equal."""
+    service1 = pypim.Service(uri="dns:service1:50051", headers={"token": "abc"})
+    service2 = pypim.Service(uri="dns:service2:50051", headers={"token": "abc"})
+    assert service1 != service2
+
+
+def test_service_inequality_different_headers():
+    """Test that services with different headers are not equal."""
+    service1 = pypim.Service(uri="dns:service:50051", headers={"token": "abc"})
+    service2 = pypim.Service(uri="dns:service:50051", headers={"token": "xyz"})
+    assert service1 != service2
+
+
+def test_service_build_channel_with_tls_configuration():
+    service = pypim.Service(uri="dns:service:50051", headers={"token": "abc"})
+    configuration = pypim.Configuration(
+        uri="dns:pim.example.com:443",
+        headers=(("authorization", "Bearer 007"),),
+        tls=True,
+        access_token="007",
+    )
+
+    with (
+        patch("ansys.platform.instancemanagement.service.grpc.ssl_channel_credentials") as ssl_mock,
+        patch(
+            "ansys.platform.instancemanagement.service.grpc.access_token_call_credentials"
+        ) as token_mock,
+        patch(
+            "ansys.platform.instancemanagement.service.grpc.composite_channel_credentials"
+        ) as composite_mock,
+        patch("ansys.platform.instancemanagement.service.grpc.secure_channel") as secure_mock,
+        patch(
+            "ansys.platform.instancemanagement.service.header_adder_interceptor"
+        ) as interceptor_mock,
+        patch("ansys.platform.instancemanagement.service.grpc.intercept_channel") as intercept_mock,
+    ):
+        ssl_creds = object()
+        token_creds = object()
+        channel_creds = object()
+        secure_channel = object()
+        intercepted_channel = object()
+
+        ssl_mock.return_value = ssl_creds
+        token_mock.return_value = token_creds
+        composite_mock.return_value = channel_creds
+        secure_mock.return_value = secure_channel
+        interceptor_mock.return_value = "interceptor"
+        intercept_mock.return_value = intercepted_channel
+
+        result = service._build_grpc_channel(
+            configuration=configuration,
+            options=[("grpc.max_send_message_length", 1024)],
+        )
+
+    token_mock.assert_called_once_with("007")
+    composite_mock.assert_called_once_with(ssl_creds, token_creds)
+    secure_mock.assert_called_once_with(
+        "dns:service:50051",
+        channel_creds,
+        options=[("grpc.max_send_message_length", 1024)],
+    )
+    interceptor_mock.assert_called_once_with(service.headers.items())
+    intercept_mock.assert_called_once_with(secure_channel, "interceptor")
+    assert result is intercepted_channel

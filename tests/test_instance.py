@@ -21,13 +21,14 @@
 # SOFTWARE.
 
 from concurrent.futures import ThreadPoolExecutor
-from unittest.mock import call, create_autospec
+from unittest.mock import call, create_autospec, patch
 
 from conftest import CREATE_INSTANCE_METHOD, DELETE_INSTANCE_METHOD, GET_INSTANCE_METHOD
 from google.protobuf.empty_pb2 import Empty
 import grpc
 from grpc import StatusCode
 import grpc_testing
+from grpc_testing import Channel as TestingChannel
 import pytest
 
 from ansys.api.platform.instancemanagement.v1 import (
@@ -45,7 +46,7 @@ def test_from_pim_v1_proto():
             ready=False,
             status_message="not yet ready",
             services={
-                "grpc": pb2.Service(uri="dns://some-service:651", headers={"token": "hello-world"}),
+                "grpc": pb2.Service(uri="dns:some-service:651", headers={"token": "hello-world"}),
                 "http": pb2.Service(
                     uri="https://some-service:651", headers={"token": "hello-world"}
                 ),
@@ -57,7 +58,7 @@ def test_from_pim_v1_proto():
     assert not instance.ready
     assert instance.status_message == "not yet ready"
     assert instance.services == {
-        "grpc": pypim.Service(uri="dns://some-service:651", headers={"token": "hello-world"}),
+        "grpc": pypim.Service(uri="dns:some-service:651", headers={"token": "hello-world"}),
         "http": pypim.Service(uri="https://some-service:651", headers={"token": "hello-world"}),
     }
 
@@ -333,7 +334,38 @@ def test_update_error(
     assert exc.value.__cause__.code() == grpc.StatusCode.INTERNAL
 
 
-def test_wait_for_ready(testing_channel):
+def test_update_logs_status_message_change(testing_pool: ThreadPoolExecutor, testing_channel):
+    def server():
+        _, update_request, rpc = testing_channel.take_unary_unary(GET_INSTANCE_METHOD)
+        response = pb2.Instance(
+            name="instances/hello-world-32",
+            definition_name="definitions/my-def",
+            ready=False,
+            status_message="Still loading",
+            services={},
+        )
+        rpc.terminate(response, [], StatusCode.OK, "")
+        return update_request
+
+    testing_pool.submit(server)
+
+    stub = pb2_grpc.ProductInstanceManagerStub(testing_channel)
+    instance = pypim.Instance(
+        name="instances/hello-world-32",
+        definition_name="definitions/my-def",
+        ready=False,
+        status_message="Loading...",
+        services={},
+        stub=stub,
+    )
+
+    with patch("ansys.platform.instancemanagement.instance.logger") as logger:
+        instance.update(timeout=0.1)
+
+    logger.info.assert_called_once_with("Still loading")
+
+
+def test_wait_for_ready(testing_channel: TestingChannel):
     # Arrange
     # A mocked instance where the update will not be ready
     # until three update calls
@@ -492,3 +524,89 @@ def test_repr():
     )
     instance_repr = eval(repr(instance))
     assert instance == instance_repr
+
+
+def test_equality():
+    instance1 = pypim.Instance(
+        name="instances/hello-world-32",
+        definition_name="definitions/my-def",
+        ready=False,
+        status_message="Loading.",
+        services={
+            "my-http": pypim.Service(uri="http://example.com", headers={}),
+        },
+    )
+    instance2 = pypim.Instance(
+        name="instances/hello-world-32",
+        definition_name="definitions/my-def",
+        ready=False,
+        status_message="Loading.",
+        services={
+            "my-http": pypim.Service(uri="http://example.com", headers={}),
+        },
+    )
+    instance3 = pypim.Instance(
+        name="instances/hello-world-33",
+        definition_name="definitions/my-def",
+        ready=False,
+        status_message="Loading.",
+        services={
+            "my-http": pypim.Service(uri="http://example.com", headers={}),
+        },
+    )
+    instance4 = {
+        "name": "instances/hello-world-32",
+        "definition_name": "definitions/my-def",
+        "ready": False,
+        "status_message": "Loading.",
+        "services": {
+            "my-http": pypim.Service(uri="http://example.com", headers={}),
+        },
+    }
+    assert instance1 == instance2
+    assert instance1 != instance3
+    assert instance1 != instance4
+
+
+def test_delete_no_stub():
+    """Test that delete raises an error if the instance has no stub."""
+    instance = pypim.Instance(
+        name="instances/hello-world-32",
+        definition_name="definitions/my-def",
+        ready=False,
+        status_message="Loading...",
+        services={},
+    )
+    with pytest.raises(
+        RuntimeError, match="Cannot delete instance without a ProductInstanceManagerStub."
+    ):
+        instance.delete()
+
+
+def test_create_instance_no_stub():
+    """Test that create_instance raises an error if the definition has no stub."""
+    definition = pypim.Definition(
+        name="definitions/my_def",
+        product_name="my_product",
+        product_version="221",
+        available_service_names=["grpc", "http"],
+    )
+    with pytest.raises(
+        RuntimeError, match="Cannot create instance without a ProductInstanceManagerStub."
+    ):
+        definition.create_instance()
+
+
+def test_update_no_stub():
+    """Test that update raises an error if the instance has no stub."""
+    instance = pypim.Instance(
+        name="instances/hello-world-32",
+        definition_name="definitions/my-def",
+        ready=False,
+        status_message="Loading...",
+        services={},
+    )
+    with pytest.raises(
+        RuntimeError, match="Cannot update instance without a ProductInstanceManagerStub."
+    ):
+        instance.update()
