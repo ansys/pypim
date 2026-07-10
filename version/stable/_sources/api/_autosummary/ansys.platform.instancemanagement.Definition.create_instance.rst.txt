@@ -1,0 +1,6 @@
+create\_instance
+================
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. automethod:: Definition.create_instance

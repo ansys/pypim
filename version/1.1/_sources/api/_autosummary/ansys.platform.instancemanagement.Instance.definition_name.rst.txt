@@ -1,0 +1,6 @@
+definition\_name
+================
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoproperty:: Instance.definition_name
