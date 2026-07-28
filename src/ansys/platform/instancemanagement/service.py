@@ -22,7 +22,8 @@
 
 """Service class module."""
 
-from typing import Mapping
+from dataclasses import dataclass
+from typing import Mapping, Optional
 
 import grpc
 
@@ -31,6 +32,7 @@ from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 impor
 )
 from ansys.platform.instancemanagement.configuration import Configuration
 from ansys.platform.instancemanagement.interceptor import header_adder_interceptor
+from ansys.tools.common.cyberchannel import CertificateFiles
 
 
 def _parse_host_port(uri: str) -> tuple[str, str]:
@@ -68,11 +70,20 @@ def _parse_uds_socket_path(uri: str) -> str:
     return uri
 
 
+@dataclass(frozen=True)
+class _ServiceSecurity:
+    """Internal, protobuf-free view of the server-resolved security info."""
+
+    transport: str
+    cert_files: Optional[CertificateFiles] = None
+
+
 class Service:
     """Provides an entry point for communicating with a remote product."""
 
     _uri: str
     _headers: Mapping[str, str]
+    _security: Optional["_ServiceSecurity"]
 
     @property
     def uri(self) -> str:
@@ -102,10 +113,12 @@ class Service:
         self,
         uri: str,
         headers: Mapping[str, str],
+        security: Optional[_ServiceSecurity] = None,
     ):
         """Create a Service."""
         self._uri = uri
         self._headers = headers
+        self._security = security
 
     def __eq__(self, obj):
         """Test for equality."""
@@ -161,4 +174,18 @@ class Service:
         Service
             The PyPIM service.
         """
-        return Service(uri=service.uri, headers=service.headers)
+        security = None
+        transport = service.security.WhichOneof("transport")
+        if transport == "mtls":
+            mtls = service.security.mtls
+            security = _ServiceSecurity(
+                transport="mtls",
+                cert_files=CertificateFiles(
+                    cert_file=mtls.client_certificate_path,
+                    key_file=mtls.client_key_path,
+                    ca_file=mtls.ca_certificate_path,
+                ),
+            )
+        elif transport is not None:
+            security = _ServiceSecurity(transport=transport)
+        return Service(uri=service.uri, headers=service.headers, security=security)
