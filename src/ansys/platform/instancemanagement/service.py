@@ -32,7 +32,7 @@ from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 impor
 )
 from ansys.platform.instancemanagement.configuration import Configuration
 from ansys.platform.instancemanagement.interceptor import header_adder_interceptor
-from ansys.tools.common.cyberchannel import CertificateFiles
+from ansys.tools.common.cyberchannel import CertificateFiles, create_channel
 
 
 def _parse_host_port(uri: str) -> tuple[str, str]:
@@ -147,6 +147,29 @@ class Service:
         grpc.Channel
             gRPC channel ready to be used for communicating with the service.
         """
+        headers = self.headers.items()
+        interceptor = header_adder_interceptor(headers)
+
+        if self._security is not None:
+            grpc_options = kwargs.get("options")
+            transport = self._security.transport
+            if transport == "uds":
+                channel = create_channel(
+                    "uds",
+                    uds_fullpath=_parse_uds_socket_path(self.uri),
+                    grpc_options=grpc_options,
+                )
+            else:
+                host, port = _parse_host_port(self.uri)
+                channel = create_channel(
+                    transport,
+                    host=host,
+                    port=port,
+                    cert_files=self._security.cert_files,
+                    grpc_options=grpc_options,
+                )
+            return grpc.intercept_channel(channel, interceptor)
+        
         if configuration is not None and configuration.tls:
             credentials = grpc.composite_channel_credentials(
                 grpc.ssl_channel_credentials(),
@@ -156,8 +179,6 @@ class Service:
         else:
             channel = grpc.insecure_channel(self.uri, **kwargs)
 
-        headers = self.headers.items()
-        interceptor = header_adder_interceptor(headers)
         return grpc.intercept_channel(channel, interceptor)
 
     @staticmethod
