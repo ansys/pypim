@@ -36,6 +36,7 @@ from ansys.api.platform.instancemanagement.v1 import (
     product_instance_manager_pb2_grpc as pb2_grpc,
 )
 import ansys.platform.instancemanagement as pypim
+from ansys.platform.instancemanagement.security import MtlsSettings
 
 
 def test_from_pim_v1_proto():
@@ -610,3 +611,60 @@ def test_update_no_stub():
         RuntimeError, match="Cannot update instance without a ProductInstanceManagerStub."
     ):
         instance.update()
+def test_create_with_security_settings(testing_pool, testing_channel):
+    def server():
+        _, creation_request, rpc = testing_channel.take_unary_unary(CREATE_INSTANCE_METHOD)
+        rpc.terminate(
+            pb2.Instance(
+                name="instances/hello-world-32",
+                definition_name="definitions/my-def",
+                ready=False,
+                status_message="loading...",
+                services={},
+            ),
+            [],
+            StatusCode.OK,
+            "",
+        )
+        return creation_request
+
+    server_future = testing_pool.submit(server)
+    stub = pb2_grpc.ProductInstanceManagerStub(testing_channel)
+
+    pypim.Instance._create(
+        definition_name="definitions/my-def",
+        stub=stub,
+        timeout=1,
+        security_settings=MtlsSettings(certificates_directory="/certs"),
+    )
+
+    creation_request = server_future.result()
+    assert creation_request.HasField("security_settings")
+    assert creation_request.security_settings.WhichOneof("transport") == "mtls"
+    assert creation_request.security_settings.mtls.certificates_directory == "/certs"
+
+
+def test_create_without_security_settings_leaves_field_unset(testing_pool, testing_channel):
+    def server():
+        _, creation_request, rpc = testing_channel.take_unary_unary(CREATE_INSTANCE_METHOD)
+        rpc.terminate(
+            pb2.Instance(
+                name="instances/hello-world-32",
+                definition_name="definitions/my-def",
+                ready=False,
+                status_message="loading...",
+                services={},
+            ),
+            [],
+            StatusCode.OK,
+            "",
+        )
+        return creation_request
+
+    server_future = testing_pool.submit(server)
+    stub = pb2_grpc.ProductInstanceManagerStub(testing_channel)
+
+    pypim.Instance._create(definition_name="definitions/my-def", stub=stub, timeout=1)
+
+    creation_request = server_future.result()
+    assert not creation_request.HasField("security_settings")

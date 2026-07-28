@@ -32,6 +32,7 @@ from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2_grpc 
 )
 from ansys.platform.instancemanagement.configuration import Configuration
 from ansys.platform.instancemanagement.instance import Instance
+from ansys.platform.instancemanagement.security import SecuritySettings
 
 
 class Definition:
@@ -123,6 +124,7 @@ class Definition:
         self,
         timeout: float | None = None,
         configuration: Configuration | None = None,
+        security_settings: SecuritySettings | None = None,
     ) -> Instance:
         """Create a product instance from this definition.
 
@@ -132,6 +134,10 @@ class Definition:
             Time in seconds to create the instance. The default is ``None``.
         configuration : Configuration, optional
             Configuration to use when creating the instance. The default is ``None``.
+        security_settings : SecuritySettings, optional
+            Transport security settings for the instance. One of
+            ``InsecureSettings``, ``MtlsSettings``, ``WnuaSettings``, or
+            ``UdsSettings``. The default is ``None`` (server default).
 
         Returns
         -------
@@ -153,6 +159,7 @@ class Definition:
             stub=self._stub,
             timeout=timeout,
             configuration=configuration,
+            security_settings=security_settings,
         )
 
     @staticmethod

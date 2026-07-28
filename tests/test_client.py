@@ -182,21 +182,17 @@ def test_get_instance(
     # A server providing an instance
     def server():
         _, request, rpc = testing_channel.take_unary_unary(GET_INSTANCE_METHOD)
-        instance = pypim.Instance._from_pim_v1(
-            pb2.Instance(
-                name="instances/my-instance",
-                definition_name="definitions/my-definition",
-                ready=False,
-                status_message="not yet ready",
-                services={
-                    "grpc": pb2.Service(
-                        uri="dns://some-service:651", headers={"token": "hello-world"}
-                    ),
-                    "http": pb2.Service(
-                        uri="https://some-service:651", headers={"token": "hello-world"}
-                    ),
-                },
-            )
+        instance = pb2.Instance(
+            name="instances/my-instance",
+            definition_name="definitions/my-definition",
+            ready=False,
+            status_message="not yet ready",
+            services={
+                "grpc": pb2.Service(uri="dns://some-service:651", headers={"token": "hello-world"}),
+                "http": pb2.Service(
+                    uri="https://some-service:651", headers={"token": "hello-world"}
+                ),
+            },
         )
         rpc.terminate(instance, [], StatusCode.OK, "")
         return request
@@ -372,7 +368,9 @@ def test_create_instance_without_configuration(testing_channel):
     client.list_definitions.assert_called_once_with(
         product_name="definitions/the-good-one", product_version=None, timeout=0.32
     )
-    definitions[0].create_instance.assert_called_once_with(timeout=0.32, configuration=None)
+    definitions[0].create_instance.assert_called_once_with(
+        timeout=0.32, configuration=None, security_settings=None
+    )
     definitions[1].create_instance.assert_not_called()
     assert created_instance == instance
 
@@ -427,8 +425,7 @@ def test_create_instance(testing_channel):
         product_name="definitions/the-good-one", product_version=None, timeout=0.32
     )
     definitions[0].create_instance.assert_called_once_with(
-        timeout=0.32,
-        configuration=configuration,
+        timeout=0.32, configuration=configuration, security_settings=None
     )
     definitions[1].create_instance.assert_not_called()
     assert created_instance == instance

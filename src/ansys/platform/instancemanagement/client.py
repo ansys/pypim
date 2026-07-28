@@ -45,6 +45,7 @@ from ansys.platform.instancemanagement.exceptions import (
 )
 from ansys.platform.instancemanagement.instance import Instance
 from ansys.platform.instancemanagement.interceptor import header_adder_interceptor
+from ansys.platform.instancemanagement.security import SecuritySettings
 
 logger = logging.getLogger(__name__)
 
@@ -229,6 +230,7 @@ class Client(contextlib.AbstractContextManager):
         product_name: str,
         product_version: str | None = None,
         requests_timeout: float | None = None,
+        security_settings: SecuritySettings | None = None,
     ) -> Instance:
         """Create a remote instance of a product based on its name and optionally its version.
 
@@ -245,6 +247,10 @@ class Client(contextlib.AbstractContextManager):
             Version of the product. For example, ``"222"``. The default is ``None``.
         requests_timeout : float, optional
             Maximum time for each request in seconds. The default is ``None``.
+        security_settings : SecuritySettings, optional
+            Transport security settings for the instance. One of
+            ``InsecureSettings``, ``MtlsSettings``, ``WnuaSettings``, or
+            ``UdsSettings``. The default is ``None`` (server default).
 
         Returns
         -------
@@ -286,6 +292,7 @@ class Client(contextlib.AbstractContextManager):
         return definition.create_instance(
             timeout=requests_timeout,
             configuration=self._configuration,
+            security_settings=security_settings,
         )
 
     def get_instance(self, name: str, timeout: float | None = None) -> Instance:

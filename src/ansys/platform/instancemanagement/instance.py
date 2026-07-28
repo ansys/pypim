@@ -45,6 +45,7 @@ from ansys.platform.instancemanagement.exceptions import (
     RemoteError,
     UnsupportedServiceError,
 )
+from ansys.platform.instancemanagement.security import SecuritySettings
 from ansys.platform.instancemanagement.service import Service
 
 logger = logging.getLogger(__name__)
@@ -165,6 +166,7 @@ class Instance(contextlib.AbstractContextManager):
         stub: ProductInstanceManagerStub,
         timeout: float | None = None,
         configuration: Configuration | None = None,
+        security_settings: SecuritySettings | None = None,
     ) -> "Instance":
         """Create a product instance from the given definition.
 
@@ -178,6 +180,10 @@ class Instance(contextlib.AbstractContextManager):
             Time in seconds to create the instance. The default is ``None``.
         configuration : Configuration, optional
             Configuration to use when creating the instance. The default is ``None``.
+        security_settings : SecuritySettings, optional
+            Transport security settings for the instance. One of
+            ``InsecureSettings``, ``MtlsSettings``, ``WnuaSettings``, or
+            ``UdsSettings``. The default is ``None`` (server default).
 
         Returns
         -------
@@ -185,6 +191,8 @@ class Instance(contextlib.AbstractContextManager):
             Product instance.
         """
         request = CreateInstanceRequest(instance=InstanceV1(definition_name=definition_name))
+        if security_settings is not None:
+            request.security_settings.CopyFrom(security_settings._to_pim_v1())
         instance = stub.CreateInstance(request, timeout=timeout)
         return Instance._from_pim_v1(instance, stub, configuration)
 

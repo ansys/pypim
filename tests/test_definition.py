@@ -87,6 +87,7 @@ def test_create_instance(testing_channel):
         timeout=0.1,
         stub=stub,
         configuration=configuration,
+        security_settings=None,
     )
 
 
