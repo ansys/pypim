@@ -33,6 +33,41 @@ from ansys.platform.instancemanagement.configuration import Configuration
 from ansys.platform.instancemanagement.interceptor import header_adder_interceptor
 
 
+def _parse_host_port(uri: str) -> tuple[str, str]:
+    """Extract ``(host, port)`` from a gRPC target URI.
+
+    Strips a leading gRPC scheme (``dns:``, ``dns://[authority]/``, ``ipv4:``,
+    ``ipv6:``) and splits on the last ``:``. Raises ``ValueError`` when the URI
+    has no parsable ``host:port``.
+    """
+    target = uri
+    if target.startswith("dns://"):
+        rest = target[len("dns://") :]
+        target = rest.split("/", 1)[1] if "/" in rest else rest
+    elif target.startswith("dns:"):
+        target = target[len("dns:") :]
+    elif target.startswith("ipv4:"):
+        target = target[len("ipv4:") :]
+    elif target.startswith("ipv6:"):
+        target = target[len("ipv6:") :]
+
+    if ":" not in target:
+        raise ValueError(f"Cannot parse host and port from URI: {uri!r}")
+    host, port = target.rsplit(":", 1)
+    if not host or not port:
+        raise ValueError(f"Cannot parse host and port from URI: {uri!r}")
+    return host, port
+
+
+def _parse_uds_socket_path(uri: str) -> str:
+    """Extract the socket path from a ``unix:`` gRPC target URI."""
+    if uri.startswith("unix://"):
+        return uri[len("unix://") :]
+    if uri.startswith("unix:"):
+        return uri[len("unix:") :]
+    return uri
+
+
 class Service:
     """Provides an entry point for communicating with a remote product."""
 

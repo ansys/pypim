@@ -29,6 +29,10 @@ from ansys.platform.instancemanagement.security import (
     UdsSettings,
     WnuaSettings,
 )
+from ansys.platform.instancemanagement.service import (
+    _parse_host_port,
+    _parse_uds_socket_path,
+)
 
 
 def test_insecure_to_proto():
@@ -88,3 +92,35 @@ def test_uds_to_proto():
     settings = UdsSettings(socket_path="/tmp/x.sock")._to_pim_v1()
     assert settings.WhichOneof("transport") == "uds"
     assert settings.uds.socket_path == "/tmp/x.sock"
+
+
+@pytest.mark.parametrize(
+    "uri,expected",
+    [
+        ("dns:host:50052", ("host", "50052")),
+        ("dns:///host:50052", ("host", "50052")),
+        ("dns://authority/host:50052", ("host", "50052")),
+        ("dns://host:50052", ("host", "50052")),
+        ("ipv4:127.0.0.1:50052", ("127.0.0.1", "50052")),
+        ("127.0.0.1:50052", ("127.0.0.1", "50052")),
+    ],
+)
+def test_parse_host_port(uri, expected):
+    assert _parse_host_port(uri) == expected
+
+
+@pytest.mark.parametrize("uri", ["no-port-here", "dns:host:", "dns:host"])
+def test_parse_host_port_invalid(uri):
+    with pytest.raises(ValueError):
+        _parse_host_port(uri)
+
+
+@pytest.mark.parametrize(
+    "uri,expected",
+    [
+        ("unix:/tmp/x.sock", "/tmp/x.sock"),
+        ("unix:///tmp/x.sock", "/tmp/x.sock"),
+    ],
+)
+def test_parse_uds_socket_path(uri, expected):
+    assert _parse_uds_socket_path(uri) == expected
