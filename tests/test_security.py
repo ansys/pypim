@@ -94,6 +94,30 @@ def test_uds_to_proto():
     assert settings.uds.socket_path == "/tmp/x.sock"
 
 
+def test_uds_directory_identifier_to_proto():
+    settings = UdsSettings(socket_directory="/tmp", socket_identifier="x")._to_pim_v1()
+    assert settings.WhichOneof("transport") == "uds"
+    assert settings.uds.socket_directory == "/tmp"
+    assert settings.uds.socket_identifier == "x"
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"socket_path": "/tmp/x.sock", "socket_directory": "/tmp"},
+        {"socket_path": "/tmp/x.sock", "socket_identifier": "x"},
+        {
+            "socket_path": "/tmp/x.sock",
+            "socket_directory": "/tmp",
+            "socket_identifier": "x",
+        },
+    ],
+)
+def test_uds_socket_path_with_directory_or_identifier_raises(kwargs):
+    with pytest.raises(ValueError):
+        UdsSettings(**kwargs)._to_pim_v1()
+
+
 @pytest.mark.parametrize(
     "uri,expected",
     [

@@ -99,13 +99,24 @@ class MtlsSettings:
 
 @dataclass(frozen=True)
 class UdsSettings:
-    """Unix Domain Socket connection settings."""
+    """Unix Domain Socket connection settings.
+
+    Provide either a full ``socket_path`` or the ``socket_directory`` /
+    ``socket_identifier`` pair, but not both. ``socket_path`` cannot be
+    combined with either ``socket_directory`` or ``socket_identifier``.
+    """
 
     socket_path: Union[str, None] = None
     socket_directory: Union[str, None] = None
     socket_identifier: Union[str, None] = None
 
     def _to_pim_v1(self) -> InstanceSecuritySettings:
+        if self.socket_path is not None and (
+            self.socket_directory is not None or self.socket_identifier is not None
+        ):
+            raise ValueError(
+                "'socket_path' cannot be combined with 'socket_directory' or 'socket_identifier'."
+            )
         return InstanceSecuritySettings(
             uds=UdsSettingsV1(
                 socket_path=self.socket_path or "",
