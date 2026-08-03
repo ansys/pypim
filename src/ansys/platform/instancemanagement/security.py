@@ -23,7 +23,7 @@
 """Public, protobuf-free security settings for instance creation."""
 
 from dataclasses import dataclass
-from typing import Union
+from typing import Dict, Union
 
 from google.protobuf.empty_pb2 import Empty
 
@@ -102,8 +102,8 @@ class UdsSettings:
     """Unix Domain Socket connection settings.
 
     Provide either a full ``socket_path`` or the ``socket_directory`` /
-    ``socket_identifier`` pair, but not both. ``socket_path`` cannot be
-    combined with either ``socket_directory`` or ``socket_identifier``.
+    ``socket_identifier`` pair, but not both.  If neither is set, the server
+    falls back to its own default resolution.
     """
 
     socket_path: Union[str, None] = None
@@ -117,13 +117,16 @@ class UdsSettings:
             raise ValueError(
                 "'socket_path' cannot be combined with 'socket_directory' or 'socket_identifier'."
             )
-        return InstanceSecuritySettings(
-            uds=UdsSettingsV1(
-                socket_path=self.socket_path or "",
-                socket_directory=self.socket_directory or "",
-                socket_identifier=self.socket_identifier or "",
-            )
-        )
+        properties: Dict[str, str] = {}
+        if self.socket_path is not None:
+            properties["socket_path"] = self.socket_path
+        else:
+            if self.socket_directory is not None:
+                properties["socket_directory"] = self.socket_directory
+            if self.socket_identifier is not None:
+                properties["socket_identifier"] = self.socket_identifier
+
+        return InstanceSecuritySettings(uds=UdsSettingsV1(**properties))
 
 
 SecuritySettings = Union[InsecureSettings, MtlsSettings, WnuaSettings, UdsSettings]

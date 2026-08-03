@@ -54,7 +54,7 @@ from ansys.platform.instancemanagement.security import (
     UdsSettings,
     WnuaSettings,
 )
-from ansys.platform.instancemanagement.service import Service
+from ansys.platform.instancemanagement.service import Service, ServiceSecurity
 
 __all__ = [
     "__version__",
@@ -72,6 +72,7 @@ __all__ = [
     "MtlsCertificatePaths",
     "UdsSettings",
     "SecuritySettings",
+    "ServiceSecurity",
     "InstanceNotFoundError",
     "InvalidConfigurationError",
     "NotConfiguredError",

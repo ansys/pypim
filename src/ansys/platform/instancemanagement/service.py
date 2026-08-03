@@ -71,8 +71,8 @@ def _parse_uds_socket_path(uri: str) -> str:
 
 
 @dataclass(frozen=True)
-class _ServiceSecurity:
-    """Internal, protobuf-free view of the server-resolved security info."""
+class ServiceSecurity:
+    """Protobuf-free view of the server-resolved security info."""
 
     transport: str
     cert_files: Optional[CertificateFiles] = None
@@ -83,7 +83,7 @@ class Service:
 
     _uri: str
     _headers: Mapping[str, str]
-    _security: Optional["_ServiceSecurity"]
+    _security: Optional[ServiceSecurity] = None
 
     @property
     def uri(self) -> str:
@@ -109,11 +109,20 @@ class Service:
         """
         return self._headers
 
+    @property
+    def transport(self) -> Optional[str]:
+        """Transport mode resolved from the server security info.
+
+        One of ``"mtls"``, ``"uds"``, ``"insecure"``, ``"wnua"``, or ``None``
+        when no security info was provided by the server.
+        """
+        return self._security.transport if self._security is not None else None
+
     def __init__(
         self,
         uri: str,
         headers: Mapping[str, str],
-        security: Optional[_ServiceSecurity] = None,
+        security: Optional[ServiceSecurity] = None,
     ):
         """Create a Service."""
         self._uri = uri
@@ -122,11 +131,16 @@ class Service:
 
     def __eq__(self, obj):
         """Test for equality."""
-        return isinstance(obj, Service) and obj.headers == self.headers and obj.uri == self.uri
+        return (
+            isinstance(obj, Service)
+            and obj.uri == self.uri
+            and obj.headers == self.headers
+            and obj.transport == self.transport
+        )
 
     def __repr__(self):
         """Python callable representation."""
-        return f"Service(uri={repr(self.uri)}, headers={repr(self.headers)})"
+        return f"Service(uri={self.uri!r}, headers={self.headers!r}, security={self._security!r})"
 
     def _build_grpc_channel(
         self,
@@ -199,7 +213,7 @@ class Service:
         transport = service.security.WhichOneof("transport")
         if transport == "mtls":
             mtls = service.security.mtls
-            security = _ServiceSecurity(
+            security = ServiceSecurity(
                 transport="mtls",
                 cert_files=CertificateFiles(
                     cert_file=mtls.client_certificate_path,
@@ -208,5 +222,5 @@ class Service:
                 ),
             )
         elif transport is not None:
-            security = _ServiceSecurity(transport=transport)
+            security = ServiceSecurity(transport=transport)
         return Service(uri=service.uri, headers=service.headers, security=security)
