@@ -22,6 +22,8 @@
 
 from unittest.mock import patch
 
+import pytest
+
 from ansys.api.platform.instancemanagement.v1 import (
     product_instance_manager_pb2 as pb2,
     product_instance_manager_pb2_grpc as pb2_grpc,
@@ -81,7 +83,10 @@ def test_create_instance(testing_channel):
     # Assert
     # The mocked Instance class was correctly called
     mock_instance_create.assert_called_once_with(
-        definition_name="definitions/my_def", timeout=0.1, stub=stub, configuration=configuration
+        definition_name="definitions/my_def",
+        timeout=0.1,
+        stub=stub,
+        configuration=configuration,
     )
 
 
@@ -111,3 +116,48 @@ def test_repr():
     )
 
     assert definition == eval(repr(definition))
+
+
+def test_equality():
+    definition1 = pypim.Definition(
+        name="definitions/my_def",
+        product_name="my_product",
+        product_version="221",
+        available_service_names=["grpc"],
+    )
+    definition2 = pypim.Definition(
+        name="definitions/my_def",
+        product_name="my_product",
+        product_version="221",
+        available_service_names=["grpc"],
+    )
+    definition3 = pypim.Definition(
+        name="definitions/my_def_2",
+        product_name="my_product",
+        product_version="221",
+        available_service_names=["grpc"],
+    )
+    definition4 = {
+        "name": "definitions/my_def",
+        "product_name": "my_product",
+        "product_version": "221",
+        "available_service_names": ["grpc"],
+    }
+
+    assert definition1 == definition2
+    assert definition1 != definition3
+    assert definition1 != definition4
+
+
+def test_create_instance_no_stub():
+    definition = pypim.Definition(
+        name="definitions/my_def",
+        product_name="my_product",
+        product_version="221",
+        available_service_names=["grpc"],
+    )
+
+    with pytest.raises(
+        RuntimeError, match="Cannot create instance without a ProductInstanceManagerStub."
+    ):
+        definition.create_instance()

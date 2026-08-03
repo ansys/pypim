@@ -56,16 +56,18 @@ class Client(contextlib.AbstractContextManager):
     """
 
     _channel: grpc.Channel
-    _configuration: Configuration
+    _configuration: Configuration | None
     _stub: ProductInstanceManagerStub
 
-    def __init__(self, channel: grpc.Channel, configuration: Configuration = None) -> None:
+    def __init__(self, channel: grpc.Channel, configuration: Configuration | None = None) -> None:
         """Initialize the client library.
 
         Parameters
         ----------
-        channel
+        channel: grpc.Channel
             gRPC channel hosting the connection.
+        configuration: Configuration, optional
+            Configuration object with the settings for the client. The default is ``None``.
 
         Examples
         --------
@@ -136,9 +138,9 @@ class Client(contextlib.AbstractContextManager):
 
     def list_definitions(
         self,
-        product_name: str = None,
-        product_version: str = None,
-        timeout: float = None,
+        product_name: str | None = None,
+        product_version: str | None = None,
+        timeout: float | None = None,
     ) -> Sequence[Definition]:
         """Get the list of supported product definitions.
 
@@ -154,7 +156,7 @@ class Client(contextlib.AbstractContextManager):
 
         Returns
         -------
-        list
+        Sequence[Definition]
             List of supported product definitions.
 
         Examples
@@ -171,7 +173,12 @@ class Client(contextlib.AbstractContextManager):
             product_name,
             product_version,
         )
-        request = ListDefinitionsRequest(product_name=product_name, product_version=product_version)
+        request_kwargs = {}
+        if product_name is not None:
+            request_kwargs["product_name"] = product_name
+        if product_version is not None:
+            request_kwargs["product_version"] = product_version
+        request = ListDefinitionsRequest(**request_kwargs)
 
         try:
             response = self._stub.ListDefinitions(request, timeout=timeout)
@@ -182,7 +189,7 @@ class Client(contextlib.AbstractContextManager):
             Definition._from_pim_v1(definition, self._stub) for definition in response.definitions
         ]
 
-    def list_instances(self, timeout: float = None) -> Sequence[Instance]:
+    def list_instances(self, timeout: float | None = None) -> Sequence[Instance]:
         """List the existing instances.
 
         Parameters
@@ -192,7 +199,7 @@ class Client(contextlib.AbstractContextManager):
 
         Returns
         -------
-        list
+        Sequence[Instance]
             List of instances.
 
         Examples
@@ -220,8 +227,8 @@ class Client(contextlib.AbstractContextManager):
     def create_instance(
         self,
         product_name: str,
-        product_version: str = None,
-        requests_timeout: float = None,
+        product_version: str | None = None,
+        requests_timeout: float | None = None,
     ) -> Instance:
         """Create a remote instance of a product based on its name and optionally its version.
 
@@ -261,10 +268,14 @@ class Client(contextlib.AbstractContextManager):
 
         """
         logger.debug(
-            "Creating a product instance for %s in version %s.", product_name, product_version
+            "Creating a product instance for %s in version %s.",
+            product_name,
+            product_version,
         )
         definitions = self.list_definitions(
-            product_name=product_name, product_version=product_version, timeout=requests_timeout
+            product_name=product_name,
+            product_version=product_version,
+            timeout=requests_timeout,
         )
 
         if len(definitions) == 0:
@@ -273,10 +284,11 @@ class Client(contextlib.AbstractContextManager):
             )
         definition = definitions[0]
         return definition.create_instance(
-            timeout=requests_timeout, configuration=self._configuration
+            timeout=requests_timeout,
+            configuration=self._configuration,
         )
 
-    def get_instance(self, name: str, timeout: float = None) -> Instance:
+    def get_instance(self, name: str, timeout: float | None = None) -> Instance:
         """Get a remote product instance by name.
 
         Parameters

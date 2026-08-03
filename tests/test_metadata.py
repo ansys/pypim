@@ -20,8 +20,35 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import builtins
+from importlib.util import module_from_spec, spec_from_file_location
+import types
+from unittest.mock import patch
+
+import ansys.platform.instancemanagement as pypim
 from ansys.platform.instancemanagement import __version__
 
 
 def test_pkg_version():
     assert __version__ == "1.2.dev0"
+
+
+def test_importlib_metadata_fallback_branch():
+    module_path = pypim.__file__
+    spec = spec_from_file_location("_pypim_test_fallback", module_path)
+    module = module_from_spec(spec)
+    fake_importlib_metadata = types.SimpleNamespace(version=lambda _: "1.2.dev0")
+    original_import = builtins.__import__
+
+    def custom_import(name, globals_=None, locals_=None, fromlist=(), level=0):
+        if name == "importlib.metadata":
+            raise ModuleNotFoundError("forced missing importlib.metadata")
+        return original_import(name, globals_, locals_, fromlist, level)
+
+    with (
+        patch("builtins.__import__", side_effect=custom_import),
+        patch.dict("sys.modules", {"importlib_metadata": fake_importlib_metadata}),
+    ):
+        spec.loader.exec_module(module)
+
+    assert module.__version__ == "1.2.dev0"
