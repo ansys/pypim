@@ -127,6 +127,7 @@ def test_uds_socket_path_with_directory_or_identifier_raises(kwargs):
         ("dns://host:50052", ("host", "50052")),
         ("ipv4:127.0.0.1:50052", ("127.0.0.1", "50052")),
         ("127.0.0.1:50052", ("127.0.0.1", "50052")),
+        ("ipv6:[::1]:50052", ("[::1]", "50052")),
     ],
 )
 def test_parse_host_port(uri, expected):
@@ -148,3 +149,9 @@ def test_parse_host_port_invalid(uri):
 )
 def test_parse_uds_socket_path(uri, expected):
     assert _parse_uds_socket_path(uri) == expected
+
+
+@pytest.mark.parametrize("uri", ["dns:host:port", "/tmp/x.sock"])
+def test_parse_uds_socket_path_invalid(uri):
+    with pytest.raises(ValueError):
+        _parse_uds_socket_path(uri)

@@ -34,6 +34,11 @@ from ansys.platform.instancemanagement.configuration import Configuration
 from ansys.platform.instancemanagement.interceptor import header_adder_interceptor
 from ansys.tools.common.cyberchannel import CertificateFiles, create_channel
 
+"""Functions to parse URI for gRPC channel construction
+
+    Reference: https://grpc.github.io/grpc/core/md_doc_naming.html
+"""
+
 
 def _parse_host_port(uri: str) -> tuple[str, str]:
     """Extract ``(host, port)`` from a gRPC target URI.
@@ -62,12 +67,15 @@ def _parse_host_port(uri: str) -> tuple[str, str]:
 
 
 def _parse_uds_socket_path(uri: str) -> str:
-    """Extract the socket path from a ``unix:`` gRPC target URI."""
+    """Extract the socket path from a ``unix:`` gRPC target URI.
+
+    Raises ``ValueError`` when the URI doesn't start with ``unix:``.
+    """
     if uri.startswith("unix://"):
         return uri[len("unix://") :]
     if uri.startswith("unix:"):
         return uri[len("unix:") :]
-    return uri
+    raise ValueError(f"Cannot parse Unix Domain Socket path from URI: {uri!r}")
 
 
 @dataclass(frozen=True)
