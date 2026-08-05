@@ -11,12 +11,8 @@ readme = "README.rst"
 requires-python = ">=3.10,<4"
 license = "MIT"
 license-files = ["LICENSE"]
-authors = [
-    {name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}
-]
-maintainers = [
-    {name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}
-]
+authors = [{ name = "ANSYS, Inc.", email = "pyansys.core@ansys.com" }]
+maintainers = [{ name = "ANSYS, Inc.", email = "pyansys.core@ansys.com" }]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3",
@@ -26,12 +22,12 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14"
+    "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
     "importlib-metadata >=4.0",
-    "ansys-api-platform-instancemanagement~=1.0",
-    "ansys-tools-common~=0.5.0",
+    "ansys-api-platform-instancemanagement==1.2.0",
+    "ansys-tools-common ~= 0.5",
 ]
 
 [project.optional-dependencies]
@@ -42,7 +38,7 @@ tests = [
     "grpcio-testing",
     "six~=1.16",
     "pytest==9.1.1",
-    "pytest-cov==7.1.0"
+    "pytest-cov==7.1.0",
 ]
 doc = [
     "ansys-api-platform-instancemanagement==1.2.0",
@@ -50,7 +46,7 @@ doc = [
     "ansys-tools-common==0.5.0",
     "numpydoc==1.10.0",
     "Sphinx==9.1.0",
-    "sphinx-copybutton==0.5.2"
+    "sphinx-copybutton==0.5.2",
 ]
 
 [tool.flit.module]
@@ -79,7 +75,7 @@ addopts = [
 ]
 
 [tool.codespell]
-ignore-multiline-regex= "default_section = .*"
+ignore-multiline-regex = "default_section = .*"
 ignore-words = "doc/styles/config/vocabularies/ANSYS/accept.txt"
 
 [tool.ruff]
@@ -91,17 +87,17 @@ format.line-ending = "auto"
 format.docstring-code-line-length = "dynamic"
 format.docstring-code-format = true
 lint.select = [
-  "D",   # pydocstyle, see https://beta.ruff.rs/docs/rules/#pydocstyle-d
-  "E",   # pycodestyle, see https://beta.ruff.rs/docs/rules/#pycodestyle-e-w
-  "F",   # pyflakes, see https://beta.ruff.rs/docs/rules/#pyflakes-f
-  "I",   # isort, see https://beta.ruff.rs/docs/rules/#isort-i
-  "N",   # pep8-naming, see https://beta.ruff.rs/docs/rules/#pep8-naming-n
-  "PTH", # flake8-use-pathlib, https://beta.ruff.rs/docs/rules/#flake8-use-pathlib-pth
+    "D",   # pydocstyle, see https://beta.ruff.rs/docs/rules/#pydocstyle-d
+    "E",   # pycodestyle, see https://beta.ruff.rs/docs/rules/#pycodestyle-e-w
+    "F",   # pyflakes, see https://beta.ruff.rs/docs/rules/#pyflakes-f
+    "I",   # isort, see https://beta.ruff.rs/docs/rules/#isort-i
+    "N",   # pep8-naming, see https://beta.ruff.rs/docs/rules/#pep8-naming-n
+    "PTH", # flake8-use-pathlib, https://beta.ruff.rs/docs/rules/#flake8-use-pathlib-pth
 ]
 lint.ignore = []
 lint.per-file-ignores = { "tests/*.py" = ["D100", "D103", "N802"] }
 lint.isort.combine-as-imports = true
 lint.isort.force-sort-within-sections = true
-lint.isort.known-first-party = [ "ansys" ]
+lint.isort.known-first-party = ["ansys"]
 # Settings: https://docs.astral.sh/ruff/settings/#lintpydocstyle
 lint.pydocstyle.convention = "numpy"
