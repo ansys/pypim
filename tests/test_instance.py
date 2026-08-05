@@ -613,6 +613,8 @@ def test_update_no_stub():
         RuntimeError, match="Cannot update instance without a ProductInstanceManagerStub."
     ):
         instance.update()
+
+
 def test_create_with_security_settings(testing_pool, testing_channel):
     def server():
         _, creation_request, rpc = testing_channel.take_unary_unary(CREATE_INSTANCE_METHOD)

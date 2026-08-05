@@ -191,7 +191,7 @@ class Service:
                     grpc_options=grpc_options,
                 )
             return grpc.intercept_channel(channel, interceptor)
-        
+
         if configuration is not None and configuration.tls:
             credentials = grpc.composite_channel_credentials(
                 grpc.ssl_channel_credentials(),

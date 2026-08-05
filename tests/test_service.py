@@ -22,8 +22,6 @@
 
 from unittest.mock import patch
 
-from unittest.mock import patch
-
 from google.protobuf.empty_pb2 import Empty
 import grpc
 import grpc_health.v1.health_pb2 as health_pb2
@@ -168,6 +166,8 @@ def test_service_build_channel_with_tls_configuration():
     interceptor_mock.assert_called_once_with(service.headers.items())
     intercept_mock.assert_called_once_with(secure_channel, "interceptor")
     assert result is intercepted_channel
+
+
 def test_from_pim_v1_security_absent():
     service = pypim.Service._from_pim_v1(pb2.Service(uri="dns:host:50052"))
     assert service._security is None
