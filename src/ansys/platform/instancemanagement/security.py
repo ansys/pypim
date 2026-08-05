@@ -40,6 +40,7 @@ class InsecureSettings:
     """Insecure gRPC channel (no TLS)."""
 
     def _to_pim_v1(self) -> InstanceSecuritySettings:
+        """Convert to the PIM API v1 protobuf message."""
         return InstanceSecuritySettings(insecure=Empty())
 
 
@@ -48,6 +49,7 @@ class WnuaSettings:
     """Windows user-based authentication (Windows only)."""
 
     def _to_pim_v1(self) -> InstanceSecuritySettings:
+        """Convert to the PIM API v1 protobuf message."""
         return InstanceSecuritySettings(wnua=Empty())
 
 
@@ -75,6 +77,7 @@ class MtlsSettings:
     certificate_paths: Union[MtlsCertificatePaths, None] = None
 
     def _to_pim_v1(self) -> InstanceSecuritySettings:
+        """Convert to the PIM API v1 protobuf message."""
         if self.certificates_directory is not None and self.certificate_paths is not None:
             raise ValueError(
                 "Provide either 'certificates_directory' or 'certificate_paths', not both."
@@ -111,6 +114,7 @@ class UdsSettings:
     socket_identifier: Union[str, None] = None
 
     def _to_pim_v1(self) -> InstanceSecuritySettings:
+        """Convert to the PIM API v1 protobuf message."""
         if self.socket_path is not None and (
             self.socket_directory is not None or self.socket_identifier is not None
         ):

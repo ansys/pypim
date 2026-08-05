@@ -132,7 +132,17 @@ class Service:
         headers: Mapping[str, str],
         security: Optional[ServiceSecurity] = None,
     ):
-        """Create a Service."""
+        """Initialize a Service.
+
+        Parameters
+        ----------
+        uri : str
+            URI used to reach the service.
+        headers : Mapping[str, str]
+            Headers to include in every request to the service.
+        security : ServiceSecurity, optional
+            Server-resolved security info. The default is ``None``.
+        """
         self._uri = uri
         self._headers = headers
         self._security = security

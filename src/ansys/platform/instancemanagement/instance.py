@@ -124,7 +124,25 @@ class Instance(contextlib.AbstractContextManager):
         stub: ProductInstanceManagerStub | None = None,
         configuration: Configuration | None = None,
     ):
-        """Create an Instance."""
+        """Initialize an Instance.
+
+        Parameters
+        ----------
+        definition_name : str
+            Name of the definition that created this instance.
+        name : str
+            Server-assigned name, always starting with ``"instances/"``.
+        ready : bool
+            Whether the instance is ready to accept requests.
+        status_message : str
+            Human-readable message describing the current status.
+        services : Mapping[str, Service]
+            Entry points exposed by the instance, keyed by service name.
+        stub : ProductInstanceManagerStub, optional
+            PIM stub used for remote operations. The default is ``None``.
+        configuration : Configuration, optional
+            PIM configuration used to build gRPC channels. The default is ``None``.
+        """
         self._configuration = configuration
         self._definition_name = definition_name
         self._name = name

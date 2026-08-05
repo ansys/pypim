@@ -38,10 +38,14 @@ class _GenericClientInterceptor(
     grpc.StreamUnaryClientInterceptor,
     grpc.StreamStreamClientInterceptor,
 ):
+    """gRPC client interceptor that applies a single function to all call types."""
+
     def __init__(self, interceptor_function):
+        """Initialize with the function to apply to every intercepted call."""
         self._fn = interceptor_function
 
     def intercept_unary_unary(self, continuation, client_call_details, request):
+        """Intercept a unary-unary RPC call."""
         new_details, new_request_iterator, postprocess = self._fn(
             client_call_details, iter((request,)), False, False
         )
@@ -49,6 +53,7 @@ class _GenericClientInterceptor(
         return postprocess(response) if postprocess else response
 
     def intercept_unary_stream(self, continuation, client_call_details, request):
+        """Intercept a unary-stream RPC call."""
         new_details, new_request_iterator, postprocess = self._fn(
             client_call_details, iter((request,)), False, True
         )
@@ -56,6 +61,7 @@ class _GenericClientInterceptor(
         return postprocess(response_it) if postprocess else response_it
 
     def intercept_stream_unary(self, continuation, client_call_details, request_iterator):
+        """Intercept a stream-unary RPC call."""
         new_details, new_request_iterator, postprocess = self._fn(
             client_call_details, request_iterator, True, False
         )
@@ -63,6 +69,7 @@ class _GenericClientInterceptor(
         return postprocess(response) if postprocess else response
 
     def intercept_stream_stream(self, continuation, client_call_details, request_iterator):
+        """Intercept a stream-stream RPC call."""
         new_details, new_request_iterator, postprocess = self._fn(
             client_call_details, request_iterator, True, True
         )
@@ -84,6 +91,11 @@ def header_adder_interceptor(headers: Sequence[Tuple[str, str]]):
     ----------
     headers : Sequence[Tuple[str, str]]
         List of metadata to inject.
+
+    Returns
+    -------
+    _GenericClientInterceptor
+        gRPC client interceptor that injects the given headers into every call.
     """
 
     def intercept_call(client_call_details, request_iterator, *_):

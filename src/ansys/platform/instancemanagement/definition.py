@@ -94,7 +94,21 @@ class Definition:
         available_service_names: Sequence[str],
         stub: ProductInstanceManagerStub | None = None,
     ):
-        """Create a Definition."""
+        """Initialize a Definition.
+
+        Parameters
+        ----------
+        name : str
+            Server-assigned name, always starting with ``"definitions/"``.
+        product_name : str
+            Name of the product, e.g. ``"mapdl"``.
+        product_version : str
+            Version string of the product, e.g. ``"221"``.
+        available_service_names : Sequence[str]
+            Names of the services the product exposes (e.g. ``"grpc"``, ``"http"``).
+        stub : ProductInstanceManagerStub, optional
+            PIM stub used to create instances. The default is ``None``.
+        """
         self._name = name
         self._product_name = product_name
         self._product_version = product_version
