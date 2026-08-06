@@ -90,10 +90,16 @@ class Configuration:
 
         Parameters
         ----------
-        tls
-
-        headers
-
+        headers : Sequence[Tuple[str, str]]
+            List of ``(key, value)`` pairs added to every request as metadata.
+        tls : bool
+            Whether the connection to PIM requires encryption. When ``True``,
+            ``access_token`` is used to build the secure channel credentials.
+        uri : str
+            URI of the PIM gRPC service, e.g. ``dns:pim.svc.com:80``.
+        access_token : str
+            Bearer token extracted from the authorization header. Only used
+            when ``tls`` is ``True``.
         """
         self._access_token = access_token
         self._headers = headers

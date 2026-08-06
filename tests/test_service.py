@@ -22,6 +22,7 @@
 
 from unittest.mock import patch
 
+from google.protobuf.empty_pb2 import Empty
 import grpc
 import grpc_health.v1.health_pb2 as health_pb2
 import grpc_health.v1.health_pb2_grpc as health_pb2_grpc
@@ -165,3 +166,130 @@ def test_service_build_channel_with_tls_configuration():
     interceptor_mock.assert_called_once_with(service.headers.items())
     intercept_mock.assert_called_once_with(secure_channel, "interceptor")
     assert result is intercepted_channel
+
+
+def test_from_pim_v1_security_absent():
+    service = pypim.Service._from_pim_v1(pb2.Service(uri="dns:host:50052"))
+    assert service._security is None
+
+
+def test_from_pim_v1_security_insecure():
+    service = pypim.Service._from_pim_v1(
+        pb2.Service(uri="dns:host:50052", security=pb2.ServiceSecurityInfo(insecure=Empty()))
+    )
+    assert service._security.transport == "insecure"
+    assert service._security.cert_files is None
+
+
+def test_from_pim_v1_security_wnua():
+    service = pypim.Service._from_pim_v1(
+        pb2.Service(uri="dns:host:50052", security=pb2.ServiceSecurityInfo(wnua=Empty()))
+    )
+    assert service._security.transport == "wnua"
+
+
+def test_from_pim_v1_security_uds():
+    service = pypim.Service._from_pim_v1(
+        pb2.Service(uri="unix:/tmp/x.sock", security=pb2.ServiceSecurityInfo(uds=Empty()))
+    )
+    assert service._security.transport == "uds"
+
+
+def test_from_pim_v1_security_mtls():
+    service = pypim.Service._from_pim_v1(
+        pb2.Service(
+            uri="dns:host:50052",
+            security=pb2.ServiceSecurityInfo(
+                mtls=pb2.MtlsClientInfo(
+                    ca_certificate_path="ca.crt",
+                    client_certificate_path="client.crt",
+                    client_key_path="client.key",
+                )
+            ),
+        )
+    )
+    assert service._security.transport == "mtls"
+    assert service._security.cert_files.ca_file == "ca.crt"
+    assert service._security.cert_files.cert_file == "client.crt"
+    assert service._security.cert_files.key_file == "client.key"
+
+
+def _security_service(uri, security_info):
+    return pypim.Service._from_pim_v1(pb2.Service(uri=uri, headers={}, security=security_info))
+
+
+@patch("ansys.platform.instancemanagement.service.create_channel")
+def test_build_channel_security_insecure(mock_create):
+    mock_create.return_value = grpc.insecure_channel("localhost:0")
+    service = _security_service("dns:host:50052", pb2.ServiceSecurityInfo(insecure=Empty()))
+
+    service._build_grpc_channel()
+
+    mock_create.assert_called_once()
+    args, kwargs = mock_create.call_args
+    assert args[0] == "insecure"
+    assert kwargs["host"] == "host"
+    assert kwargs["port"] == "50052"
+    assert kwargs["grpc_options"] is None
+
+
+@patch("ansys.platform.instancemanagement.service.create_channel")
+def test_build_channel_security_wnua(mock_create):
+    mock_create.return_value = grpc.insecure_channel("localhost:0")
+    service = _security_service("dns:host:50052", pb2.ServiceSecurityInfo(wnua=Empty()))
+
+    service._build_grpc_channel()
+
+    args, kwargs = mock_create.call_args
+    assert args[0] == "wnua"
+    assert kwargs["host"] == "host"
+    assert kwargs["port"] == "50052"
+
+
+@patch("ansys.platform.instancemanagement.service.create_channel")
+def test_build_channel_security_mtls(mock_create):
+    mock_create.return_value = grpc.insecure_channel("localhost:0")
+    service = _security_service(
+        "dns:host:50052",
+        pb2.ServiceSecurityInfo(
+            mtls=pb2.MtlsClientInfo(
+                ca_certificate_path="ca.crt",
+                client_certificate_path="client.crt",
+                client_key_path="client.key",
+            )
+        ),
+    )
+
+    service._build_grpc_channel()
+
+    args, kwargs = mock_create.call_args
+    assert args[0] == "mtls"
+    assert kwargs["host"] == "host"
+    assert kwargs["port"] == "50052"
+    assert kwargs["cert_files"].ca_file == "ca.crt"
+    assert kwargs["cert_files"].cert_file == "client.crt"
+    assert kwargs["cert_files"].key_file == "client.key"
+
+
+@patch("ansys.platform.instancemanagement.service.create_channel")
+def test_build_channel_security_uds(mock_create):
+    mock_create.return_value = grpc.insecure_channel("localhost:0")
+    service = _security_service("unix:/tmp/x.sock", pb2.ServiceSecurityInfo(uds=Empty()))
+
+    service._build_grpc_channel()
+
+    args, kwargs = mock_create.call_args
+    assert args[0] == "uds"
+    assert kwargs["uds_fullpath"] == "/tmp/x.sock"
+
+
+@patch("ansys.platform.instancemanagement.service.create_channel")
+def test_build_channel_security_passes_options(mock_create):
+    mock_create.return_value = grpc.insecure_channel("localhost:0")
+    service = _security_service("dns:host:50052", pb2.ServiceSecurityInfo(insecure=Empty()))
+    options = [("grpc.max_receive_message_length", 1234)]
+
+    service._build_grpc_channel(options=options)
+
+    _, kwargs = mock_create.call_args
+    assert kwargs["grpc_options"] == options

@@ -46,7 +46,15 @@ from ansys.platform.instancemanagement.exceptions import (
     UnsupportedServiceError,
 )
 from ansys.platform.instancemanagement.instance import Instance
-from ansys.platform.instancemanagement.service import Service
+from ansys.platform.instancemanagement.security import (
+    InsecureSettings,
+    MtlsCertificatePaths,
+    MtlsSettings,
+    SecuritySettings,
+    UdsSettings,
+    WnuaSettings,
+)
+from ansys.platform.instancemanagement.service import Service, ServiceSecurity
 
 __all__ = [
     "__version__",
@@ -58,6 +66,13 @@ __all__ = [
     "Instance",
     "Service",
     "Definition",
+    "InsecureSettings",
+    "WnuaSettings",
+    "MtlsSettings",
+    "MtlsCertificatePaths",
+    "UdsSettings",
+    "SecuritySettings",
+    "ServiceSecurity",
     "InstanceNotFoundError",
     "InvalidConfigurationError",
     "NotConfiguredError",

@@ -32,6 +32,7 @@ from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2_grpc 
 )
 from ansys.platform.instancemanagement.configuration import Configuration
 from ansys.platform.instancemanagement.instance import Instance
+from ansys.platform.instancemanagement.security import SecuritySettings
 
 
 class Definition:
@@ -93,7 +94,21 @@ class Definition:
         available_service_names: Sequence[str],
         stub: ProductInstanceManagerStub | None = None,
     ):
-        """Create a Definition."""
+        """Initialize a Definition.
+
+        Parameters
+        ----------
+        name : str
+            Server-assigned name, always starting with ``"definitions/"``.
+        product_name : str
+            Name of the product, e.g. ``"mapdl"``.
+        product_version : str
+            Version string of the product, e.g. ``"221"``.
+        available_service_names : Sequence[str]
+            Names of the services the product exposes (e.g. ``"grpc"``, ``"http"``).
+        stub : ProductInstanceManagerStub, optional
+            PIM stub used to create instances. The default is ``None``.
+        """
         self._name = name
         self._product_name = product_name
         self._product_version = product_version
@@ -123,6 +138,7 @@ class Definition:
         self,
         timeout: float | None = None,
         configuration: Configuration | None = None,
+        security_settings: SecuritySettings | None = None,
     ) -> Instance:
         """Create a product instance from this definition.
 
@@ -132,6 +148,10 @@ class Definition:
             Time in seconds to create the instance. The default is ``None``.
         configuration : Configuration, optional
             Configuration to use when creating the instance. The default is ``None``.
+        security_settings : SecuritySettings, optional
+            Transport security settings for the instance. One of
+            ``InsecureSettings``, ``MtlsSettings``, ``WnuaSettings``, or
+            ``UdsSettings``. The default is ``None`` (server default).
 
         Returns
         -------
@@ -153,6 +173,7 @@ class Definition:
             stub=self._stub,
             timeout=timeout,
             configuration=configuration,
+            security_settings=security_settings,
         )
 
     @staticmethod

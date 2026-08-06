@@ -36,6 +36,11 @@ from ansys.api.platform.instancemanagement.v1 import (
     product_instance_manager_pb2_grpc as pb2_grpc,
 )
 import ansys.platform.instancemanagement as pypim
+from ansys.platform.instancemanagement import Instance, Service, ServiceSecurity  # noqa
+from ansys.platform.instancemanagement.security import (
+    MtlsSettings,
+)
+from ansys.tools.common.cyberchannel import CertificateFiles as CertificateFiles  # noqa
 
 
 def test_from_pim_v1_proto():
@@ -511,15 +516,13 @@ def test_str():
 
 
 def test_repr():
-    from ansys.platform.instancemanagement import Instance, Service  # noqa
-
     instance = pypim.Instance(
         name="instances/hello-world-32",
         definition_name="definitions/my-def",
         ready=False,
         status_message="Loading.",
         services={
-            "my-http": pypim.Service(uri="http://example.com", headers={}),
+            "my-http": pypim.Service(uri="http://example.com", headers={}, security=None),
         },
     )
     instance_repr = eval(repr(instance))
@@ -610,3 +613,141 @@ def test_update_no_stub():
         RuntimeError, match="Cannot update instance without a ProductInstanceManagerStub."
     ):
         instance.update()
+
+
+def test_create_with_security_settings(testing_pool, testing_channel):
+    def server():
+        _, creation_request, rpc = testing_channel.take_unary_unary(CREATE_INSTANCE_METHOD)
+        rpc.terminate(
+            pb2.Instance(
+                name="instances/hello-world-32",
+                definition_name="definitions/my-def",
+                ready=False,
+                status_message="loading...",
+                services={},
+            ),
+            [],
+            StatusCode.OK,
+            "",
+        )
+        return creation_request
+
+    server_future = testing_pool.submit(server)
+    stub = pb2_grpc.ProductInstanceManagerStub(testing_channel)
+
+    pypim.Instance._create(
+        definition_name="definitions/my-def",
+        stub=stub,
+        timeout=1,
+        security_settings=MtlsSettings(certificates_directory="/certs"),
+    )
+
+    creation_request = server_future.result()
+    assert creation_request.HasField("security_settings")
+    assert creation_request.security_settings.WhichOneof("transport") == "mtls"
+    assert creation_request.security_settings.mtls.certificates_directory == "/certs"
+
+
+def test_create_without_security_settings_leaves_field_unset(testing_pool, testing_channel):
+    def server():
+        _, creation_request, rpc = testing_channel.take_unary_unary(CREATE_INSTANCE_METHOD)
+        rpc.terminate(
+            pb2.Instance(
+                name="instances/hello-world-32",
+                definition_name="definitions/my-def",
+                ready=False,
+                status_message="loading...",
+                services={},
+            ),
+            [],
+            StatusCode.OK,
+            "",
+        )
+        return creation_request
+
+    server_future = testing_pool.submit(server)
+    stub = pb2_grpc.ProductInstanceManagerStub(testing_channel)
+
+    pypim.Instance._create(definition_name="definitions/my-def", stub=stub, timeout=1)
+
+    creation_request = server_future.result()
+    assert not creation_request.HasField("security_settings")
+
+
+def test_repr_with_insecure_security_settings():
+    instance = pypim.Instance(
+        name="instances/hello-world-32",
+        definition_name="definitions/my-def",
+        ready=False,
+        status_message="Loading.",
+        services={
+            "grpc": pypim.Service(
+                uri="dns:example.com",
+                headers={},
+                security=pypim.ServiceSecurity(transport="insecure"),
+            ),
+        },
+    )
+    instance_repr = eval(repr(instance))
+    assert instance == instance_repr
+
+
+def test_repr_with_mtls_security_settings():
+    instance = pypim.Instance(
+        name="instances/hello-world-32",
+        definition_name="definitions/my-def",
+        ready=False,
+        status_message="Loading.",
+        services={
+            "grpc": pypim.Service(
+                uri="dns:example.com",
+                headers={},
+                security=pypim.ServiceSecurity(
+                    transport="mtls",
+                    cert_files=CertificateFiles(
+                        key_file="/path/to/server.key",
+                        cert_file="/path/to/server.crt",
+                        ca_file="/path/to/ca.crt",
+                    ),
+                ),
+            ),
+        },
+    )
+    instance_repr = eval(repr(instance))
+    assert instance == instance_repr
+
+
+def test_repr_with_uds_security_settings():
+    instance = pypim.Instance(
+        name="instances/hello-world-32",
+        definition_name="definitions/my-def",
+        ready=False,
+        status_message="Loading.",
+        services={
+            "grpc": pypim.Service(
+                uri="unix:/tmp/socket",
+                headers={},
+                security=pypim.ServiceSecurity(transport="uds"),
+            ),
+        },
+    )
+    instance_repr = eval(repr(instance))
+    assert instance == instance_repr
+
+
+def test_repr_with_wnua_security_settings():
+    instance = pypim.Instance(
+        name="instances/hello-world-32",
+        definition_name="definitions/my-def",
+        ready=False,
+        status_message="Loading.",
+        services={
+            "grpc": pypim.Service(
+                uri="dns:example.com:1234",
+                headers={},
+                security=pypim.ServiceSecurity(transport="wnua"),
+            ),
+        },
+    )
+    instance_repr = eval(repr(instance))
+    assert instance == instance_repr
