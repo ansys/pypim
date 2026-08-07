@@ -290,7 +290,10 @@ class Configuration:
         elif transport == "mtls":
             cert_files, certs_dir = Configuration._parse_mtls(security, config_path)
         elif transport == "uds":
-            socket_path = parse_uds_socket_path(uri)
+            try:
+                socket_path = parse_uds_socket_path(uri)
+            except ValueError as error:
+                raise InvalidConfigurationError(config_path, str(error)) from error
             if not verify_uds_socket(uds_fullpath=socket_path):
                 raise InvalidConfigurationError(
                     config_path, f"The UDS socket path {socket_path} does not exist."

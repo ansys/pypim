@@ -63,6 +63,11 @@ def test_not_configured():
             "does not exist",
         ),
         (
+            r"""{"version": 2, "pim": {"uri": "dns:h:1",
+            "headers": {}, "security": {"transport": "uds"}}}""",
+            "Cannot parse Unix Domain Socket path",
+        ),
+        (
             r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": {"x": "y"},
             "security": {"transport": "tls"}}}""",
             "authorization header with a bearer token is required",
