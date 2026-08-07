@@ -237,6 +237,51 @@ class Configuration:
         )
 
     @staticmethod
+    def from_parameters(
+        uri: str,
+        headers: dict | None = None,
+        security: "ConnectionSecurity | None" = None,
+    ) -> "Configuration":
+        """Build a configuration from programmatic parameters.
+
+        Parameters
+        ----------
+        uri : str
+            URI of the PIM gRPC service.
+        headers : dict, optional
+            Metadata headers. The default is ``None`` (no headers).
+        security : ConnectionSecurity, optional
+            Transport security. The default is ``None`` (insecure).
+
+        Returns
+        -------
+        Configuration
+            The resolved configuration.
+
+        Raises
+        ------
+        InvalidConfigurationError
+            The ``tls`` transport is selected but no bearer token header is
+            present.
+        """
+        header_list = list(headers.items()) if headers else []
+        if security is None:
+            security = ConnectionSecurity()
+
+        access_token = None
+        if security.transport == "tls":
+            access_token = _extract_bearer_token(header_list, "<parameters>")
+
+        return Configuration(
+            header_list,
+            security.transport == "tls",
+            uri,
+            access_token,
+            transport=security.transport,
+            cert_files=security.cert_files,
+        )
+
+    @staticmethod
     def _from_v1(configuration: dict, config_path: str) -> "Configuration":
         """Parse a version 1 configuration document."""
         try:

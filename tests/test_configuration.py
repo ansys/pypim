@@ -256,3 +256,42 @@ def test_v2_uds_existing_socket(tmp_path):
     )
     assert config.transport == "uds"
     assert config.uri == f"unix:{sock}"
+
+
+def test_from_parameters_defaults_to_insecure():
+    config = pypim.Configuration.from_parameters(uri="dns:h:1")
+    assert config.transport == "insecure"
+    assert list(config.headers) == []
+    assert config.cert_files is None
+
+
+def test_from_parameters_headers_and_mtls():
+    certs = CertificateFiles(cert_file="c.crt", key_file="c.key", ca_file="ca.crt")
+    config = pypim.Configuration.from_parameters(
+        uri="dns:h:1",
+        headers={"identity": "james"},
+        security=ConnectionSecurity(transport="mtls", cert_files=certs),
+    )
+    assert config.transport == "mtls"
+    assert config.cert_files is certs
+    assert list(config.headers) == [("identity", "james")]
+
+
+def test_from_parameters_tls_extracts_token():
+    config = pypim.Configuration.from_parameters(
+        uri="dns:h:1",
+        headers={"authorization": "Bearer 007"},
+        security=ConnectionSecurity(transport="tls"),
+    )
+    assert config.transport == "tls"
+    assert config.tls is True
+    assert config.access_token == "007"
+
+
+def test_from_parameters_tls_without_token_raises():
+    with pytest.raises(pypim.InvalidConfigurationError):
+        pypim.Configuration.from_parameters(
+            uri="dns:h:1",
+            headers={"identity": "james"},
+            security=ConnectionSecurity(transport="tls"),
+        )
