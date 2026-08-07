@@ -179,4 +179,6 @@ def connect(
     if uri is not None:
         configuration = Configuration.from_parameters(uri=uri, headers=headers, security=security)
         return Client._from_config_object(configuration)
-    raise NotConfiguredError("The environment is not configured to use PyPIM.")
+    raise NotConfiguredError(
+        "No PyPIM configuration file is set and no 'uri' parameter was provided."
+    )

@@ -30,10 +30,8 @@ import grpc
 
 from ansys.tools.common.cyberchannel import CertificateFiles, create_channel
 
-"""Functions to parse URI for gRPC channel construction
-
-    Reference: https://grpc.github.io/grpc/core/md_doc_naming.html
-"""
+# Helpers to parse gRPC target URIs for channel construction.
+# Reference: https://grpc.github.io/grpc/core/md_doc_naming.html
 
 
 def parse_host_port(uri: str) -> tuple[str, str]:
