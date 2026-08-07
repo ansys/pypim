@@ -578,7 +578,34 @@ def test_not_configured():
     "bad_configuration,message_content",
     [
         (r"""not even the right format""", "json"),
-        (r"""{"version": 2, "pim": "future format"}""", "Unsupported version"),
+        (r"""{"version": 3, "pim": "future format"}""", "Unsupported version"),
+        (
+            r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": {},
+            "security": {"transport": "carrier-pigeon"}}}""",
+            "Unsupported transport",
+        ),
+        (
+            r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": {},
+            "security": {"transport": "mtls", "certificates_directory": "/c",
+            "certificate_files": {"cert_file": "a", "key_file": "b", "ca_file": "c"}}}}""",
+            "not both",
+        ),
+        (
+            r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": {},
+            "security": {"transport": "mtls",
+            "certificate_files": {"cert_file": "a", "key_file": "b"}}}}""",
+            "ca_file",
+        ),
+        (
+            r"""{"version": 2, "pim": {"uri": "unix:/no/such/pypim.sock",
+            "headers": {}, "security": {"transport": "uds"}}}""",
+            "does not exist",
+        ),
+        (
+            r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": {"x": "y"},
+            "security": {"transport": "tls"}}}""",
+            "authorization header with a bearer token is required",
+        ),
         (
             r"""{"version": 1, "pim": {
                 "headers": {"token": "007","identity": "james bond"},"tls": false}}""",

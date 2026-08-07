@@ -30,17 +30,43 @@ from pathlib import Path
 import re
 from typing import Sequence, Tuple
 
+from ansys.platform.instancemanagement._channel import parse_uds_socket_path
 from ansys.platform.instancemanagement.exceptions import (
     InvalidConfigurationError,
     NotConfiguredError,
 )
-from ansys.tools.common.cyberchannel import CertificateFiles
+from ansys.tools.common.cyberchannel import CertificateFiles, verify_uds_socket
 
 CONFIGURATION_PATH_ENVIRONMENT_VARIABLE = "ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG"
 
 logger = logging.getLogger(__name__)
 
 VALID_TRANSPORTS = frozenset({"insecure", "tls", "uds", "mtls", "wnua"})
+
+
+def _extract_bearer_token(headers: list[Tuple[str, str]], config_path: str) -> str:
+    """Pop and return the bearer token from an authorization header.
+
+    Mutates ``headers`` in place by removing the matched header. Raises
+    ``InvalidConfigurationError`` when no ``authorization: Bearer ...`` header
+    is present.
+    """
+    header_authorization = next(
+        filter(
+            lambda p: (
+                re.match("authorization", p[0], flags=re.IGNORECASE) and re.match("Bearer ", p[1])
+            ),
+            headers,
+        ),
+        None,
+    )
+    if header_authorization is None:
+        raise InvalidConfigurationError(
+            config_path,
+            "An authorization header with a bearer token is required for a secure connection.",
+        )
+    headers.remove(header_authorization)
+    return header_authorization[1].replace("Bearer ", "")
 
 
 @dataclass(frozen=True)
@@ -193,51 +219,116 @@ class Configuration:
             except json.JSONDecodeError as e:
                 raise InvalidConfigurationError(config_path, "Invalid json.") from e
 
-        # What follows should likely be done with a schema validation
         try:
             version = configuration["version"]
-            if version != 1:
-                raise InvalidConfigurationError(
-                    config_path,
-                    f'Unsupported version "{version}".\
-Consider upgrading ansys-platform-instancemanagement.',
-                )
+        except KeyError as key_error:
+            raise InvalidConfigurationError(
+                config_path, f"The configuration is missing the entry {key_error.args[0]}."
+            )
 
+        if version == 1:
+            return Configuration._from_v1(configuration, config_path)
+        if version == 2:
+            return Configuration._from_v2(configuration, config_path)
+        raise InvalidConfigurationError(
+            config_path,
+            f'Unsupported version "{version}".'
+            " Consider upgrading ansys-platform-instancemanagement.",
+        )
+
+    @staticmethod
+    def _from_v1(configuration: dict, config_path: str) -> "Configuration":
+        """Parse a version 1 configuration document."""
+        try:
             pim_configuration = configuration["pim"]
             tls = pim_configuration["tls"]
             uri = pim_configuration["uri"]
             headers = list(pim_configuration["headers"].items())
         except KeyError as key_error:
-            key = key_error.args[0]
             raise InvalidConfigurationError(
-                config_path, f"The configuration is missing the entry {key}."
+                config_path, f"The configuration is missing the entry {key_error.args[0]}."
             )
 
         if tls:
             logger.info("The connection to the server will use a secure channel.")
-            # retrieve the first header where the key starts with 'authorization',
-            # using a case insensitive comparison, and the key contains a Bearer token.
-            header_authorization = next(
-                filter(
-                    lambda p: (
-                        re.match("authorization", p[0], flags=re.IGNORECASE)
-                        and re.match("Bearer ", p[1])
-                    ),
-                    headers,
-                ),
-                None,
-            )
-            if header_authorization is None:
-                raise InvalidConfigurationError(
-                    config_path,
-                    "An authorization header with a bearer token is required"
-                    " for a secure connection.",
-                )
-            access_token = header_authorization[1].replace("Bearer ", "")
-            headers.remove(header_authorization)
+            access_token = _extract_bearer_token(headers, config_path)
+            transport = "tls"
         else:
             access_token = None
-        return Configuration(headers, tls, uri, access_token)
+            transport = "insecure"
+        return Configuration(headers, tls, uri, access_token, transport=transport)
+
+    @staticmethod
+    def _from_v2(configuration: dict, config_path: str) -> "Configuration":
+        """Parse a version 2 configuration document."""
+        try:
+            pim_configuration = configuration["pim"]
+            uri = pim_configuration["uri"]
+            headers = list(pim_configuration["headers"].items())
+            security = pim_configuration["security"]
+            transport = security["transport"]
+        except (KeyError, TypeError) as error:
+            key = error.args[0] if isinstance(error, KeyError) else "pim"
+            raise InvalidConfigurationError(
+                config_path, f"The configuration is missing the entry {key}."
+            )
+
+        if transport not in VALID_TRANSPORTS:
+            raise InvalidConfigurationError(
+                config_path,
+                f"Unsupported transport '{transport}'. "
+                f"Valid options are: {', '.join(sorted(VALID_TRANSPORTS))}.",
+            )
+
+        access_token = None
+        cert_files = None
+        certs_dir = None
+
+        if transport == "tls":
+            logger.info("The connection to the server will use a secure channel.")
+            access_token = _extract_bearer_token(headers, config_path)
+        elif transport == "mtls":
+            cert_files, certs_dir = Configuration._parse_mtls(security, config_path)
+        elif transport == "uds":
+            socket_path = parse_uds_socket_path(uri)
+            if not verify_uds_socket(uds_fullpath=socket_path):
+                raise InvalidConfigurationError(
+                    config_path, f"The UDS socket path {socket_path} does not exist."
+                )
+
+        return Configuration(
+            headers,
+            transport == "tls",
+            uri,
+            access_token,
+            transport=transport,
+            cert_files=cert_files,
+            certs_dir=certs_dir,
+        )
+
+    @staticmethod
+    def _parse_mtls(security: dict, config_path: str) -> Tuple[CertificateFiles | None, str | None]:
+        """Resolve mTLS cert files/dir from a v2 security block."""
+        certs_dir = security.get("certificates_directory")
+        files = security.get("certificate_files")
+        if certs_dir is not None and files is not None:
+            raise InvalidConfigurationError(
+                config_path,
+                "Provide either 'certificates_directory' or 'certificate_files', not both.",
+            )
+        cert_files = None
+        if files is not None:
+            for key in ("cert_file", "key_file", "ca_file"):
+                if key not in files:
+                    raise InvalidConfigurationError(
+                        config_path, f"The 'certificate_files' block is missing '{key}'."
+                    )
+            cert_files = CertificateFiles(
+                cert_file=files["cert_file"],
+                key_file=files["key_file"],
+                ca_file=files["ca_file"],
+            )
+        return cert_files, certs_dir
 
     @staticmethod
     def from_environment():

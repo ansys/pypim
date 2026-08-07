@@ -39,7 +39,34 @@ def test_not_configured():
     "bad_configuration,message_content",
     [
         (r"""not even the right format""", "json"),
-        (r"""{"version": 2, "pim": "future format"}""", "Unsupported version"),
+        (r"""{"version": 3, "pim": "future format"}""", "Unsupported version"),
+        (
+            r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": {},
+            "security": {"transport": "carrier-pigeon"}}}""",
+            "Unsupported transport",
+        ),
+        (
+            r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": {},
+            "security": {"transport": "mtls", "certificates_directory": "/c",
+            "certificate_files": {"cert_file": "a", "key_file": "b", "ca_file": "c"}}}}""",
+            "not both",
+        ),
+        (
+            r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": {},
+            "security": {"transport": "mtls",
+            "certificate_files": {"cert_file": "a", "key_file": "b"}}}}""",
+            "ca_file",
+        ),
+        (
+            r"""{"version": 2, "pim": {"uri": "unix:/no/such/pypim.sock",
+            "headers": {}, "security": {"transport": "uds"}}}""",
+            "does not exist",
+        ),
+        (
+            r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": {"x": "y"},
+            "security": {"transport": "tls"}}}""",
+            "authorization header with a bearer token is required",
+        ),
         (
             r"""{"version": 1, "pim": {
                 "headers": {"token": "007","identity": "james bond"},"tls": false}}""",
@@ -132,3 +159,95 @@ def test_configuration_keeps_explicit_transport_and_certs():
     assert config.transport == "mtls"
     assert config.cert_files is certs
     assert config.certs_dir == "/certs"
+
+
+def _write(tmp_path, text):
+    p = tmp_path / "config.json"
+    with p.open("w") as f:
+        f.write(text)
+    return p
+
+
+def test_v2_insecure(tmp_path):
+    config = pypim.Configuration.from_file(
+        _write(
+            tmp_path,
+            r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": {"a": "b"},
+            "security": {"transport": "insecure"}}}""",
+        )
+    )
+    assert config.transport == "insecure"
+    assert config.uri == "dns:h:1"
+    assert list(config.headers) == [("a", "b")]
+
+
+def test_v2_tls_extracts_token(tmp_path):
+    config = pypim.Configuration.from_file(
+        _write(
+            tmp_path,
+            r"""{"version": 2, "pim": {"uri": "dns:h:1",
+            "headers": {"authorization": "Bearer 007", "identity": "james"},
+            "security": {"transport": "tls"}}}""",
+        )
+    )
+    assert config.transport == "tls"
+    assert config.tls is True
+    assert config.access_token == "007"
+    assert list(config.headers) == [("identity", "james")]
+
+
+def test_v2_mtls_certificate_files(tmp_path):
+    config = pypim.Configuration.from_file(
+        _write(
+            tmp_path,
+            r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": {},
+            "security": {"transport": "mtls", "certificate_files":
+            {"cert_file": "c.crt", "key_file": "c.key", "ca_file": "ca.crt"}}}}""",
+        )
+    )
+    assert config.transport == "mtls"
+    assert config.cert_files.cert_file == "c.crt"
+    assert config.cert_files.key_file == "c.key"
+    assert config.cert_files.ca_file == "ca.crt"
+    assert config.certs_dir is None
+
+
+def test_v2_mtls_certificates_directory(tmp_path):
+    config = pypim.Configuration.from_file(
+        _write(
+            tmp_path,
+            r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": {},
+            "security": {"transport": "mtls", "certificates_directory": "/certs"}}}""",
+        )
+    )
+    assert config.transport == "mtls"
+    assert config.cert_files is None
+    assert config.certs_dir == "/certs"
+
+
+def test_v2_mtls_neither_cert_source_is_allowed(tmp_path):
+    config = pypim.Configuration.from_file(
+        _write(
+            tmp_path,
+            r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": {},
+            "security": {"transport": "mtls"}}}""",
+        )
+    )
+    assert config.transport == "mtls"
+    assert config.cert_files is None
+    assert config.certs_dir is None
+
+
+def test_v2_uds_existing_socket(tmp_path):
+    sock = tmp_path / "pypim.sock"
+    sock.touch()
+    config = pypim.Configuration.from_file(
+        _write(
+            tmp_path,
+            r"""{"version": 2, "pim": {"uri": "unix:%s", "headers": {},
+            "security": {"transport": "uds"}}}"""
+            % sock,
+        )
+    )
+    assert config.transport == "uds"
+    assert config.uri == f"unix:{sock}"
