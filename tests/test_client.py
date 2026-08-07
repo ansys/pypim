@@ -22,7 +22,7 @@
 
 from concurrent.futures import ThreadPoolExecutor
 import os
-from unittest.mock import create_autospec, patch
+from unittest.mock import MagicMock, create_autospec, patch
 
 from conftest import GET_INSTANCE_METHOD, LIST_DEFINITIONS_METHOD, LIST_INSTANCES_METHOD
 import grpc
@@ -532,14 +532,12 @@ def test_initialize_from_configuration_tls(tmp_path):
         patch(
             "ansys.platform.instancemanagement.client.header_adder_interceptor"
         ) as interceptor_mock,
-        patch("ansys.platform.instancemanagement.client.Client") as client_ctor_mock,
     ):
         ssl_creds = object()
         token_creds = object()
         channel_creds = object()
         raw_channel = object()
-        intercepted_channel = object()
-        client_obj = object()
+        intercepted_channel = MagicMock(spec=grpc.Channel)
 
         ssl_mock.return_value = ssl_creds
         token_mock.return_value = token_creds
@@ -547,7 +545,6 @@ def test_initialize_from_configuration_tls(tmp_path):
         secure_mock.return_value = raw_channel
         interceptor_mock.return_value = "interceptor"
         intercept_mock.return_value = intercepted_channel
-        client_ctor_mock.return_value = client_obj
 
         created_client = pypim.Client._from_configuration(str(tmp_path / "config.json"))
 
@@ -556,8 +553,67 @@ def test_initialize_from_configuration_tls(tmp_path):
     secure_mock.assert_called_once_with(config.uri, channel_creds)
     interceptor_mock.assert_called_once_with(config.headers)
     intercept_mock.assert_called_once_with(raw_channel, "interceptor")
-    client_ctor_mock.assert_called_once_with(intercepted_channel, config)
-    assert created_client is client_obj
+    # `Client` is instantiated with the fully-built (intercepted) channel and
+    # the resolved configuration, without needing to mock the class itself
+    # (which would also intercept the internal `Client._build_channel` call).
+    assert created_client._channel is intercepted_channel
+    assert created_client._configuration is config
+
+
+def _mtls_config():
+    from ansys.tools.common.cyberchannel import CertificateFiles
+
+    return pypim.Configuration(
+        headers=[("identity", "james")],
+        tls=False,
+        uri="dns:host:50052",
+        access_token=None,
+        transport="mtls",
+        cert_files=CertificateFiles(cert_file="c.crt", key_file="c.key", ca_file="ca.crt"),
+    )
+
+
+def test_build_channel_delegates_cyberchannel_transports():
+    config = _mtls_config()
+    with (
+        patch("ansys.platform.instancemanagement.client.build_cyberchannel") as build_mock,
+        patch(
+            "ansys.platform.instancemanagement.client.header_adder_interceptor"
+        ) as interceptor_mock,
+        patch("ansys.platform.instancemanagement.client.grpc.intercept_channel") as intercept_mock,
+    ):
+        raw_channel = object()
+        build_mock.return_value = raw_channel
+        interceptor_mock.return_value = "interceptor"
+        intercept_mock.return_value = "intercepted"
+
+        result = pypim.Client._build_channel(config)
+
+    build_mock.assert_called_once_with(
+        "mtls",
+        "dns:host:50052",
+        cert_files=config.cert_files,
+        certs_dir=config.certs_dir,
+    )
+    interceptor_mock.assert_called_once_with(config.headers)
+    intercept_mock.assert_called_once_with(raw_channel, "interceptor")
+    assert result == "intercepted"
+
+
+def test_build_channel_insecure_uses_insecure_channel():
+    config = pypim.Configuration(headers=[], tls=False, uri="dns:host:1", access_token=None)
+    with (
+        patch("ansys.platform.instancemanagement.client.grpc.insecure_channel") as insecure_mock,
+        patch("ansys.platform.instancemanagement.client.grpc.intercept_channel") as intercept_mock,
+        patch("ansys.platform.instancemanagement.client.build_cyberchannel") as build_mock,
+    ):
+        insecure_mock.return_value = "raw"
+        intercept_mock.return_value = "intercepted"
+
+        pypim.Client._build_channel(config)
+
+    insecure_mock.assert_called_once_with("dns:host:1")
+    build_mock.assert_not_called()
 
 
 def test_close_closes_channel(testing_channel):
