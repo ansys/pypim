@@ -26,6 +26,8 @@ from unittest.mock import patch
 import pytest
 
 import ansys.platform.instancemanagement as pypim
+from ansys.platform.instancemanagement.configuration import ConnectionSecurity
+from ansys.tools.common.cyberchannel import CertificateFiles
 
 
 def test_not_configured():
@@ -96,3 +98,37 @@ def test_initialize_from_environment(tmp_path):
     assert configuration.access_token == "007"
     assert len(configuration.headers) == 0
     assert configuration.tls
+
+
+def test_connection_security_defaults_to_insecure():
+    security = ConnectionSecurity()
+    assert security.transport == "insecure"
+    assert security.cert_files is None
+
+
+def test_connection_security_rejects_unknown_transport():
+    with pytest.raises(ValueError):
+        ConnectionSecurity(transport="carrier-pigeon")
+
+
+def test_configuration_derives_transport_from_tls_flag():
+    insecure = pypim.Configuration(headers=[], tls=False, uri="dns:h:1", access_token=None)
+    secure = pypim.Configuration(headers=[], tls=True, uri="dns:h:1", access_token="007")
+    assert insecure.transport == "insecure"
+    assert secure.transport == "tls"
+
+
+def test_configuration_keeps_explicit_transport_and_certs():
+    certs = CertificateFiles(cert_file="c.crt", key_file="c.key", ca_file="ca.crt")
+    config = pypim.Configuration(
+        headers=[],
+        tls=False,
+        uri="dns:h:1",
+        access_token=None,
+        transport="mtls",
+        cert_files=certs,
+        certs_dir="/certs",
+    )
+    assert config.transport == "mtls"
+    assert config.cert_files is certs
+    assert config.certs_dir == "/certs"

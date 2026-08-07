@@ -22,6 +22,7 @@
 
 """Configuration class module."""
 
+from dataclasses import dataclass
 import json
 import logging
 import os
@@ -33,10 +34,34 @@ from ansys.platform.instancemanagement.exceptions import (
     InvalidConfigurationError,
     NotConfiguredError,
 )
+from ansys.tools.common.cyberchannel import CertificateFiles
 
 CONFIGURATION_PATH_ENVIRONMENT_VARIABLE = "ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG"
 
 logger = logging.getLogger(__name__)
+
+VALID_TRANSPORTS = frozenset({"insecure", "tls", "uds", "mtls", "wnua"})
+
+
+@dataclass(frozen=True)
+class ConnectionSecurity:
+    """Security settings for the client's connection to the PIM server.
+
+    Mirrors the instance-service ``ServiceSecurity`` shape: a transport name and
+    optional client certificate files. Used to configure ``connect()``
+    programmatically when no configuration file is present.
+    """
+
+    transport: str = "insecure"
+    cert_files: CertificateFiles | None = None
+
+    def __post_init__(self) -> None:
+        """Validate the transport name."""
+        if self.transport not in VALID_TRANSPORTS:
+            raise ValueError(
+                f"Unsupported transport '{self.transport}'. "
+                f"Valid options are: {', '.join(sorted(VALID_TRANSPORTS))}."
+            )
 
 
 class Configuration:
@@ -57,6 +82,9 @@ class Configuration:
     _headers: Sequence[Tuple[str, str]]
     _tls: bool
     _uri: str
+    _transport: str
+    _cert_files: CertificateFiles | None
+    _certs_dir: str | None
 
     @property
     def access_token(self) -> str:
@@ -83,8 +111,30 @@ class Configuration:
         """Uri of the PIM service."""
         return self._uri
 
+    @property
+    def transport(self) -> str:
+        """Canonical transport: ``insecure``, ``tls``, ``uds``, ``mtls``, or ``wnua``."""
+        return self._transport
+
+    @property
+    def cert_files(self) -> CertificateFiles | None:
+        """MTLS client certificate files, or ``None``."""
+        return self._cert_files
+
+    @property
+    def certs_dir(self) -> str | None:
+        """MTLS certificates directory, or ``None``."""
+        return self._certs_dir
+
     def __init__(
-        self, headers: Sequence[Tuple[str, str]], tls: bool, uri: str, access_token: str
+        self,
+        headers: Sequence[Tuple[str, str]],
+        tls: bool,
+        uri: str,
+        access_token: str,
+        transport: str | None = None,
+        cert_files: CertificateFiles | None = None,
+        certs_dir: str | None = None,
     ) -> None:
         """Initialize the PIM configuration.
 
@@ -100,11 +150,21 @@ class Configuration:
         access_token : str
             Bearer token extracted from the authorization header. Only used
             when ``tls`` is ``True``.
+        transport : str, optional
+            Canonical transport. When ``None``, derived from ``tls``
+            (``"tls"`` if ``tls`` else ``"insecure"``).
+        cert_files : CertificateFiles, optional
+            mTLS client certificate files. The default is ``None``.
+        certs_dir : str, optional
+            mTLS certificates directory. The default is ``None``.
         """
         self._access_token = access_token
         self._headers = headers
         self._tls = tls
         self._uri = uri
+        self._transport = transport if transport is not None else ("tls" if tls else "insecure")
+        self._cert_files = cert_files
+        self._certs_dir = certs_dir
 
     @staticmethod
     def from_file(config_path: str):

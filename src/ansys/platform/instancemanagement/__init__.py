@@ -33,6 +33,7 @@ from ansys.platform.instancemanagement.client import Client
 from ansys.platform.instancemanagement.configuration import (
     CONFIGURATION_PATH_ENVIRONMENT_VARIABLE,
     Configuration,
+    ConnectionSecurity,
     is_configured,
 )
 from ansys.platform.instancemanagement.definition import Definition
@@ -63,6 +64,7 @@ __all__ = [
     "connect",
     "Client",
     "Configuration",
+    "ConnectionSecurity",
     "Instance",
     "Service",
     "Definition",
