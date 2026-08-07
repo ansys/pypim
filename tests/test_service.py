@@ -218,7 +218,7 @@ def _security_service(uri, security_info):
     return pypim.Service._from_pim_v1(pb2.Service(uri=uri, headers={}, security=security_info))
 
 
-@patch("ansys.platform.instancemanagement.service.create_channel")
+@patch("ansys.platform.instancemanagement._channel.create_channel")
 def test_build_channel_security_insecure(mock_create):
     mock_create.return_value = grpc.insecure_channel("localhost:0")
     service = _security_service("dns:host:50052", pb2.ServiceSecurityInfo(insecure=Empty()))
@@ -233,7 +233,7 @@ def test_build_channel_security_insecure(mock_create):
     assert kwargs["grpc_options"] is None
 
 
-@patch("ansys.platform.instancemanagement.service.create_channel")
+@patch("ansys.platform.instancemanagement._channel.create_channel")
 def test_build_channel_security_wnua(mock_create):
     mock_create.return_value = grpc.insecure_channel("localhost:0")
     service = _security_service("dns:host:50052", pb2.ServiceSecurityInfo(wnua=Empty()))
@@ -246,7 +246,7 @@ def test_build_channel_security_wnua(mock_create):
     assert kwargs["port"] == "50052"
 
 
-@patch("ansys.platform.instancemanagement.service.create_channel")
+@patch("ansys.platform.instancemanagement._channel.create_channel")
 def test_build_channel_security_mtls(mock_create):
     mock_create.return_value = grpc.insecure_channel("localhost:0")
     service = _security_service(
@@ -271,7 +271,7 @@ def test_build_channel_security_mtls(mock_create):
     assert kwargs["cert_files"].key_file == "client.key"
 
 
-@patch("ansys.platform.instancemanagement.service.create_channel")
+@patch("ansys.platform.instancemanagement._channel.create_channel")
 def test_build_channel_security_uds(mock_create):
     mock_create.return_value = grpc.insecure_channel("localhost:0")
     service = _security_service("unix:/tmp/x.sock", pb2.ServiceSecurityInfo(uds=Empty()))
@@ -283,7 +283,7 @@ def test_build_channel_security_uds(mock_create):
     assert kwargs["uds_fullpath"] == "/tmp/x.sock"
 
 
-@patch("ansys.platform.instancemanagement.service.create_channel")
+@patch("ansys.platform.instancemanagement._channel.create_channel")
 def test_build_channel_security_passes_options(mock_create):
     mock_create.return_value = grpc.insecure_channel("localhost:0")
     service = _security_service("dns:host:50052", pb2.ServiceSecurityInfo(insecure=Empty()))

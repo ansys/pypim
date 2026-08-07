@@ -30,52 +30,10 @@ import grpc
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 import (
     Service as ServiceV1,
 )
+from ansys.platform.instancemanagement._channel import build_cyberchannel
 from ansys.platform.instancemanagement.configuration import Configuration
 from ansys.platform.instancemanagement.interceptor import header_adder_interceptor
-from ansys.tools.common.cyberchannel import CertificateFiles, create_channel
-
-"""Functions to parse URI for gRPC channel construction
-
-    Reference: https://grpc.github.io/grpc/core/md_doc_naming.html
-"""
-
-
-def _parse_host_port(uri: str) -> tuple[str, str]:
-    """Extract ``(host, port)`` from a gRPC target URI.
-
-    Strips a leading gRPC scheme (``dns:``, ``dns://[authority]/``, ``ipv4:``,
-    ``ipv6:``) and splits on the last ``:``. Raises ``ValueError`` when the URI
-    has no parsable ``host:port``.
-    """
-    target = uri
-    if target.startswith("dns://"):
-        rest = target[len("dns://") :]
-        target = rest.split("/", 1)[1] if "/" in rest else rest
-    elif target.startswith("dns:"):
-        target = target[len("dns:") :]
-    elif target.startswith("ipv4:"):
-        target = target[len("ipv4:") :]
-    elif target.startswith("ipv6:"):
-        target = target[len("ipv6:") :]
-
-    if ":" not in target:
-        raise ValueError(f"Cannot parse host and port from URI: {uri!r}")
-    host, port = target.rsplit(":", 1)
-    if not host or not port:
-        raise ValueError(f"Cannot parse host and port from URI: {uri!r}")
-    return host, port
-
-
-def _parse_uds_socket_path(uri: str) -> str:
-    """Extract the socket path from a ``unix:`` gRPC target URI.
-
-    Raises ``ValueError`` when the URI doesn't start with ``unix:``.
-    """
-    if uri.startswith("unix://"):
-        return uri[len("unix://") :]
-    if uri.startswith("unix:"):
-        return uri[len("unix:") :]
-    raise ValueError(f"Cannot parse Unix Domain Socket path from URI: {uri!r}")
+from ansys.tools.common.cyberchannel import CertificateFiles
 
 
 @dataclass(frozen=True)
@@ -183,23 +141,12 @@ class Service:
         interceptor = header_adder_interceptor(headers)
 
         if self._security is not None:
-            grpc_options = kwargs.get("options")
-            transport = self._security.transport
-            if transport == "uds":
-                channel = create_channel(
-                    "uds",
-                    uds_fullpath=_parse_uds_socket_path(self.uri),
-                    grpc_options=grpc_options,
-                )
-            else:
-                host, port = _parse_host_port(self.uri)
-                channel = create_channel(
-                    transport,
-                    host=host,
-                    port=port,
-                    cert_files=self._security.cert_files,
-                    grpc_options=grpc_options,
-                )
+            channel = build_cyberchannel(
+                self._security.transport,
+                self.uri,
+                cert_files=self._security.cert_files,
+                grpc_options=kwargs.get("options"),
+            )
             return grpc.intercept_channel(channel, interceptor)
 
         if configuration is not None and configuration.tls:
