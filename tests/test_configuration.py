@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -163,7 +164,9 @@ def test_configuration_derives_transport_from_tls_flag():
 
 
 def test_configuration_keeps_explicit_transport_and_certs():
-    certs = CertificateFiles(cert_file="c.crt", key_file="c.key", ca_file="ca.crt")
+    certs = CertificateFiles(
+        cert_file="/certs/c.crt", key_file="/certs/c.key", ca_file="/certs/ca.crt"
+    )
     config = pypim.Configuration(
         headers=[],
         tls=False,
@@ -171,21 +174,20 @@ def test_configuration_keeps_explicit_transport_and_certs():
         access_token=None,
         transport="mtls",
         cert_files=certs,
-        certs_dir="/certs",
     )
     assert config.transport == "mtls"
     assert config.cert_files is certs
-    assert config.certs_dir == "/certs"
+    assert config.certs_dir is None
 
 
-def _write(tmp_path, text):
+def _write(tmp_path: Path, text: str) -> str:
     p = tmp_path / "config.json"
     with p.open("w") as f:
         f.write(text)
-    return p
+    return str(p)
 
 
-def test_v2_insecure(tmp_path):
+def test_v2_insecure(tmp_path: Path):
     config = pypim.Configuration.from_file(
         _write(
             tmp_path,
@@ -198,7 +200,7 @@ def test_v2_insecure(tmp_path):
     assert list(config.headers) == [("a", "b")]
 
 
-def test_v2_tls_extracts_token(tmp_path):
+def test_v2_tls_extracts_token(tmp_path: Path):
     config = pypim.Configuration.from_file(
         _write(
             tmp_path,
@@ -213,7 +215,7 @@ def test_v2_tls_extracts_token(tmp_path):
     assert list(config.headers) == [("identity", "james")]
 
 
-def test_v2_mtls_certificate_files(tmp_path):
+def test_v2_mtls_certificate_files(tmp_path: Path):
     config = pypim.Configuration.from_file(
         _write(
             tmp_path,
@@ -229,7 +231,7 @@ def test_v2_mtls_certificate_files(tmp_path):
     assert config.certs_dir is None
 
 
-def test_v2_mtls_certificates_directory(tmp_path):
+def test_v2_mtls_certificates_directory(tmp_path: Path):
     config = pypim.Configuration.from_file(
         _write(
             tmp_path,
@@ -253,6 +255,18 @@ def test_v2_mtls_neither_cert_source_is_allowed(tmp_path):
     assert config.transport == "mtls"
     assert config.cert_files is None
     assert config.certs_dir is None
+
+
+def test_v2_mtls_both_cert_sources_is_rejected(tmp_path):
+    with pytest.raises(pypim.InvalidConfigurationError, match="not both"):
+        pypim.Configuration.from_file(
+            _write(
+                tmp_path,
+                r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": {},
+                "security": {"transport": "mtls", "certificates_directory": "/certs",
+                "certificate_files": {"cert_file": "a", "key_file": "b", "ca_file": "c"}}}}""",
+            )
+        )
 
 
 def test_v2_uds_existing_socket(tmp_path):

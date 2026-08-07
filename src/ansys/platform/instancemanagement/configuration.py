@@ -51,10 +51,11 @@ def _extract_bearer_token(headers: list[Tuple[str, str]], config_path: str) -> s
     ``InvalidConfigurationError`` when no ``authorization: Bearer ...`` header
     is present.
     """
+    pattern = "Bearer "
     header_authorization = next(
         filter(
             lambda p: (
-                re.match("authorization", p[0], flags=re.IGNORECASE) and re.match("Bearer ", p[1])
+                re.match("authorization", p[0], flags=re.IGNORECASE) and re.match(pattern, p[1])
             ),
             headers,
         ),
@@ -66,7 +67,7 @@ def _extract_bearer_token(headers: list[Tuple[str, str]], config_path: str) -> s
             "An authorization header with a bearer token is required for a secure connection.",
         )
     headers.remove(header_authorization)
-    return header_authorization[1].replace("Bearer ", "")
+    return header_authorization[1][len(pattern) :]
 
 
 @dataclass(frozen=True)
@@ -112,7 +113,7 @@ class Configuration:
         Configuration: settings to configure the PIM client
     """
 
-    _access_token: str
+    _access_token: str | None
     _headers: Sequence[Tuple[str, str]]
     _tls: bool
     _uri: str
@@ -121,7 +122,7 @@ class Configuration:
     _certs_dir: str | None
 
     @property
-    def access_token(self) -> str:
+    def access_token(self) -> str | None:
         """Access token."""
         return self._access_token
 
@@ -195,13 +196,23 @@ class Configuration:
         self._access_token = access_token
         self._headers = headers
         self._tls = tls
+        if self._tls and self._access_token is None:
+            raise InvalidConfigurationError(
+                "<constructor>",
+                "A bearer token is required for a secure connection.",
+            )
         self._uri = uri
         self._transport = transport if transport is not None else ("tls" if tls else "insecure")
         self._cert_files = cert_files
         self._certs_dir = certs_dir
+        if self._certs_dir is not None and self._cert_files is not None:
+            raise InvalidConfigurationError(
+                "<constructor>",
+                "Provide either 'certs_dir' or 'cert_files', not both.",
+            )
 
     @staticmethod
-    def from_file(config_path: str):
+    def from_file(config_path: str) -> "Configuration":
         """Initialize the PyPIM configuration based on the configuration file.
 
         Parameters

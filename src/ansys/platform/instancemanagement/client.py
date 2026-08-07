@@ -118,8 +118,10 @@ class Client(contextlib.AbstractContextManager):
                 grpc.access_token_call_credentials(configuration.access_token),
             )
             grpc_channel = grpc.secure_channel(configuration.uri, channel_credentials)
-        else:
+        elif transport == "insecure":
             grpc_channel = grpc.insecure_channel(configuration.uri)
+        else:
+            raise ValueError(f"Unsupported transport: {transport!r}")
 
         return grpc.intercept_channel(
             grpc_channel,
