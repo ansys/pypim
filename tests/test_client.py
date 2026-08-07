@@ -630,6 +630,51 @@ def test_not_configured():
         pypim.connect()
 
 
+def test_connect_no_file_no_uri_raises():
+    with patch("ansys.platform.instancemanagement.is_configured", return_value=False):
+        with pytest.raises(pypim.NotConfiguredError):
+            pypim.connect()
+
+
+def test_connect_programmatic_builds_from_parameters():
+    security = pypim.ConnectionSecurity(transport="insecure")
+    with (
+        patch("ansys.platform.instancemanagement.is_configured", return_value=False),
+        patch.object(pypim.Configuration, "from_parameters") as from_params_mock,
+        patch.object(pypim.Client, "_from_config_object") as from_obj_mock,
+    ):
+        config_obj = object()
+        client_obj = object()
+        from_params_mock.return_value = config_obj
+        from_obj_mock.return_value = client_obj
+
+        result = pypim.connect(uri="dns:h:1", headers={"a": "b"}, security=security)
+
+    from_params_mock.assert_called_once_with(uri="dns:h:1", headers={"a": "b"}, security=security)
+    from_obj_mock.assert_called_once_with(config_obj)
+    assert result is client_obj
+
+
+def test_connect_file_present_ignores_parameters():
+    with (
+        patch("ansys.platform.instancemanagement.is_configured", return_value=True),
+        patch.dict(
+            os.environ,
+            {"ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG": "/tmp/ignored.json"},
+        ),
+        patch.object(pypim.Client, "_from_configuration") as from_file_mock,
+        patch.object(pypim.Configuration, "from_parameters") as from_params_mock,
+    ):
+        client_obj = object()
+        from_file_mock.return_value = client_obj
+
+        result = pypim.connect(uri="dns:should-be-ignored:1")
+
+    from_file_mock.assert_called_once()
+    from_params_mock.assert_not_called()
+    assert result is client_obj
+
+
 @pytest.mark.parametrize(
     "bad_configuration,message_content",
     [

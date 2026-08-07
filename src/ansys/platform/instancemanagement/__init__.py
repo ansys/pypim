@@ -87,11 +87,17 @@ __all__ = [
 __version__ = importlib_metadata.version(__name__.replace(".", "-"))
 
 
-def connect() -> Client:
-    """Create a PyPIM client based on the environment configuration.
+def connect(
+    uri: str | None = None,
+    headers: dict | None = None,
+    security: "ConnectionSecurity | None" = None,
+) -> Client:
+    """Create a PyPIM client from the environment or from parameters.
 
-    Before calling this method, :func:`~is_configured()` should be called to check if
-    the environment is configured to use PyPIM.
+    Precedence is file-exclusive and all-or-nothing: when the environment is
+    configured (:func:`is_configured` is ``True``), the configuration file is
+    used in full and **every** parameter is ignored. Otherwise the client is
+    built from ``uri`` / ``headers`` / ``security``.
 
     The environment configuration consists in setting the environment variable
     ``ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG`` to the path of the PyPIM
@@ -113,6 +119,14 @@ def connect() -> Client:
             }
         }
 
+    Parameters
+    ----------
+    uri : str, optional
+        PIM gRPC service URI. Required when no configuration file is present.
+    headers : dict, optional
+        Metadata headers. The default is ``None`` (no headers).
+    security : ConnectionSecurity, optional
+        Transport security. The default is ``None`` (insecure).
 
     Returns
     -------
@@ -122,7 +136,7 @@ def connect() -> Client:
     Raises
     ------
     NotConfiguredError
-        The environment is not configured to use PyPIM.
+        There is neither a configuration file nor a ``uri`` parameter.
 
     InvalidConfigurationError
         The configuration is invalid.
@@ -140,8 +154,11 @@ def connect() -> Client:
         >>>     with pypim.connect() as client:
         >>> # use client
     """
-    if not is_configured():
-        raise NotConfiguredError("The environment is not configured to use PyPIM.")
-    return Client._from_configuration(
-        os.path.expandvars(os.environ[CONFIGURATION_PATH_ENVIRONMENT_VARIABLE])
-    )
+    if is_configured():
+        return Client._from_configuration(
+            os.path.expandvars(os.environ[CONFIGURATION_PATH_ENVIRONMENT_VARIABLE])
+        )
+    if uri is not None:
+        configuration = Configuration.from_parameters(uri=uri, headers=headers, security=security)
+        return Client._from_config_object(configuration)
+    raise NotConfiguredError("The environment is not configured to use PyPIM.")
