@@ -18,7 +18,9 @@ settings the PIM server returns for each product-instance service.
 This work brings the same transport options to the client's **own** connection
 to the PIM server. Because nothing tells the client how to reach the PIM server
 (no server round-trip precedes it), the settings come from the client's own
-configuration: primarily the config file, with an optional programmatic override.
+configuration: either a config file or a full programmatic configuration passed
+to `connect()`. The file takes precedence when present (all-or-nothing); the
+programmatic parameters are used only when there is no file.
 
 ## Goals
 
@@ -28,6 +30,8 @@ configuration: primarily the config file, with an optional programmatic override
   connections behave identically for the new transports.
 - Preserve today's `insecure` and `tls`+bearer-token behavior exactly.
 - Keep existing v1 configuration files working with no change.
+- Allow the full configuration (`uri`, `headers`, `security`) to be supplied
+  programmatically to `connect()` when no config file is present.
 
 ## Non-goals
 
@@ -42,7 +46,7 @@ configuration: primarily the config file, with an optional programmatic override
 
 | Decision | Choice |
 | --- | --- |
-| Settings source | Config file (primary) **and** optional programmatic override |
+| Settings source | Config file **or** full programmatic config; file wins entirely when present (all-or-nothing) |
 | Config schema | New **version 2** format; version 1 still read |
 | Transport scope | Add `uds`/`mtls`/`wnua` via cyberchannel; `insecure`/`tls` unchanged |
 | Programmatic type | Thin wrapper mirroring `ServiceSecurity` (transport string + `CertificateFiles`) |
@@ -94,9 +98,10 @@ to the canonical transport:
 
 No behavior change for existing users.
 
-### Programmatic override
+### Programmatic configuration
 
-`connect()` gains an optional parameter:
+`connect()` gains optional parameters that let a caller build the **entire**
+configuration in code, as an alternative to a config file:
 
 ```python
 import ansys.platform.instancemanagement as pypim
@@ -104,19 +109,28 @@ from ansys.platform.instancemanagement import ConnectionSecurity
 from ansys.tools.common.cyberchannel import CertificateFiles
 
 client = pypim.connect(
+    uri="dns:pim.svc.com:80",
+    headers={"metadata-info": "value"},
     security=ConnectionSecurity(
         transport="mtls",
         cert_files=CertificateFiles(
             cert_file="client.crt", key_file="client.key", ca_file="ca.crt"
         ),
-    )
+    ),
 )
 ```
 
+- New optional parameters: `uri`, `headers`, and `security`
+  (a `ConnectionSecurity`).
 - `ConnectionSecurity` is the thin public wrapper (mirrors `ServiceSecurity`:
   a `transport` string + optional `CertificateFiles`), exported from the package.
-- When supplied, it **replaces** the file's `security` block wholesale
-  (all-or-nothing precedence). `uri` and `headers` always come from the file.
+- **Precedence is file-exclusive and all-or-nothing.** If a config file exists
+  (the env var is set / file present), it is used in full and **every** optional
+  parameter is ignored. The parameters are consulted only when there is no file.
+- When building from parameters, `uri` is **required**; `headers` defaults to an
+  empty set; `security` defaults to `transport="insecure"`.
+- If there is neither a config file nor a `uri` parameter → `NotConfiguredError`
+  (mirrors today's behavior when the environment is not configured).
 - The low-level `Client(channel, …)` constructor is unchanged — callers who
   build their own channel are unaffected.
 
@@ -205,13 +219,24 @@ reads keep working.
   header exactly as v1 does (same validation error if missing).
 - Unknown version → `InvalidConfigurationError` (as today).
 
-### Precedence (programmatic override)
+### Precedence (file vs programmatic)
 
-`_from_configuration(config_path, security=None)`. When `security`
-(a `ConnectionSecurity`) is passed, it overrides `transport` + `cert_files`
-after the file is parsed; `uri` and `headers` always come from the file. If the
-override selects `tls`, the file must still provide the bearer token (else
-`InvalidConfigurationError`) — the override changes transport, not credentials.
+Precedence is **file-exclusive and all-or-nothing**:
+
+- If `is_configured()` (env var set / file present) → build the `Configuration`
+  from the file via `Configuration.from_file`, exactly as today. Every
+  programmatic parameter (`uri`, `headers`, `security`) is **ignored**.
+- Otherwise, if a `uri` parameter was supplied → build the `Configuration`
+  directly from `uri` / `headers` / `security` (a new
+  `Configuration.from_parameters(...)`-style constructor). `headers` defaults to
+  empty; `security` defaults to `transport="insecure"`.
+- Otherwise (no file and no `uri`) → `NotConfiguredError`.
+
+`connect(uri=None, headers=None, security=None)` implements this dispatch, then
+delegates channel construction to the same transport dispatch used for the file
+path. The `tls` transport requires a bearer token regardless of source: from the
+`authorization` header in the file, or from a corresponding header in the
+programmatic `headers` — a missing token is an `InvalidConfigurationError`.
 
 ### Headers / metadata
 
@@ -288,14 +313,18 @@ Follows the repo's existing pytest style.
   files mode, neither → ok, both → error, missing file key → error).
 - Unknown version and unknown transport → `InvalidConfigurationError`.
 
-### Client / `_from_configuration` tests
+### Client / `connect` tests
 
 - Each transport builds the expected channel: `insecure`/`tls` still use
   `grpc.insecure_channel` / composite credentials (patched); uds/mtls/wnua
   delegate to `build_cyberchannel` (patched). Assert `header_adder_interceptor`
   wraps every transport.
-- Programmatic `security=` override replaces the file's transport; `uri`/`headers`
-  still from file; `tls` override without token → error.
+- Precedence (file-exclusive): with a file present, `connect(uri=..., headers=...,
+  security=...)` ignores all parameters and uses the file.
+- Programmatic-only (no file): `connect(uri=...)` builds from parameters;
+  `headers` defaults empty, `security` defaults to `insecure`; a `tls` security
+  without a bearer token → error.
+- No file and no `uri` → `NotConfiguredError`.
 
 ### Platform guards
 
