@@ -262,7 +262,8 @@ class Configuration:
         ------
         InvalidConfigurationError
             The ``tls`` transport is selected but no bearer token header is
-            present.
+            present, or the ``uds`` transport is selected but ``uri`` is not
+            a valid, existing UDS socket path.
         """
         header_list = list(headers.items()) if headers else []
         if security is None:
@@ -271,6 +272,8 @@ class Configuration:
         access_token = None
         if security.transport == "tls":
             access_token = _extract_bearer_token(header_list, "<parameters>")
+        elif security.transport == "uds":
+            Configuration._validate_uds_socket(uri, "<parameters>")
 
         return Configuration(
             header_list,
@@ -335,14 +338,7 @@ class Configuration:
         elif transport == "mtls":
             cert_files, certs_dir = Configuration._parse_mtls(security, config_path)
         elif transport == "uds":
-            try:
-                socket_path = parse_uds_socket_path(uri)
-            except ValueError as error:
-                raise InvalidConfigurationError(config_path, str(error)) from error
-            if not verify_uds_socket(uds_fullpath=socket_path):
-                raise InvalidConfigurationError(
-                    config_path, f"The UDS socket path {socket_path} does not exist."
-                )
+            Configuration._validate_uds_socket(uri, config_path)
 
         return Configuration(
             headers,
@@ -353,6 +349,23 @@ class Configuration:
             cert_files=cert_files,
             certs_dir=certs_dir,
         )
+
+    @staticmethod
+    def _validate_uds_socket(uri: str, config_path: str) -> None:
+        """Validate that ``uri`` refers to an existing UDS socket path.
+
+        Parses the socket path from ``uri`` and checks that it exists, raising
+        ``InvalidConfigurationError`` (rather than a bare ``ValueError``) on
+        either a malformed URI or a missing socket.
+        """
+        try:
+            socket_path = parse_uds_socket_path(uri)
+        except ValueError as error:
+            raise InvalidConfigurationError(config_path, str(error)) from error
+        if not verify_uds_socket(uds_fullpath=socket_path):
+            raise InvalidConfigurationError(
+                config_path, f"The UDS socket path {socket_path} does not exist."
+            )
 
     @staticmethod
     def _parse_mtls(security: dict, config_path: str) -> Tuple[CertificateFiles | None, str | None]:

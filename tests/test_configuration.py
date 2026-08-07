@@ -258,6 +258,19 @@ def test_v2_uds_existing_socket(tmp_path):
     assert config.uri == f"unix:{sock}"
 
 
+def test_v2_wnua(tmp_path):
+    config = pypim.Configuration.from_file(
+        _write(
+            tmp_path,
+            r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": {"a": "b"},
+            "security": {"transport": "wnua"}}}""",
+        )
+    )
+    assert config.transport == "wnua"
+    assert config.uri == "dns:h:1"
+    assert list(config.headers) == [("a", "b")]
+
+
 def test_from_parameters_defaults_to_insecure():
     config = pypim.Configuration.from_parameters(uri="dns:h:1")
     assert config.transport == "insecure"
@@ -294,4 +307,33 @@ def test_from_parameters_tls_without_token_raises():
             uri="dns:h:1",
             headers={"identity": "james"},
             security=ConnectionSecurity(transport="tls"),
+        )
+
+
+def test_from_parameters_uds_existing_socket(tmp_path):
+    sock = tmp_path / "pypim.sock"
+    sock.touch()
+    config = pypim.Configuration.from_parameters(
+        uri=f"unix:{sock}",
+        security=ConnectionSecurity(transport="uds"),
+    )
+    assert config.transport == "uds"
+    assert config.uri == f"unix:{sock}"
+
+
+def test_from_parameters_uds_missing_socket_raises():
+    with pytest.raises(pypim.InvalidConfigurationError, match="does not exist"):
+        pypim.Configuration.from_parameters(
+            uri="unix:/no/such/pypim.sock",
+            security=ConnectionSecurity(transport="uds"),
+        )
+
+
+def test_from_parameters_uds_malformed_uri_raises():
+    with pytest.raises(
+        pypim.InvalidConfigurationError, match="Cannot parse Unix Domain Socket path"
+    ):
+        pypim.Configuration.from_parameters(
+            uri="dns:h:1",
+            security=ConnectionSecurity(transport="uds"),
         )
