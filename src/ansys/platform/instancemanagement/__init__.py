@@ -119,6 +119,8 @@ def connect(
             }
         }
 
+    A version 2 file replaces ``tls`` with a ``security`` block selecting the transport.
+
     Parameters
     ----------
     uri : str, optional
@@ -153,6 +155,22 @@ def connect(
         >>> if pypim.is_configured():
         >>>     with pypim.connect() as client:
         >>> # use client
+
+        Connect programmatically with mTLS (no configuration file):
+
+        >>> import ansys.platform.instancemanagement as pypim
+        >>> from ansys.platform.instancemanagement import ConnectionSecurity
+        >>> from ansys.tools.common.cyberchannel import CertificateFiles
+        >>> client = pypim.connect(
+        ...     uri="dns:pim.svc.com:80",
+        ...     headers={"identity": "james"},
+        ...     security=ConnectionSecurity(
+        ...         transport="mtls",
+        ...         cert_files=CertificateFiles(
+        ...             cert_file="client.crt", key_file="client.key", ca_file="ca.crt"
+        ...         ),
+        ...     ),
+        ... )
     """
     if is_configured():
         return Client._from_configuration(
