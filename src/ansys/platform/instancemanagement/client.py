@@ -264,13 +264,63 @@ class Client(contextlib.AbstractContextManager):
 
         Examples
         --------
+        Create an instance with default security settings:
+
             >>> import ansys.platform.instancemanagement as pypim
             >>> client = pypim.connect()
             >>> instance = client.create_instance(product_name="mapdl")
             >>> instance.wait_for_ready()
             >>> print(instance.services)
             >>> instance.delete()
-                {'grpc': Service(uri='dns:10.240.4.231:50052', headers={})}
+                {'grpc': Service(uri='dns:10.240.4.231:50052', headers={}, security=None)}
+
+        Create an instance using UDS (Unix Domain Socket) security settings:
+
+            >>> import ansys.platform.instancemanagement as pypim
+            >>> from ansys.platform.instancemanagement import UdsSettings
+            >>> client = pypim.connect()
+            >>> instance = client.create_instance(
+            ...     product_name="mapdl",
+            ...     security_settings=UdsSettings(),
+            ... )
+            >>> instance.wait_for_ready()
+            >>> print(instance.services)
+            >>> instance.delete()
+                {
+                    'grpc': Service(
+                        uri='unix:/home/jdoe/.conn/mapdl.sock',
+                        headers={},
+                        security=ServiceSecurity(transport='uds', cert_files=None),
+                    )
+                }
+
+        Create an instance using mTLS security settings:
+
+            >>> import ansys.platform.instancemanagement as pypim
+            >>> from ansys.platform.instancemanagement import MtlsSettings
+            >>> client = pypim.connect()
+            >>> mtls = MtlsSettings(
+            ...     certificates_directory="/path/to/certs",
+            ... )
+            >>> instance = client.create_instance(
+            ...     product_name="mapdl",
+            ...     security_settings=mtls,
+            ... )
+            >>> instance.wait_for_ready()
+            >>> print(instance.services)
+            >>> instance.delete()
+                {
+                    'grpc': Service(
+                        uri='dns:127.0.0.1:63006',
+                        headers={},
+                        security=ServiceSecurity(transport='mtls',
+                            cert_files=CertificateFiles(
+                                cert_file='/path/to/certs/client.crt',
+                                key_file='/path/to/certs/client.key',
+                                ca_file='path/to/certs/ca.crt')
+                            )
+                        )
+                }
 
         """
         logger.debug(
