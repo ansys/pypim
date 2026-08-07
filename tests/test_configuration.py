@@ -40,7 +40,10 @@ def test_not_configured():
     "bad_configuration,message_content",
     [
         (r"""not even the right format""", "json"),
+        (r"""{"pim": "future format"}""", "version"),
         (r"""{"version": 3, "pim": "future format"}""", "Unsupported version"),
+        (r"""{"version": 2, "pim": "not a dict"}""", "pim"),
+        (r"""{"version": 2, "pim": {}}""", "uri"),
         (
             r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": {},
             "security": {"transport": "carrier-pigeon"}}}""",
@@ -178,6 +181,24 @@ def test_configuration_keeps_explicit_transport_and_certs():
     assert config.transport == "mtls"
     assert config.cert_files is certs
     assert config.certs_dir is None
+
+
+def test_configuration_rejects_tls_without_access_token():
+    with pytest.raises(pypim.InvalidConfigurationError):
+        pypim.Configuration(headers=[], tls=True, uri="dns:h:1", access_token=None)
+
+
+def test_configuration_rejects_both_cert_files_and_certs_dir():
+    certs = CertificateFiles(cert_file="c.crt", key_file="c.key", ca_file="ca.crt")
+    with pytest.raises(pypim.InvalidConfigurationError):
+        pypim.Configuration(
+            headers=[],
+            tls=False,
+            uri="dns:h:1",
+            access_token=None,
+            cert_files=certs,
+            certs_dir="/certs",
+        )
 
 
 def _write(tmp_path: Path, text: str) -> str:

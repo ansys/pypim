@@ -616,6 +616,14 @@ def test_build_channel_insecure_uses_insecure_channel():
     build_mock.assert_not_called()
 
 
+def test_build_channel_rejects_unsupported_transport():
+    config = pypim.Configuration(
+        headers=[], tls=False, uri="dns:host:1", access_token=None, transport="carrier-pigeon"
+    )
+    with pytest.raises(ValueError):
+        pypim.Client._build_channel(config)
+
+
 def test_close_closes_channel(testing_channel):
     channel = create_autospec(testing_channel, spec_set=True, instance=True)
     client = pypim.Client(channel)
