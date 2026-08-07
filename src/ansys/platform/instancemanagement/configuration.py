@@ -76,18 +76,26 @@ class ConnectionSecurity:
     Mirrors the instance-service ``ServiceSecurity`` shape: a transport name and
     optional client certificate files. Used to configure ``connect()``
     programmatically when no configuration file is present.
+
+    For ``mtls``, provide at most one of ``cert_files`` or ``certs_dir``.
+    Providing neither is valid and lets the underlying transport layer
+    resolve its own defaults, mirroring the version 2 configuration file's
+    ``certificate_files`` / ``certificates_directory`` options.
     """
 
     transport: str = "insecure"
     cert_files: CertificateFiles | None = None
+    certs_dir: str | None = None
 
     def __post_init__(self) -> None:
-        """Validate the transport name."""
+        """Validate the transport name and mTLS certificate options."""
         if self.transport not in VALID_TRANSPORTS:
             raise ValueError(
                 f"Unsupported transport '{self.transport}'. "
                 f"Valid options are: {', '.join(sorted(VALID_TRANSPORTS))}."
             )
+        if self.cert_files is not None and self.certs_dir is not None:
+            raise ValueError("Provide either 'cert_files' or 'certs_dir', not both.")
 
 
 class Configuration:
@@ -157,7 +165,7 @@ class Configuration:
         headers: Sequence[Tuple[str, str]],
         tls: bool,
         uri: str,
-        access_token: str,
+        access_token: str | None = None,
         transport: str | None = None,
         cert_files: CertificateFiles | None = None,
         certs_dir: str | None = None,
@@ -282,6 +290,7 @@ class Configuration:
             access_token,
             transport=security.transport,
             cert_files=security.cert_files,
+            certs_dir=security.certs_dir,
         )
 
     @staticmethod

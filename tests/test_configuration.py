@@ -143,6 +143,18 @@ def test_connection_security_rejects_unknown_transport():
         ConnectionSecurity(transport="carrier-pigeon")
 
 
+def test_connection_security_accepts_certs_dir():
+    security = ConnectionSecurity(transport="mtls", certs_dir="/certs")
+    assert security.cert_files is None
+    assert security.certs_dir == "/certs"
+
+
+def test_connection_security_rejects_both_cert_files_and_certs_dir():
+    certs = CertificateFiles(cert_file="c.crt", key_file="c.key", ca_file="ca.crt")
+    with pytest.raises(ValueError):
+        ConnectionSecurity(transport="mtls", cert_files=certs, certs_dir="/certs")
+
+
 def test_configuration_derives_transport_from_tls_flag():
     insecure = pypim.Configuration(headers=[], tls=False, uri="dns:h:1", access_token=None)
     secure = pypim.Configuration(headers=[], tls=True, uri="dns:h:1", access_token="007")
@@ -288,6 +300,16 @@ def test_from_parameters_headers_and_mtls():
     assert config.transport == "mtls"
     assert config.cert_files is certs
     assert list(config.headers) == [("identity", "james")]
+
+
+def test_from_parameters_mtls_certs_dir():
+    config = pypim.Configuration.from_parameters(
+        uri="dns:h:1",
+        security=ConnectionSecurity(transport="mtls", certs_dir="/certs"),
+    )
+    assert config.transport == "mtls"
+    assert config.cert_files is None
+    assert config.certs_dir == "/certs"
 
 
 def test_from_parameters_tls_extracts_token():
