@@ -26,7 +26,7 @@ try:
     import importlib.metadata as importlib_metadata
 except ModuleNotFoundError:
     import importlib_metadata
-
+import logging
 import os
 
 from ansys.platform.instancemanagement.client import Client
@@ -85,6 +85,8 @@ __all__ = [
 ]
 
 __version__ = importlib_metadata.version(__name__.replace(".", "-"))
+
+logger = logging.getLogger(__name__)
 
 
 def connect(
@@ -172,13 +174,20 @@ def connect(
         ...     ),
         ... )
     """
+    if uri is not None:
+        if is_configured():
+            logger.warning(
+                "The configuration file {} is present and the 'uri' parameter is provided. ".format(
+                    os.path.expandvars(os.environ[CONFIGURATION_PATH_ENVIRONMENT_VARIABLE])
+                )
+                + "The 'uri' parameter will be used and the configuration file will be ignored."
+            )
+        configuration = Configuration.from_parameters(uri=uri, headers=headers, security=security)
+        return Client._from_config_object(configuration)
     if is_configured():
         return Client._from_configuration(
             os.path.expandvars(os.environ[CONFIGURATION_PATH_ENVIRONMENT_VARIABLE])
         )
-    if uri is not None:
-        configuration = Configuration.from_parameters(uri=uri, headers=headers, security=security)
-        return Client._from_config_object(configuration)
     raise NotConfiguredError(
         "No PyPIM configuration file is set and no 'uri' parameter was provided."
     )

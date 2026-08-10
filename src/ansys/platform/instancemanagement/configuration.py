@@ -27,7 +27,6 @@ import json
 import logging
 import os
 from pathlib import Path
-import re
 from typing import Sequence, Tuple
 
 from ansys.platform.instancemanagement._channel import parse_uds_socket_path
@@ -54,9 +53,7 @@ def _extract_bearer_token(headers: list[Tuple[str, str]], config_path: str) -> s
     pattern = "Bearer "
     header_authorization = next(
         filter(
-            lambda p: (
-                re.match("authorization", p[0], flags=re.IGNORECASE) and re.match(pattern, p[1])
-            ),
+            lambda p: p[0].lower() == "authorization" and p[1].startswith(pattern),
             headers,
         ),
         None,
@@ -259,7 +256,7 @@ class Configuration:
     def from_parameters(
         uri: str,
         headers: dict | None = None,
-        security: "ConnectionSecurity | None" = None,
+        security: ConnectionSecurity | None = None,
     ) -> "Configuration":
         """Build a configuration from programmatic parameters.
 

@@ -663,7 +663,7 @@ def test_connect_programmatic_builds_from_parameters():
     assert result is client_obj
 
 
-def test_connect_file_present_ignores_parameters():
+def test_connect_uri_parameter_present_ignores_file():
     with (
         patch("ansys.platform.instancemanagement.is_configured", return_value=True),
         patch.dict(
@@ -672,14 +672,18 @@ def test_connect_file_present_ignores_parameters():
         ),
         patch.object(pypim.Client, "_from_configuration") as from_file_mock,
         patch.object(pypim.Configuration, "from_parameters") as from_params_mock,
+        patch.object(pypim.Client, "_from_config_object") as from_obj_mock,
     ):
+        config_obj = object()
         client_obj = object()
-        from_file_mock.return_value = client_obj
+        from_params_mock.return_value = config_obj
+        from_obj_mock.return_value = client_obj
 
-        result = pypim.connect(uri="dns:should-be-ignored:1")
+        result = pypim.connect(uri="dns:h:1")
 
-    from_file_mock.assert_called_once()
-    from_params_mock.assert_not_called()
+    from_file_mock.assert_not_called()
+    from_params_mock.assert_called_once_with(uri="dns:h:1", headers=None, security=None)
+    from_obj_mock.assert_called_once_with(config_obj)
     assert result is client_obj
 
 
