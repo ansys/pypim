@@ -96,10 +96,11 @@ def connect(
 ) -> Client:
     """Create a PyPIM client from the environment or from parameters.
 
-    Precedence is file-exclusive and all-or-nothing: when the environment is
-    configured (:func:`is_configured` is ``True``), the configuration file is
-    used in full and **every** parameter is ignored. Otherwise the client is
-    built from ``uri`` / ``headers`` / ``security``.
+    Precedence is parameter-first and all-or-nothing: when ``uri`` is
+    provided, the configuration file is ignored in full and the client is
+    built from ``uri`` / ``headers`` / ``security``. Otherwise, when the
+    environment is configured (:func:`is_configured` is ``True``), the
+    configuration file is used in full.
 
     The environment configuration consists in setting the environment variable
     ``ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG`` to the path of the PyPIM
@@ -126,7 +127,9 @@ def connect(
     Parameters
     ----------
     uri : str, optional
-        PIM gRPC service URI. Required when no configuration file is present.
+        PIM gRPC service URI. When provided, it takes precedence over the
+        configuration file and all settings are taken from ``uri`` /
+        ``headers`` / ``security``.
     headers : dict, optional
         Metadata headers. The default is ``None`` (no headers).
     security : ConnectionSecurity, optional
