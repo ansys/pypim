@@ -27,7 +27,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Sequence, Tuple
+from typing import Any, Mapping, Sequence, Tuple
 
 from ansys.platform.instancemanagement._channel import parse_uds_socket_path
 from ansys.platform.instancemanagement.exceptions import (
@@ -44,12 +44,12 @@ VALID_TRANSPORTS = frozenset({"insecure", "tls", "uds", "mtls", "wnua"})
 
 
 def _require_key(
-    container: dict,
+    container: Mapping[str, Any],
     key: str,
     config_path: str,
     expected_type: type | tuple[type, ...] | None = None,
     type_error_message: str | None = None,
-):
+) -> Any:
     """Return a required key from a mapping or raise a detailed error.
 
     Optionally validate the value type and raise ``InvalidConfigurationError``
@@ -215,9 +215,11 @@ class Configuration:
         transport : str, optional
             Canonical transport.
         cert_files : CertificateFiles, optional
-            mTLS client certificate files. The default is ``None``.
+            mTLS client certificate files. The default is ``None``. Only used
+            when ``transport`` is ``mtls``.
         certs_dir : str, optional
-            mTLS certificates directory. The default is ``None``.
+            mTLS certificates directory. The default is ``None``. Only used
+            when ``transport`` is ``mtls``.
         """
         self._access_token = access_token
         self._headers = headers
@@ -229,7 +231,7 @@ class Configuration:
                 f"Valid options are: {', '.join(sorted(VALID_TRANSPORTS))}.",
             )
         self._transport = transport if transport is not None else "insecure"
-        self._tls = transport == "tls"
+        self._tls = self._transport == "tls"
         if self._tls and self._access_token is None:
             raise InvalidConfigurationError(
                 "<constructor>",
@@ -237,11 +239,20 @@ class Configuration:
             )
         self._cert_files = cert_files
         self._certs_dir = certs_dir
-        if self._certs_dir is not None and self._cert_files is not None:
-            raise InvalidConfigurationError(
-                "<constructor>",
-                "Provide either 'certs_dir' or 'cert_files', not both.",
-            )
+        if self._transport == "mtls":
+            if self._certs_dir is not None and self._cert_files is not None:
+                raise InvalidConfigurationError(
+                    "<constructor>",
+                    "Provide either 'certs_dir' or 'cert_files', not both.",
+                )
+            if self._certs_dir is None and self._cert_files is None:  # pragma: no cover
+                logger.info(
+                    "No mTLS certificates provided. The underlying transport layer "
+                    "will resolve its own defaults."
+                )
+        else:
+            if self._certs_dir is not None or self._cert_files is not None:  # pragma: no cover
+                logger.warning(f"mTLS certificates are ignored for transport '{self._transport}'.")
 
     @staticmethod
     def from_file(config_path: str) -> "Configuration":

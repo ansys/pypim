@@ -267,13 +267,14 @@ def test_configuration_rejects_tls_without_access_token():
     assert "A bearer token is required" in str(exc)
 
 
-def test_configuration_rejects_both_cert_files_and_certs_dir():
+def test_configuration_rejects_mtls_with_both_cert_files_and_certs_dir():
     certs = CertificateFiles(cert_file="c.crt", key_file="c.key", ca_file="ca.crt")
     with pytest.raises(pypim.InvalidConfigurationError) as exc:
         pypim.Configuration(
             headers=[],
             uri="dns:h:1",
             access_token=None,
+            transport="mtls",
             cert_files=certs,
             certs_dir="/certs",
         )
