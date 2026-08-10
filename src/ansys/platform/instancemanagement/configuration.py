@@ -43,6 +43,16 @@ logger = logging.getLogger(__name__)
 VALID_TRANSPORTS = frozenset({"insecure", "tls", "uds", "mtls", "wnua"})
 
 
+def _require_key(container: dict, key: str, config_path: str):
+    """Return a required key from a mapping or raise a detailed error."""
+    if key not in container:
+        raise InvalidConfigurationError(
+            config_path,
+            f"The configuration is missing the entry {key}.",
+        )
+    return container[key]
+
+
 def _extract_bearer_token(headers: list[Tuple[str, str]], config_path: str) -> str:
     """Pop and return the bearer token from an authorization header.
 
@@ -235,6 +245,9 @@ class Configuration:
             except json.JSONDecodeError as e:
                 raise InvalidConfigurationError(config_path, "Invalid json.") from e
 
+        if not isinstance(configuration, dict):
+            raise InvalidConfigurationError(config_path, "configuration must be a dict.")
+
         try:
             version = configuration["version"]
         except KeyError as key_error:
@@ -281,6 +294,9 @@ class Configuration:
             present, or the ``uds`` transport is selected but ``uri`` is not
             a valid, existing UDS socket path.
         """
+        if headers is not None and not isinstance(headers, dict):
+            raise InvalidConfigurationError("<parameters>", "headers must be a dict.")
+
         header_list = list(headers.items()) if headers else []
         if security is None:
             security = ConnectionSecurity()
@@ -305,10 +321,16 @@ class Configuration:
     def _from_v1(configuration: dict, config_path: str) -> "Configuration":
         """Parse a version 1 configuration document."""
         try:
-            pim_configuration = configuration["pim"]
-            tls = pim_configuration["tls"]
-            uri = pim_configuration["uri"]
-            headers = list(pim_configuration["headers"].items())
+            pim_configuration = _require_key(configuration, "pim", config_path)
+            if not isinstance(pim_configuration, dict):
+                raise InvalidConfigurationError(config_path, "The 'pim' entry must be a dict.")
+
+            tls = _require_key(pim_configuration, "tls", config_path)
+            uri = _require_key(pim_configuration, "uri", config_path)
+            headers_obj = _require_key(pim_configuration, "headers", config_path)
+            if not isinstance(headers_obj, dict):
+                raise InvalidConfigurationError(config_path, "headers must be a dict.")
+            headers = list(headers_obj.items())
         except KeyError as key_error:
             raise InvalidConfigurationError(
                 config_path, f"The configuration is missing the entry {key_error.args[0]}."
@@ -326,17 +348,22 @@ class Configuration:
     @staticmethod
     def _from_v2(configuration: dict, config_path: str) -> "Configuration":
         """Parse a version 2 configuration document."""
-        try:
-            pim_configuration = configuration["pim"]
-            uri = pim_configuration["uri"]
-            headers = list(pim_configuration["headers"].items())
-            security = pim_configuration["security"]
-            transport = security["transport"]
-        except (KeyError, TypeError) as error:
-            key = error.args[0] if isinstance(error, KeyError) else "pim"
-            raise InvalidConfigurationError(
-                config_path, f"The configuration is missing the entry {key}."
-            )
+        pim_configuration = _require_key(configuration, "pim", config_path)
+        if not isinstance(pim_configuration, dict):
+            raise InvalidConfigurationError(config_path, "The 'pim' entry must be a dict.")
+
+        uri = _require_key(pim_configuration, "uri", config_path)
+
+        headers_obj = _require_key(pim_configuration, "headers", config_path)
+        if not isinstance(headers_obj, dict):
+            raise InvalidConfigurationError(config_path, "headers must be a dict.")
+        headers = list(headers_obj.items())
+
+        security = _require_key(pim_configuration, "security", config_path)
+        if not isinstance(security, dict):
+            raise InvalidConfigurationError(config_path, "The 'security' entry must be a dict.")
+
+        transport = _require_key(security, "transport", config_path)
 
         if transport not in VALID_TRANSPORTS:
             raise InvalidConfigurationError(

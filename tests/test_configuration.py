@@ -39,11 +39,27 @@ def test_not_configured():
 @pytest.mark.parametrize(
     "bad_configuration,message_content",
     [
+        (r"""[]""", "configuration must be a dict"),
         (r"""not even the right format""", "json"),
         (r"""{"pim": "future format"}""", "version"),
         (r"""{"version": 3, "pim": "future format"}""", "Unsupported version"),
+        (r"""{"version": 2}""", "pim"),
         (r"""{"version": 2, "pim": "not a dict"}""", "pim"),
         (r"""{"version": 2, "pim": {}}""", "uri"),
+        (r"""{"version": 2, "pim": {"uri": "dns:h:1"}}""", "headers"),
+        (
+            r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": {}}}""",
+            "security",
+        ),
+        (
+            r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": {}, "security": {}}}""",
+            "transport",
+        ),
+        (
+            r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": [],
+            "security": {"transport": "insecure"}}}""",
+            "headers must be a dict",
+        ),
         (
             r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": {},
             "security": {"transport": "carrier-pigeon"}}}""",
@@ -394,3 +410,8 @@ def test_from_parameters_uds_malformed_uri_raises():
             uri="dns:h:1",
             security=ConnectionSecurity(transport="uds"),
         )
+
+
+def test_from_parameters_headers_must_be_dict():
+    with pytest.raises(pypim.InvalidConfigurationError, match="headers must be a dict"):
+        pypim.Configuration.from_parameters(uri="dns:h:1", headers=[("a", "b")])
