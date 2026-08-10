@@ -390,7 +390,7 @@ def test_v2_uds_existing_socket(tmp_path):
         )
     )
     assert config.transport == "uds"
-    assert config.uri == f"unix:{sock}"
+    assert config.uri == f"unix:{sock.as_posix()}"
 
 
 def test_v2_wnua(tmp_path):
