@@ -320,21 +320,16 @@ class Configuration:
     @staticmethod
     def _from_v1(configuration: dict, config_path: str) -> "Configuration":
         """Parse a version 1 configuration document."""
-        try:
-            pim_configuration = _require_key(configuration, "pim", config_path)
-            if not isinstance(pim_configuration, dict):
-                raise InvalidConfigurationError(config_path, "The 'pim' entry must be a dict.")
+        pim_configuration = _require_key(configuration, "pim", config_path)
+        if not isinstance(pim_configuration, dict):
+            raise InvalidConfigurationError(config_path, "The 'pim' entry must be a dict.")
 
-            tls = _require_key(pim_configuration, "tls", config_path)
-            uri = _require_key(pim_configuration, "uri", config_path)
-            headers_obj = _require_key(pim_configuration, "headers", config_path)
-            if not isinstance(headers_obj, dict):
-                raise InvalidConfigurationError(config_path, "headers must be a dict.")
-            headers = list(headers_obj.items())
-        except KeyError as key_error:
-            raise InvalidConfigurationError(
-                config_path, f"The configuration is missing the entry {key_error.args[0]}."
-            )
+        tls = _require_key(pim_configuration, "tls", config_path)
+        uri = _require_key(pim_configuration, "uri", config_path)
+        headers_obj = _require_key(pim_configuration, "headers", config_path)
+        if not isinstance(headers_obj, dict):
+            raise InvalidConfigurationError(config_path, "headers must be a dict.")
+        headers = list(headers_obj.items())
 
         if tls:
             logger.info("The connection to the server will use a secure channel.")

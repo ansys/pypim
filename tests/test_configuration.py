@@ -56,6 +56,10 @@ def test_not_configured():
             "transport",
         ),
         (
+            r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": {}, "security": []}}""",
+            "security",
+        ),
+        (
             r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": [],
             "security": {"transport": "insecure"}}}""",
             "headers must be a dict",
@@ -97,7 +101,13 @@ def test_not_configured():
                 "headers": {"token": "007","identity": "james bond"},"tls": false}}""",
             "uri",
         ),
+        (r"""{"version": 1, "pim": []}""", "pim"),
         (r"""{"version": 1, "pim": {"uri": "dns:127.0.0.1:5000","tls": false}}""", "headers"),
+        (
+            r"""{"version": 1, "pim": {"uri": "dns:127.0.0.1:5000", "tls": false,
+            "headers": []}}""",
+            "headers must be a dict",
+        ),
         (
             r"""{"version": 1, "pim": {"uri": "dns:127.0.0.1:5000",
             "headers": {"token": "007","identity": "james bond"}}}""",
@@ -150,6 +160,45 @@ def test_initialize_from_environment(tmp_path):
     assert configuration.access_token == "007"
     assert len(configuration.headers) == 0
     assert configuration.tls
+
+
+def test_initialize_from_environment_insecure_v1(tmp_path):
+    config_path = tmp_path / "config.json"
+    config = r"""{
+    "version": 1,
+    "pim": {
+        "uri": "dns:instancemanagement.example.com:80",
+        "headers": {
+            "identity": "agent"
+        },
+        "tls": false
+    }
+}"""
+
+    with config_path.open("w") as f:
+        f.write(config)
+
+    with patch.dict(os.environ, {"ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG": str(config_path)}):
+        configuration = pypim.Configuration.from_environment()
+
+    assert configuration.transport == "insecure"
+    assert configuration.tls is False
+    assert list(configuration.headers) == [("identity", "agent")]
+
+
+def test_v1_tls_extracts_token(tmp_path: Path):
+    config = pypim.Configuration.from_file(
+        _write(
+            tmp_path,
+            r"""{"version": 1, "pim": {"uri": "dns:h:1",
+            "headers": {"authorization": "Bearer 007", "identity": "james"},
+            "tls": true}}""",
+        )
+    )
+    assert config.transport == "tls"
+    assert config.tls is True
+    assert config.access_token == "007"
+    assert list(config.headers) == [("identity", "james")]
 
 
 def test_connection_security_defaults_to_insecure():
