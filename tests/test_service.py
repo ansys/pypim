@@ -119,7 +119,7 @@ def test_service_build_channel_with_tls_configuration():
     service = pypim.Service(uri="dns:service:50051", headers={"token": "abc"})
     configuration = pypim.Configuration(
         uri="dns:pim.example.com:443",
-        headers=(("authorization", "Bearer 007"),),
+        headers=[],
         transport="tls",
         access_token="007",
     )
