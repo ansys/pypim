@@ -386,7 +386,7 @@ def test_v2_uds_existing_socket(tmp_path):
             tmp_path,
             r"""{"version": 2, "pim": {"uri": "unix:%s", "headers": {},
             "security": {"transport": "uds"}}}"""
-            % sock,
+            % sock.as_posix(),
         )
     )
     assert config.transport == "uds"
