@@ -171,7 +171,6 @@ class Configuration:
     def __init__(
         self,
         headers: Sequence[Tuple[str, str]],
-        tls: bool,
         uri: str,
         access_token: str | None = None,
         transport: str | None = None,
@@ -184,17 +183,13 @@ class Configuration:
         ----------
         headers : Sequence[Tuple[str, str]]
             List of ``(key, value)`` pairs added to every request as metadata.
-        tls : bool
-            Whether the connection to PIM requires encryption. When ``True``,
-            ``access_token`` is used to build the secure channel credentials.
         uri : str
             URI of the PIM gRPC service, e.g. ``dns:pim.svc.com:80``.
         access_token : str
             Bearer token extracted from the authorization header. Only used
             when ``tls`` is ``True``.
         transport : str, optional
-            Canonical transport. When ``None``, derived from ``tls``
-            (``"tls"`` if ``tls`` else ``"insecure"``).
+            Canonical transport.
         cert_files : CertificateFiles, optional
             mTLS client certificate files. The default is ``None``.
         certs_dir : str, optional
@@ -202,14 +197,20 @@ class Configuration:
         """
         self._access_token = access_token
         self._headers = headers
-        self._tls = tls
+        self._uri = uri
+        if transport is not None and transport not in VALID_TRANSPORTS:
+            raise InvalidConfigurationError(
+                "<constructor>",
+                f"Unsupported transport '{transport}'. "
+                f"Valid options are: {', '.join(sorted(VALID_TRANSPORTS))}.",
+            )
+        self._transport = transport if transport is not None else "insecure"
+        self._tls = transport == "tls"
         if self._tls and self._access_token is None:
             raise InvalidConfigurationError(
                 "<constructor>",
                 "A bearer token is required for a secure connection.",
             )
-        self._uri = uri
-        self._transport = transport if transport is not None else ("tls" if tls else "insecure")
         self._cert_files = cert_files
         self._certs_dir = certs_dir
         if self._certs_dir is not None and self._cert_files is not None:
@@ -309,7 +310,6 @@ class Configuration:
 
         return Configuration(
             header_list,
-            security.transport == "tls",
             uri,
             access_token,
             transport=security.transport,
@@ -338,7 +338,7 @@ class Configuration:
         else:
             access_token = None
             transport = "insecure"
-        return Configuration(headers, tls, uri, access_token, transport=transport)
+        return Configuration(headers, uri, access_token, transport=transport)
 
     @staticmethod
     def _from_v2(configuration: dict, config_path: str) -> "Configuration":
@@ -359,7 +359,6 @@ class Configuration:
             raise InvalidConfigurationError(config_path, "The 'security' entry must be a dict.")
 
         transport = _require_key(security, "transport", config_path)
-
         if transport not in VALID_TRANSPORTS:
             raise InvalidConfigurationError(
                 config_path,
@@ -381,7 +380,6 @@ class Configuration:
 
         return Configuration(
             headers,
-            transport == "tls",
             uri,
             access_token,
             transport=transport,
@@ -416,8 +414,16 @@ class Configuration:
                 config_path,
                 "Provide either 'certificates_directory' or 'certificate_files', not both.",
             )
+        if certs_dir is not None and not isinstance(certs_dir, str):
+            raise InvalidConfigurationError(
+                config_path, "The 'certificates_directory' entry must be a string."
+            )
         cert_files = None
         if files is not None:
+            if not isinstance(files, dict):
+                raise InvalidConfigurationError(
+                    config_path, "The 'certificate_files' block must be a dict."
+                )
             for key in ("cert_file", "key_file", "ca_file"):
                 if key not in files:
                     raise InvalidConfigurationError(

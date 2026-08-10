@@ -380,9 +380,9 @@ def test_create_instance(testing_channel):
     # A client with two definitions
     configuration = pypim.Configuration(
         headers=[],
-        tls=False,
         uri="dns:instancemanagement.example.com:443",
         access_token="Bearer 007",
+        transport="tls",
     )
     client = pypim.Client(testing_channel, configuration)
 
@@ -514,8 +514,8 @@ def test_initialize_from_configuration_tls(tmp_path):
     config = pypim.Configuration(
         uri="dns:instancemanagement.example.com:443",
         headers=(("identity", "james bond"),),
-        tls=True,
         access_token="007",
+        transport="tls",
     )
 
     with (
@@ -565,7 +565,6 @@ def _mtls_config():
 
     return pypim.Configuration(
         headers=[("identity", "james")],
-        tls=False,
         uri="dns:host:50052",
         access_token=None,
         transport="mtls",
@@ -601,7 +600,9 @@ def test_build_channel_delegates_cyberchannel_transports():
 
 
 def test_build_channel_insecure_uses_insecure_channel():
-    config = pypim.Configuration(headers=[], tls=False, uri="dns:host:1", access_token=None)
+    config = pypim.Configuration(
+        headers=[], uri="dns:host:1", access_token=None, transport="insecure"
+    )
     with (
         patch("ansys.platform.instancemanagement.client.grpc.insecure_channel") as insecure_mock,
         patch("ansys.platform.instancemanagement.client.grpc.intercept_channel") as intercept_mock,
@@ -614,14 +615,6 @@ def test_build_channel_insecure_uses_insecure_channel():
 
     insecure_mock.assert_called_once_with("dns:host:1")
     build_mock.assert_not_called()
-
-
-def test_build_channel_rejects_unsupported_transport():
-    config = pypim.Configuration(
-        headers=[], tls=False, uri="dns:host:1", access_token=None, transport="carrier-pigeon"
-    )
-    with pytest.raises(ValueError):
-        pypim.Client._build_channel(config)
 
 
 def test_close_closes_channel(testing_channel):

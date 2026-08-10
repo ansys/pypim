@@ -82,6 +82,18 @@ def test_not_configured():
             "ca_file",
         ),
         (
+            r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": {},
+             "security": {"transport": "mtls",
+             "certificates_directory": []}}}""",
+            "The 'certificates_directory' entry must be a string.",
+        ),
+        (
+            r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": {},
+             "security": {"transport": "mtls",
+             "certificate_files": []}}}""",
+            "The 'certificate_files' block must be a dict.",
+        ),
+        (
             r"""{"version": 2, "pim": {"uri": "unix:/no/such/pypim.sock",
             "headers": {}, "security": {"transport": "uds"}}}""",
             "does not exist",
@@ -159,7 +171,7 @@ def test_initialize_from_environment(tmp_path):
     # The configuration was properly filled.
     assert configuration.access_token == "007"
     assert len(configuration.headers) == 0
-    assert configuration.tls
+    assert configuration.tls is True
 
 
 def test_initialize_from_environment_insecure_v1(tmp_path):
@@ -224,11 +236,13 @@ def test_connection_security_rejects_both_cert_files_and_certs_dir():
         ConnectionSecurity(transport="mtls", cert_files=certs, certs_dir="/certs")
 
 
-def test_configuration_derives_transport_from_tls_flag():
-    insecure = pypim.Configuration(headers=[], tls=False, uri="dns:h:1", access_token=None)
-    secure = pypim.Configuration(headers=[], tls=True, uri="dns:h:1", access_token="007")
-    assert insecure.transport == "insecure"
-    assert secure.transport == "tls"
+def test_configuration_derives_tls_from_transport():
+    insecure = pypim.Configuration(
+        headers=[], uri="dns:h:1", access_token=None, transport="insecure"
+    )
+    secure = pypim.Configuration(headers=[], uri="dns:h:1", access_token="007", transport="tls")
+    assert insecure.tls is False
+    assert secure.tls is True
 
 
 def test_configuration_keeps_explicit_transport_and_certs():
@@ -237,7 +251,6 @@ def test_configuration_keeps_explicit_transport_and_certs():
     )
     config = pypim.Configuration(
         headers=[],
-        tls=False,
         uri="dns:h:1",
         access_token=None,
         transport="mtls",
@@ -249,21 +262,30 @@ def test_configuration_keeps_explicit_transport_and_certs():
 
 
 def test_configuration_rejects_tls_without_access_token():
-    with pytest.raises(pypim.InvalidConfigurationError):
-        pypim.Configuration(headers=[], tls=True, uri="dns:h:1", access_token=None)
+    with pytest.raises(pypim.InvalidConfigurationError) as exc:
+        pypim.Configuration(headers=[], uri="dns:h:1", access_token=None, transport="tls")
+    assert "A bearer token is required" in str(exc)
 
 
 def test_configuration_rejects_both_cert_files_and_certs_dir():
     certs = CertificateFiles(cert_file="c.crt", key_file="c.key", ca_file="ca.crt")
-    with pytest.raises(pypim.InvalidConfigurationError):
+    with pytest.raises(pypim.InvalidConfigurationError) as exc:
         pypim.Configuration(
             headers=[],
-            tls=False,
             uri="dns:h:1",
             access_token=None,
             cert_files=certs,
             certs_dir="/certs",
         )
+    assert "not both" in str(exc)
+
+
+def test_configuration_rejects_unknown_transport():
+    with pytest.raises(pypim.InvalidConfigurationError) as exc:
+        pypim.Configuration(
+            headers=[], uri="dns:h:1", access_token=None, transport="carrier-pigeon"
+        )
+    assert "Unsupported transport" in str(exc)
 
 
 def _write(tmp_path: Path, text: str) -> str:

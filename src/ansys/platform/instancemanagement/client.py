@@ -120,8 +120,6 @@ class Client(contextlib.AbstractContextManager):
             grpc_channel = grpc.secure_channel(configuration.uri, channel_credentials)
         elif transport == "insecure":
             grpc_channel = grpc.insecure_channel(configuration.uri)
-        else:
-            raise ValueError(f"Unsupported transport: {transport!r}")
 
         return grpc.intercept_channel(
             grpc_channel,
