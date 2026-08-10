@@ -164,11 +164,9 @@ class Configuration:
 
     @property
     def tls(self) -> bool:
-        """Whether the connection to PIM requires encryption.
+        """Whether the connection to PIM requires encryption with a bearer token.
 
         If ``True``, the ``access_token`` property is used to create a secure connection.
-
-        If ``False``, an insecure connection is used.
         """
         return self._tls
 

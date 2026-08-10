@@ -96,17 +96,29 @@ def test_build_cyberchannel_host_port_transports(mock_create):
 
 
 @patch("ansys.platform.instancemanagement._channel.create_channel")
-def test_build_cyberchannel_mtls_passes_certs(mock_create):
+def test_build_cyberchannel_mtls_passes_cert_files(mock_create):
     from ansys.tools.common.cyberchannel import CertificateFiles
 
     mock_create.return_value = grpc.insecure_channel("localhost:0")
     certs = CertificateFiles(cert_file="c.crt", key_file="c.key", ca_file="ca.crt")
 
-    build_cyberchannel("mtls", "dns:host:50052", cert_files=certs, certs_dir="/certs")
+    build_cyberchannel("mtls", "dns:host:50052", cert_files=certs)
 
     args, kwargs = mock_create.call_args
     assert args[0] == "mtls"
     assert kwargs["cert_files"] is certs
+    assert kwargs["certs_dir"] is None
+
+
+@patch("ansys.platform.instancemanagement._channel.create_channel")
+def test_build_cyberchannel_mtls_passes_certs_dir(mock_create):
+    mock_create.return_value = grpc.insecure_channel("localhost:0")
+
+    build_cyberchannel("mtls", "dns:host:50052", certs_dir="/certs")
+
+    args, kwargs = mock_create.call_args
+    assert args[0] == "mtls"
+    assert kwargs["cert_files"] is None
     assert kwargs["certs_dir"] == "/certs"
 
 

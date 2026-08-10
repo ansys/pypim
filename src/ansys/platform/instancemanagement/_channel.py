@@ -26,6 +26,8 @@ Shared by the client-to-PIM-server connection and the instance-service
 connections. Depends only on ``grpc`` and ``ansys.tools.common.cyberchannel``.
 """
 
+from typing import Sequence
+
 import grpc
 
 from ansys.tools.common.cyberchannel import CertificateFiles, create_channel
@@ -77,7 +79,7 @@ def build_cyberchannel(
     uri: str,
     cert_files: CertificateFiles | None = None,
     certs_dir: str | None = None,
-    grpc_options: list | None = None,
+    grpc_options: Sequence[tuple[str, object]] | None = None,
 ) -> grpc.Channel:
     """Build a cyberchannel gRPC channel for the given transport.
 
