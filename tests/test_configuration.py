@@ -27,7 +27,7 @@ from unittest.mock import patch
 import pytest
 
 import ansys.platform.instancemanagement as pypim
-from ansys.platform.instancemanagement.configuration import ConnectionSecurity
+from ansys.platform.instancemanagement.configuration import ConnectionSecurity, _require_key
 from ansys.tools.common.cyberchannel import CertificateFiles
 
 
@@ -62,7 +62,7 @@ def test_not_configured():
         (
             r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": [],
             "security": {"transport": "insecure"}}}""",
-            "headers must be a dict",
+            "The 'headers' entry must be a dict.",
         ),
         (
             r"""{"version": 2, "pim": {"uri": "dns:h:1", "headers": {},
@@ -118,7 +118,7 @@ def test_not_configured():
         (
             r"""{"version": 1, "pim": {"uri": "dns:127.0.0.1:5000", "tls": false,
             "headers": []}}""",
-            "headers must be a dict",
+            "The 'headers' entry must be a dict.",
         ),
         (
             r"""{"version": 1, "pim": {"uri": "dns:127.0.0.1:5000",
@@ -486,3 +486,36 @@ def test_from_parameters_uds_malformed_uri_raises():
 def test_from_parameters_headers_must_be_dict():
     with pytest.raises(pypim.InvalidConfigurationError, match="headers must be a dict"):
         pypim.Configuration.from_parameters(uri="dns:h:1", headers=[("a", "b")])
+
+
+def test_require_key_type_mismatch_with_custom_message():
+    with pytest.raises(pypim.InvalidConfigurationError, match="headers must be a dict"):
+        _require_key(
+            {"headers": []},
+            "headers",
+            "<test>",
+            expected_type=dict,
+            type_error_message="headers must be a dict.",
+        )
+
+
+def test_require_key_type_mismatch_with_default_message():
+    with pytest.raises(pypim.InvalidConfigurationError, match="The 'headers' entry must be a dict"):
+        _require_key(
+            {"headers": []},
+            "headers",
+            "<test>",
+            expected_type=dict,
+        )
+
+
+def test_require_key_type_mismatch_with_multiple_expected_types():
+    with pytest.raises(
+        pypim.InvalidConfigurationError, match="The 'headers' entry must be a str or int"
+    ):
+        _require_key(
+            {"headers": []},
+            "headers",
+            "<test>",
+            expected_type=(str, int),
+        )

@@ -181,8 +181,8 @@ def connect(
         if is_configured():
             logger.warning(
                 "The configuration file %s is present and the 'uri' parameter is provided. "
-                "The 'uri' parameter will be used and the configuration file will be ignored."
-                % os.path.expandvars(os.environ[CONFIGURATION_PATH_ENVIRONMENT_VARIABLE])
+                "The 'uri' parameter will be used and the configuration file will be ignored.",
+                os.path.expandvars(os.environ[CONFIGURATION_PATH_ENVIRONMENT_VARIABLE]),
             )
         configuration = Configuration.from_parameters(uri=uri, headers=headers, security=security)
         return Client._from_config_object(configuration)
