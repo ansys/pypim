@@ -26,13 +26,14 @@ try:
     import importlib.metadata as importlib_metadata
 except ModuleNotFoundError:
     import importlib_metadata
-
+import logging
 import os
 
 from ansys.platform.instancemanagement.client import Client
 from ansys.platform.instancemanagement.configuration import (
     CONFIGURATION_PATH_ENVIRONMENT_VARIABLE,
     Configuration,
+    ConnectionSecurity,
     is_configured,
 )
 from ansys.platform.instancemanagement.definition import Definition
@@ -63,6 +64,7 @@ __all__ = [
     "connect",
     "Client",
     "Configuration",
+    "ConnectionSecurity",
     "Instance",
     "Service",
     "Definition",
@@ -84,12 +86,21 @@ __all__ = [
 
 __version__ = importlib_metadata.version(__name__.replace(".", "-"))
 
+logger = logging.getLogger(__name__)
 
-def connect() -> Client:
-    """Create a PyPIM client based on the environment configuration.
 
-    Before calling this method, :func:`~is_configured()` should be called to check if
-    the environment is configured to use PyPIM.
+def connect(
+    uri: str | None = None,
+    headers: dict | None = None,
+    security: "ConnectionSecurity | None" = None,
+) -> Client:
+    """Create a PyPIM client from the environment or from parameters.
+
+    Precedence is parameter-first and all-or-nothing: when ``uri`` is
+    provided, the configuration file is ignored in full and the client is
+    built from ``uri`` / ``headers`` / ``security``. Otherwise, when the
+    environment is configured (:func:`is_configured` is ``True``), the
+    configuration file is used in full.
 
     The environment configuration consists in setting the environment variable
     ``ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG`` to the path of the PyPIM
@@ -111,6 +122,18 @@ def connect() -> Client:
             }
         }
 
+    A version 2 file replaces ``tls`` with a ``security`` block selecting the transport.
+
+    Parameters
+    ----------
+    uri : str, optional
+        PIM gRPC service URI. When provided, it takes precedence over the
+        configuration file and all settings are taken from ``uri`` /
+        ``headers`` / ``security``.
+    headers : dict, optional
+        Metadata headers. The default is ``None`` (no headers).
+    security : ConnectionSecurity, optional
+        Transport security. The default is ``None`` (insecure).
 
     Returns
     -------
@@ -120,7 +143,7 @@ def connect() -> Client:
     Raises
     ------
     NotConfiguredError
-        The environment is not configured to use PyPIM.
+        There is neither a configuration file nor a ``uri`` parameter.
 
     InvalidConfigurationError
         The configuration is invalid.
@@ -137,9 +160,36 @@ def connect() -> Client:
         >>> if pypim.is_configured():
         >>>     with pypim.connect() as client:
         >>> # use client
+
+        Connect programmatically with mTLS (no configuration file):
+
+        >>> import ansys.platform.instancemanagement as pypim
+        >>> from ansys.platform.instancemanagement import ConnectionSecurity
+        >>> from ansys.tools.common.cyberchannel import CertificateFiles
+        >>> client = pypim.connect(
+        ...     uri="dns:pim.svc.com:80",
+        ...     headers={"identity": "james"},
+        ...     security=ConnectionSecurity(
+        ...         transport="mtls",
+        ...         cert_files=CertificateFiles(
+        ...             cert_file="client.crt", key_file="client.key", ca_file="ca.crt"
+        ...         ),
+        ...     ),
+        ... )
     """
-    if not is_configured():
-        raise NotConfiguredError("The environment is not configured to use PyPIM.")
-    return Client._from_configuration(
-        os.path.expandvars(os.environ[CONFIGURATION_PATH_ENVIRONMENT_VARIABLE])
+    if uri is not None:
+        if is_configured():
+            logger.warning(
+                "The configuration file %s is present and the 'uri' parameter is provided. "
+                "The 'uri' parameter will be used and the configuration file will be ignored.",
+                os.path.expandvars(os.environ[CONFIGURATION_PATH_ENVIRONMENT_VARIABLE]),
+            )
+        configuration = Configuration.from_parameters(uri=uri, headers=headers, security=security)
+        return Client._from_config_object(configuration)
+    if is_configured():
+        return Client._from_configuration(
+            os.path.expandvars(os.environ[CONFIGURATION_PATH_ENVIRONMENT_VARIABLE])
+        )
+    raise NotConfiguredError(
+        "No PyPIM configuration file is set and no 'uri' parameter was provided."
     )

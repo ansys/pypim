@@ -72,9 +72,9 @@ def test_create_instance(testing_channel):
 
         configuration = pypim.Configuration(
             headers=[],
-            tls=False,
             uri="dns:instancemanagement.example.com:443",
-            access_token="Bearer 007",
+            access_token="007",
+            transport="tls",
         )
         # Act
         # Create the instance from the definition

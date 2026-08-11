@@ -96,10 +96,10 @@ class UnsupportedProductError(RuntimeError):
     product_name: str
     """Name of the requested product."""
 
-    product_version: str
+    product_version: str | None
     """Version of the requested product."""
 
-    def __init__(self, product_name: str, product_version: str) -> None:
+    def __init__(self, product_name: str, product_version: str | None) -> None:
         """Construct the error from the unsupported product, version, or both."""
         self.product_name = product_name
         self.product_version = product_version

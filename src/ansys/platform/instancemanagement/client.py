@@ -36,6 +36,7 @@ from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2 impor
 from ansys.api.platform.instancemanagement.v1.product_instance_manager_pb2_grpc import (
     ProductInstanceManagerStub,
 )
+from ansys.platform.instancemanagement._channel import build_cyberchannel
 from ansys.platform.instancemanagement.configuration import Configuration
 from ansys.platform.instancemanagement.definition import Definition
 from ansys.platform.instancemanagement.exceptions import (
@@ -95,6 +96,46 @@ class Client(contextlib.AbstractContextManager):
         self._channel.close()
 
     @staticmethod
+    def _build_channel(configuration: Configuration) -> grpc.Channel:
+        """Build the gRPC channel to the PIM server from a configuration.
+
+        Routes ``uds``/``mtls``/``wnua`` through cyberchannel; keeps the legacy
+        ``insecure`` and ``tls`` paths unchanged. Every transport is wrapped with
+        the header-adding interceptor.
+        """
+        transport = configuration.transport
+        if transport in ("uds", "mtls", "wnua"):
+            grpc_channel = build_cyberchannel(
+                transport,
+                configuration.uri,
+                cert_files=configuration.cert_files,
+                certs_dir=configuration.certs_dir,
+            )
+        elif transport == "tls":
+            logger.debug("The connection to the server will use a secure channel.")
+            channel_credentials = grpc.composite_channel_credentials(
+                grpc.ssl_channel_credentials(),
+                grpc.access_token_call_credentials(configuration.access_token),
+            )
+            grpc_channel = grpc.secure_channel(configuration.uri, channel_credentials)
+        elif transport == "insecure":
+            grpc_channel = grpc.insecure_channel(configuration.uri)
+        else:
+            # Validation of the transport is done in the Configuration class,
+            # so this should never happen.
+            raise ValueError(f"Unsupported transport: {transport}")  # pragma: no cover
+
+        return grpc.intercept_channel(
+            grpc_channel,
+            header_adder_interceptor(configuration.headers),
+        )
+
+    @staticmethod
+    def _from_config_object(configuration: Configuration) -> "Client":
+        """Create a client from an already-resolved configuration."""
+        return Client(Client._build_channel(configuration), configuration)
+
+    @staticmethod
     def _from_configuration(config_path: str):
         """Initialize the PyPIM client based on the configuration file.
 
@@ -119,23 +160,7 @@ class Client(contextlib.AbstractContextManager):
         # the gRPC channel.
 
         configuration = Configuration.from_file(config_path)
-
-        if configuration.tls:
-            logger.debug("The connection to the server will use a secure channel.")
-            channel_credentials = grpc.composite_channel_credentials(
-                grpc.ssl_channel_credentials(),
-                grpc.access_token_call_credentials(configuration.access_token),
-            )
-            grpc_channel = grpc.secure_channel(configuration.uri, channel_credentials)
-        else:
-            grpc_channel = grpc.insecure_channel(configuration.uri)
-
-        channel = grpc.intercept_channel(
-            grpc_channel,
-            header_adder_interceptor(configuration.headers),
-        )
-
-        return Client(channel, configuration)
+        return Client._from_config_object(configuration)
 
     def list_definitions(
         self,
@@ -264,13 +289,63 @@ class Client(contextlib.AbstractContextManager):
 
         Examples
         --------
+        Create an instance with default security settings:
+
             >>> import ansys.platform.instancemanagement as pypim
             >>> client = pypim.connect()
             >>> instance = client.create_instance(product_name="mapdl")
             >>> instance.wait_for_ready()
             >>> print(instance.services)
             >>> instance.delete()
-                {'grpc': Service(uri='dns:10.240.4.231:50052', headers={})}
+                {'grpc': Service(uri='dns:10.240.4.231:50052', headers={}, security=None)}
+
+        Create an instance using UDS (Unix Domain Socket) security settings:
+
+            >>> import ansys.platform.instancemanagement as pypim
+            >>> from ansys.platform.instancemanagement import UdsSettings
+            >>> client = pypim.connect()
+            >>> instance = client.create_instance(
+            ...     product_name="mapdl",
+            ...     security_settings=UdsSettings(),
+            ... )
+            >>> instance.wait_for_ready()
+            >>> print(instance.services)
+            >>> instance.delete()
+                {
+                    'grpc': Service(
+                        uri='unix:/home/jdoe/.conn/mapdl.sock',
+                        headers={},
+                        security=ServiceSecurity(transport='uds', cert_files=None),
+                    )
+                }
+
+        Create an instance using mTLS security settings:
+
+            >>> import ansys.platform.instancemanagement as pypim
+            >>> from ansys.platform.instancemanagement import MtlsSettings
+            >>> client = pypim.connect()
+            >>> mtls = MtlsSettings(
+            ...     certificates_directory="/path/to/certs",
+            ... )
+            >>> instance = client.create_instance(
+            ...     product_name="mapdl",
+            ...     security_settings=mtls,
+            ... )
+            >>> instance.wait_for_ready()
+            >>> print(instance.services)
+            >>> instance.delete()
+                {
+                    'grpc': Service(
+                        uri='dns:127.0.0.1:63006',
+                        headers={},
+                        security=ServiceSecurity(transport='mtls',
+                            cert_files=CertificateFiles(
+                                cert_file='/path/to/certs/client.crt',
+                                key_file='/path/to/certs/client.key',
+                                ca_file='path/to/certs/ca.crt')
+                            )
+                        )
+                }
 
         """
         logger.debug(
