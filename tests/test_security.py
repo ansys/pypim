@@ -81,7 +81,7 @@ def test_mtls_both_sources_raises():
                 client_key_path="c.key",
                 client_certificate_path="c.crt",
             ),
-        )._to_pim_v1()
+        )
 
 
 def test_uds_to_proto():
@@ -111,4 +111,4 @@ def test_uds_directory_identifier_to_proto():
 )
 def test_uds_socket_path_with_directory_or_identifier_raises(kwargs):
     with pytest.raises(ValueError):
-        UdsSettings(**kwargs)._to_pim_v1()
+        UdsSettings(**kwargs)

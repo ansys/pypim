@@ -76,12 +76,15 @@ class MtlsSettings:
     certificates_directory: Union[str, None] = None
     certificate_paths: Union[MtlsCertificatePaths, None] = None
 
-    def _to_pim_v1(self) -> InstanceSecuritySettings:
-        """Convert to the PIM API v1 protobuf message."""
+    def __post_init__(self) -> None:
+        """Validate that at most one certificate source is set."""
         if self.certificates_directory is not None and self.certificate_paths is not None:
             raise ValueError(
                 "Provide either 'certificates_directory' or 'certificate_paths', not both."
             )
+
+    def _to_pim_v1(self) -> InstanceSecuritySettings:
+        """Convert to the PIM API v1 protobuf message."""
         if self.certificate_paths is not None:
             paths = self.certificate_paths
             mtls = MtlsSettingsV1(
@@ -113,14 +116,17 @@ class UdsSettings:
     socket_directory: Union[str, None] = None
     socket_identifier: Union[str, None] = None
 
-    def _to_pim_v1(self) -> InstanceSecuritySettings:
-        """Convert to the PIM API v1 protobuf message."""
+    def __post_init__(self) -> None:
+        """Validate that 'socket_path' is not combined with directory/identifier."""
         if self.socket_path is not None and (
             self.socket_directory is not None or self.socket_identifier is not None
         ):
             raise ValueError(
                 "'socket_path' cannot be combined with 'socket_directory' or 'socket_identifier'."
             )
+
+    def _to_pim_v1(self) -> InstanceSecuritySettings:
+        """Convert to the PIM API v1 protobuf message."""
         properties: Dict[str, str] = {}
         if self.socket_path is not None:
             properties["socket_path"] = self.socket_path
