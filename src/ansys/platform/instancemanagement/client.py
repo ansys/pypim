@@ -275,7 +275,10 @@ class Client(contextlib.AbstractContextManager):
         security_settings : SecuritySettings, optional
             Transport security settings for the instance. One of
             ``InsecureSettings``, ``MtlsSettings``, ``WnuaSettings``, or
-            ``UdsSettings``. The default is ``None`` (server default).
+            ``UdsSettings``. The default is ``None`` (server default). This is
+            a request: the transport the instance actually uses is reported
+            back through each of its :attr:`~Instance.services`. See
+            :ref:`security`.
 
         Returns
         -------

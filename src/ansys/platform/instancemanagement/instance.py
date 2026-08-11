@@ -111,6 +111,9 @@ class Instance(contextlib.AbstractContextManager):
 
         It may contain additional entries for custom scenarios such as sidecar services
         or other protocols.
+
+        Each :class:`Service` reports the transport security the server
+        resolved for it through :attr:`Service.transport`. See :ref:`security`.
         """
         return self._services
 
@@ -313,7 +316,10 @@ class Instance(contextlib.AbstractContextManager):
     def build_grpc_channel(self, service_name: str = "grpc", **kwargs) -> grpc.Channel:
         """Build a gRPC channel to communicate with this instance.
 
-        The instance must be ready before calling this method.
+        The instance must be ready before calling this method. The channel
+        is automatically secured using the transport the server reported for
+        this service (see :attr:`Service.transport`); you do not need to
+        build the credentials yourself. See :ref:`security`.
 
         Parameters
         ----------

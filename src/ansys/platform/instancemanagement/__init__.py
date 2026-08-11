@@ -122,7 +122,9 @@ def connect(
             }
         }
 
-    A version 2 file replaces ``tls`` with a ``security`` block selecting the transport.
+    A version 2 file replaces ``tls`` with a ``security`` block selecting the
+    transport. See :ref:`security` for the version 2 schema and for
+    programmatic configuration with the ``security`` parameter below.
 
     Parameters
     ----------

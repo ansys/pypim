@@ -20,7 +20,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Public, protobuf-free security settings for instance creation."""
+"""Public, protobuf-free security settings for instance creation.
+
+These settings are passed to :func:`~Client.create_instance` to request a
+transport for the created product instance. They are unrelated to
+:class:`~ansys.platform.instancemanagement.configuration.ConnectionSecurity`,
+which secures the client's own connection to the PIM server. See
+:ref:`security` for how the two fit together.
+"""
 
 from dataclasses import dataclass
 from typing import Dict, Union

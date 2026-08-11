@@ -38,7 +38,12 @@ from ansys.tools.common.cyberchannel import CertificateFiles
 
 @dataclass(frozen=True)
 class ServiceSecurity:
-    """Protobuf-free view of the server-resolved security info."""
+    """Protobuf-free view of the server-resolved security info.
+
+    Reports the transport the PIM server actually chose for a service, as
+    opposed to the transport requested via ``security_settings`` at instance
+    creation. See :ref:`security`.
+    """
 
     transport: str
     cert_files: Optional[CertificateFiles] = None

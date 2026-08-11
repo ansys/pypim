@@ -96,6 +96,37 @@ local storage, create a configuration file with this format:
 Then, define the environment variable
 ``ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG`` to point to this configuration file.
 
+Security
+--------
+
+By default, the connection to the PIM server is insecure. To use TLS, mutual
+TLS (mTLS), a Unix domain socket (UDS), or Windows named user authentication
+(WNUA) instead, either use a version 2 configuration file with a
+``security`` block or pass the settings directly to ``connect()``:
+
+.. code-block:: python
+
+    import ansys.platform.instancemanagement as pypim
+    from ansys.platform.instancemanagement import ConnectionSecurity
+    from ansys.tools.common.cyberchannel import CertificateFiles
+
+    client = pypim.connect(
+        uri="dns:pim.svc.com:80",
+        security=ConnectionSecurity(
+            transport="mtls",
+            cert_files=CertificateFiles(
+                cert_file="client.crt", key_file="client.key", ca_file="ca.crt"
+            ),
+        ),
+    )
+
+Product instances started with ``create_instance()`` can also request a
+transport with the ``security_settings`` parameter, and the transport a
+running instance actually uses is reported back on each of its services.
+See `Security <https://pypim.docs.pyansys.com/version/dev/security.html>`_
+in the PyPIM documentation for the full configuration file schema and all
+supported transports.
+
 Usage
 -----
 PyPIM is a single module called ``ansys.platform.instancemanagement``, shortened
