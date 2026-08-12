@@ -43,8 +43,8 @@ The configuration file referenced by the
 ``ANSYS_PLATFORM_INSTANCEMANAGEMENT_CONFIG`` environment variable has two
 supported formats.
 
-Version 1 (``tls`` boolean)
----------------------------
+Version 1 (``tls`` flag)
+------------------------
 
 The original format supports only ``insecure`` and ``tls``:
 
@@ -69,7 +69,7 @@ support.
 Version 2 (``security`` block)
 ------------------------------
 
-The version 2 format replaces the ``tls`` boolean with a ``security`` block
+The version 2 format replaces the ``tls`` flag with a ``security`` block
 that can select any of the five transports:
 
 .. code-block:: json
@@ -108,7 +108,7 @@ The ``security.transport`` value must be one of ``insecure``, ``tls``,
 * For ``wnua`` and ``insecure``, no additional ``security`` fields are
   needed.
 
-Any misconfiguration (an unknown transport, conflicting mTLS certificate
+Any invalid configuration (an unknown transport, conflicting mTLS certificate
 options, a missing UDS socket, or a missing bearer token for ``tls``) raises
 :class:`InvalidConfigurationError` as soon as the configuration is loaded,
 rather than failing later on the first request.
