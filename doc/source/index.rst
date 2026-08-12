@@ -8,6 +8,7 @@
 .. toctree::
    :hidden:
 
+   security
    api/index
    contributing
    integration

@@ -151,7 +151,8 @@ class Definition:
         security_settings : SecuritySettings, optional
             Transport security settings for the instance. One of
             ``InsecureSettings``, ``MtlsSettings``, ``WnuaSettings``, or
-            ``UdsSettings``. The default is ``None`` (server default).
+            ``UdsSettings``. The default is ``None`` (server default). See
+            :ref:`security`.
 
         Returns
         -------

@@ -19,6 +19,15 @@ click the links in the navigation pane to view API documentation.
     Definition
     Instance
     Service
+    Configuration
+    ConnectionSecurity
+    SecuritySettings
+    InsecureSettings
+    MtlsSettings
+    MtlsCertificatePaths
+    UdsSettings
+    WnuaSettings
+    ServiceSecurity
     NotConfiguredError
     InstanceNotReadyError
     UnsupportedServiceError

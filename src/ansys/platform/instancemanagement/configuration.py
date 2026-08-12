@@ -20,7 +20,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Configuration class module."""
+"""Configuration class module.
+
+Holds the resolved settings for the client's connection to the PIM server,
+including the transport security model described in :ref:`security`.
+"""
 
 from dataclasses import dataclass
 import json
@@ -133,15 +137,21 @@ class ConnectionSecurity:
 class Configuration:
     """Configuration for the PIM client.
 
+    Built from a configuration file (:func:`from_file`, either version 1 or
+    version 2) or from programmatic parameters (:func:`from_parameters`). The
+    resolved :attr:`transport` is always one of ``insecure``, ``tls``,
+    ``uds``, ``mtls``, or ``wnua``, regardless of how it was built. See
+    :ref:`security` for the full picture of PyPIM's transport security model.
+
+    Returns
+    -------
+        Configuration: settings to configure the PIM client
+
     Raises
     ------
         InvalidConfigurationError: configuration file is not a well formatted json file
         InvalidConfigurationError: version is not supported
         InvalidConfigurationError: a key is missing in the configuration file
-
-    Returns
-    -------
-        Configuration: settings to configure the PIM client
     """
 
     _access_token: str | None
@@ -525,6 +535,10 @@ class Configuration:
                     "tls": false
                 }
             }
+
+        A version 2 file replaces ``tls`` with a ``security`` block to select
+        any supported transport (``insecure``, ``tls``, ``uds``, ``mtls``, or
+        ``wnua``). See :ref:`security` for the version 2 schema.
 
         Returns
         -------
