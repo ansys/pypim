@@ -100,7 +100,7 @@ Security
 --------
 
 By default, the connection to the PIM server is insecure. To use TLS, mutual
-TLS (mTLS), a Unix domain socket (UDS), or Windows named user authentication
+TLS (mTLS), a Unix Domain Socket (UDS), or Windows Named User Authentication
 (WNUA) instead, either use a version 2 configuration file with a
 ``security`` block or pass the settings directly to ``connect()``:
 

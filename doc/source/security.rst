@@ -24,9 +24,9 @@ Both connections support the same set of transports:
   authenticated with a bearer token rather than a client certificate.
 * ``mtls``: mutual TLS, authenticated with a client certificate, a private
   key, and a certificate authority (CA) file.
-* ``uds``: Unix domain socket. Only available on platforms and gRPC versions
+* ``uds``: Unix Domain Socket. Only available on platforms and gRPC versions
   that support it.
-* ``wnua``: Windows named user authentication. Windows only, and only for
+* ``wnua``: Windows Named User Authentication. Windows only, and only for
   local connections.
 
 ********************************************
@@ -179,10 +179,10 @@ created instance:
 * :class:`MtlsSettings`: mutual TLS, with certificates provided either as a
   ``certificates_directory`` or as individual ``certificate_paths``
   (:class:`MtlsCertificatePaths`).
-* :class:`UdsSettings`: Unix domain socket, with the socket location
+* :class:`UdsSettings`: Unix Domain Socket, with the socket location
   provided either as a full ``socket_path`` or as a ``socket_directory`` /
   ``socket_identifier`` pair.
-* :class:`WnuaSettings`: Windows named user authentication. Windows only.
+* :class:`WnuaSettings`: Windows Named User Authentication. Windows only.
 
 For :class:`MtlsSettings` and :class:`UdsSettings`, supplying a conflicting
 combination of options (for example both certificate sources, or a
