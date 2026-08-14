@@ -143,9 +143,17 @@ jobs:
 
   doc-deploy-stable:
     name: Doc stable version deploy
-    if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
+    # Runs automatically on a tag release (after the release job) and can also
+    # be triggered manually via workflow_dispatch to (re)deploy the stable docs
+    # without re-running the PyPI release jobs.
+    if: >-
+      always() &&
+      needs.doc-build.result == 'success' &&
+      (needs.release.result == 'success' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
-    needs: release
+    needs: [doc-build, release]
+    permissions:
+      contents: write
     steps:
       - name: "Deploy stable documentation"
         uses: ansys/actions/doc-deploy-stable@v10.3.5
