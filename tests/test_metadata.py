@@ -30,14 +30,14 @@ from ansys.platform.instancemanagement import __version__
 
 
 def test_pkg_version():
-    assert __version__ == "1.2.dev0"
+    assert __version__ == "1.3.dev0"
 
 
 def test_importlib_metadata_fallback_branch():
     module_path = pypim.__file__
     spec = spec_from_file_location("_pypim_test_fallback", module_path)
     module = module_from_spec(spec)
-    fake_importlib_metadata = types.SimpleNamespace(version=lambda _: "1.2.dev0")
+    fake_importlib_metadata = types.SimpleNamespace(version=lambda _: "1.3.dev0")
     original_import = builtins.__import__
 
     def custom_import(name, globals_=None, locals_=None, fromlist=(), level=0):
@@ -51,4 +51,4 @@ def test_importlib_metadata_fallback_branch():
     ):
         spec.loader.exec_module(module)
 
-    assert module.__version__ == "1.2.dev0"
+    assert module.__version__ == "1.3.dev0"
