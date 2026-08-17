@@ -30,7 +30,7 @@ from ansys.platform.instancemanagement import __version__
 
 
 def test_pkg_version():
-    assert __version__ == "1.2.1"
+    assert __version__ == "1.2.0"
 
 
 def test_importlib_metadata_fallback_branch():
