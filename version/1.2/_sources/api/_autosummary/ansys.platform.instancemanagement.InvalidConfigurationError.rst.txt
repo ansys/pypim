@@ -1,0 +1,6 @@
+﻿InvalidConfigurationError
+=========================
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoexception:: InvalidConfigurationError

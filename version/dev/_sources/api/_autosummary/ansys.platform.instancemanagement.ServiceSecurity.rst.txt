@@ -1,0 +1,30 @@
+﻿ServiceSecurity
+===============
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoclass:: ServiceSecurity
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      ServiceSecurity.cert_files
+      ServiceSecurity.transport
+   
+   

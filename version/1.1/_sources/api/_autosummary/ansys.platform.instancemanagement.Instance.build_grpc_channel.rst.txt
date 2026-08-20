@@ -1,0 +1,6 @@
+build\_grpc\_channel
+====================
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. automethod:: Instance.build_grpc_channel

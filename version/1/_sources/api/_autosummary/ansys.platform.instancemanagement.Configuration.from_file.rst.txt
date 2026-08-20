@@ -1,0 +1,6 @@
+from\_file
+==========
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. automethod:: Configuration.from_file

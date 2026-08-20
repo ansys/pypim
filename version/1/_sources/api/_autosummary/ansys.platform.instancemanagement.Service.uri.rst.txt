@@ -1,0 +1,6 @@
+uri
+===
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoproperty:: Service.uri

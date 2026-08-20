@@ -1,0 +1,30 @@
+﻿Service
+=======
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoclass:: Service
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Service.headers
+      Service.uri
+   
+   
