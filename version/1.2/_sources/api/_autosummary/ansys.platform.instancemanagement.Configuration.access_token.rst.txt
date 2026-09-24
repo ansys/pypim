@@ -1,0 +1,6 @@
+access\_token
+=============
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoproperty:: Configuration.access_token

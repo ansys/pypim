@@ -1,0 +1,6 @@
+from\_environment
+=================
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. automethod:: Configuration.from_environment

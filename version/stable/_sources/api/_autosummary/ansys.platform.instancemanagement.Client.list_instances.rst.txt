@@ -1,0 +1,6 @@
+list\_instances
+===============
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. automethod:: Client.list_instances
