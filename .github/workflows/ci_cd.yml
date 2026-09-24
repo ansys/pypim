@@ -71,6 +71,7 @@ jobs:
         uses: ansys/actions/doc-build@7410037bfb276c79ae91eb3617b9f5d2876f0c94 #v11.0.8
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          optional-dependencies-name: doc
 
   wheelhouse:
     name: "Wheelhouse Python ${{ matrix.os }}"
@@ -106,6 +107,8 @@ jobs:
       - name: "Test ${{ matrix.python-version }} under ${{ matrix.os }}"
         uses: ansys/actions/tests-pytest@7410037bfb276c79ae91eb3617b9f5d2876f0c94 #v11.0.8
         with:
+          python-version: ${{ matrix.python-version }}
+          optional-dependencies-name: tests
           pytest-extra-args: "--cov=ansys.platform.instancemanagement --cov-report=term --cov-report=html:.cov/html"
 
       - name: "Upload coverage to Codecov"
