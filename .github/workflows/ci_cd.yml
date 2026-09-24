@@ -41,7 +41,7 @@ jobs:
         with:
           generate-summary: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          auditing-level: 'high'
+          auditing-level: "high"
           trust-ansys-actions: false
 
   code-style:
@@ -74,7 +74,7 @@ jobs:
           optional-dependencies-name: doc
 
   wheelhouse:
-    name: "Wheelhouse Python ${{ matrix.os }}"
+    name: "Wheelhouse Python ${{ matrix.python-version }} under ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
     needs: code-style
     strategy:
