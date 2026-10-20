@@ -1,0 +1,6 @@
+delete
+======
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. automethod:: Instance.delete

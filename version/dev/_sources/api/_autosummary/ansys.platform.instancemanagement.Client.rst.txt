@@ -1,0 +1,37 @@
+﻿Client
+======
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoclass:: Client
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      
+      Client.close
+      
+      
+      Client.create_instance
+      
+      
+      Client.get_instance
+      
+      
+      Client.list_definitions
+      
+      
+      Client.list_instances
+      
+   
+   
+
+   
+   
+   

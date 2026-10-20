@@ -1,0 +1,6 @@
+from\_parameters
+================
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. automethod:: Configuration.from_parameters

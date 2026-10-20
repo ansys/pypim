@@ -1,0 +1,22 @@
+﻿InsecureSettings
+================
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoclass:: InsecureSettings
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+   
+   
+
+   
+   
+   

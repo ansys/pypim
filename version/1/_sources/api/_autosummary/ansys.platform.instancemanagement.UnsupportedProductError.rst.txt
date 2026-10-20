@@ -1,0 +1,6 @@
+﻿UnsupportedProductError
+=======================
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoexception:: UnsupportedProductError

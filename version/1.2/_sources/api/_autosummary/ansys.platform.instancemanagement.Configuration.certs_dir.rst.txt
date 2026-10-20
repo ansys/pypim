@@ -1,0 +1,6 @@
+certs\_dir
+==========
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoproperty:: Configuration.certs_dir

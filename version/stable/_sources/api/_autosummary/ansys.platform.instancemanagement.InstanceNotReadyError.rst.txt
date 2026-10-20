@@ -1,0 +1,6 @@
+﻿InstanceNotReadyError
+=====================
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoexception:: InstanceNotReadyError
