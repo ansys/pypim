@@ -1,0 +1,45 @@
+﻿Instance
+========
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoclass:: Instance
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      
+      Instance.build_grpc_channel
+      
+      
+      Instance.delete
+      
+      
+      Instance.update
+      
+      
+      Instance.wait_for_ready
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Instance.definition_name
+      Instance.name
+      Instance.ready
+      Instance.services
+      Instance.status_message
+   
+   

@@ -1,0 +1,6 @@
+update
+======
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. automethod:: Instance.update

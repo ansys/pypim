@@ -1,0 +1,22 @@
+﻿WnuaSettings
+============
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoclass:: WnuaSettings
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+   
+   
+
+   
+   
+   

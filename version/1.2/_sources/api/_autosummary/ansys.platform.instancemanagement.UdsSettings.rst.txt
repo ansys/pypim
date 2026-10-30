@@ -1,0 +1,31 @@
+﻿UdsSettings
+===========
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoclass:: UdsSettings
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      UdsSettings.socket_directory
+      UdsSettings.socket_identifier
+      UdsSettings.socket_path
+   
+   

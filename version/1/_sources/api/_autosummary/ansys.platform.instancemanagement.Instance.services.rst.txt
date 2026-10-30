@@ -1,0 +1,6 @@
+services
+========
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoproperty:: Instance.services

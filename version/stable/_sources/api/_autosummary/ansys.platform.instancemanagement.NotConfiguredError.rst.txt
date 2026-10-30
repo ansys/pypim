@@ -1,0 +1,6 @@
+﻿NotConfiguredError
+==================
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoexception:: NotConfiguredError
