@@ -1,0 +1,31 @@
+﻿ConnectionSecurity
+==================
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoclass:: ConnectionSecurity
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      ConnectionSecurity.cert_files
+      ConnectionSecurity.certs_dir
+      ConnectionSecurity.transport
+   
+   

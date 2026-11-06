@@ -1,0 +1,6 @@
+available\_service\_names
+=========================
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoproperty:: Definition.available_service_names

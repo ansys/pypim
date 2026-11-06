@@ -1,0 +1,44 @@
+﻿Configuration
+=============
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoclass:: Configuration
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      
+      Configuration.from_environment
+      
+      
+      Configuration.from_file
+      
+      
+      Configuration.from_parameters
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Configuration.access_token
+      Configuration.cert_files
+      Configuration.certs_dir
+      Configuration.headers
+      Configuration.tls
+      Configuration.transport
+      Configuration.uri
+   
+   

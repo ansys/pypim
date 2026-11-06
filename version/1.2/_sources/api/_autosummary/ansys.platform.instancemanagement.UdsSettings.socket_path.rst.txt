@@ -1,0 +1,6 @@
+socket\_path
+============
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoattribute:: UdsSettings.socket_path

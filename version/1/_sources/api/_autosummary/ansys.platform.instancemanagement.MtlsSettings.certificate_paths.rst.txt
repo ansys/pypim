@@ -1,0 +1,6 @@
+certificate\_paths
+==================
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoattribute:: MtlsSettings.certificate_paths

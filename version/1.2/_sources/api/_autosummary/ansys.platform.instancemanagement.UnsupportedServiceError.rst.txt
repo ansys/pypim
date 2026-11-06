@@ -1,0 +1,6 @@
+﻿UnsupportedServiceError
+=======================
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoexception:: UnsupportedServiceError

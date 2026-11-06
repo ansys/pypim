@@ -1,0 +1,30 @@
+﻿MtlsSettings
+============
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoclass:: MtlsSettings
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      MtlsSettings.certificate_paths
+      MtlsSettings.certificates_directory
+   
+   

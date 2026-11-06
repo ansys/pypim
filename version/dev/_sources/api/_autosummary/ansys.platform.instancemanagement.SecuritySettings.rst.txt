@@ -1,0 +1,6 @@
+﻿SecuritySettings
+================
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autodata:: SecuritySettings

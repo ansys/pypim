@@ -1,0 +1,6 @@
+transport
+=========
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoattribute:: ServiceSecurity.transport
