@@ -1,0 +1,6 @@
+cert\_files
+===========
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoattribute:: ConnectionSecurity.cert_files

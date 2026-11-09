@@ -1,0 +1,6 @@
+socket\_directory
+=================
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoattribute:: UdsSettings.socket_directory

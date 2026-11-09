@@ -1,0 +1,6 @@
+wait\_for\_ready
+================
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. automethod:: Instance.wait_for_ready

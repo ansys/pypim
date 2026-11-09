@@ -1,0 +1,6 @@
+socket\_identifier
+==================
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoattribute:: UdsSettings.socket_identifier

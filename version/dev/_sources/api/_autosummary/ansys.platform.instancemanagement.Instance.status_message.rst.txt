@@ -1,0 +1,6 @@
+status\_message
+===============
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoproperty:: Instance.status_message
