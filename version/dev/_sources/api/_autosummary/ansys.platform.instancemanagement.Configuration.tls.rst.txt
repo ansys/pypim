@@ -1,0 +1,6 @@
+tls
+===
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoproperty:: Configuration.tls
