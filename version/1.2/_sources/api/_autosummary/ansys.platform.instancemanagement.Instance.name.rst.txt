@@ -1,0 +1,6 @@
+name
+====
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoproperty:: Instance.name

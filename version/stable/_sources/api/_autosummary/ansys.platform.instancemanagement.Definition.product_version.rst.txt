@@ -1,0 +1,6 @@
+product\_version
+================
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoproperty:: Definition.product_version

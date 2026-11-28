@@ -1,0 +1,6 @@
+cert\_files
+===========
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoproperty:: Configuration.cert_files

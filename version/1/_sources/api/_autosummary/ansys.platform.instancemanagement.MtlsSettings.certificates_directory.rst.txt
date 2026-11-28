@@ -1,0 +1,6 @@
+certificates\_directory
+=======================
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoattribute:: MtlsSettings.certificates_directory

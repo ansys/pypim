@@ -1,0 +1,33 @@
+﻿MtlsCertificatePaths
+====================
+
+.. currentmodule:: ansys.platform.instancemanagement
+
+.. autoclass:: MtlsCertificatePaths
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      MtlsCertificatePaths.server_key_path
+      MtlsCertificatePaths.server_certificate_path
+      MtlsCertificatePaths.ca_certificate_path
+      MtlsCertificatePaths.client_key_path
+      MtlsCertificatePaths.client_certificate_path
+   
+   
